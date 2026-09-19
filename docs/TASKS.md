@@ -112,6 +112,18 @@
 - [ ] **À valider en jouant** (portée de vue 20 m, cône 110°, rayons de bruit)
 - Limites : vision indépendante de la posture/vitesse/obscurité ; bruit non atténué par les murs ; pas encore de bruits de dash/slide ni de corps (3.5) ; un seul point de visée sur le joueur (poitrine).
 
+## Milestone 3 (tranche 3.3) — États : calme → suspicion → alerte → combat
+- [x] Machine à états en nœuds enfants (`Enemy/States/Calm|Suspicious|Alert|Combat`, base `EnemyState`, même patron que `PlayerState`) ; `net_state` répliqué, label coloré par état (debug)
+- [x] **Calm** : patrouille. **Suspicious** : va à la dernière position perçue (vue/bruit), regarde autour 4 s, puis retour au calme. **Alert** : poursuit (5.5 m/s), retombe en suspicion après 6 s sans voir le joueur. **Combat** : à ≤ 12 m avec vue, s'arrête et fait face (tir en 3.4) ; retour en alerte après 1 s sans vue ou si le joueur s'éloigne de > 15 m
+- [x] Détection progressive : un joueur vu remplit une jauge (1 s de vue continue → alerte, décroît en 3 s) ; un bruit ou une vue → suspicion immédiate
+- [x] **Alerte globale partagée** : un ennemi qui passe en alerte prévient tous les autres à ≤ 60 m ; être touché alerte l'ennemi et révèle la position du tireur
+- [x] Tout dans `EnemyConfig` (vitesses, délais, rayons, distances de combat)
+- [x] Vérifié solo : calme→suspicion→alerte→combat sur vue continue (Enemy1 alerté par partage) ; combat→alerte→suspicion→calme après perte de vue ; un tir hors de vue fait enquêter puis trouver le joueur ; dégâts → alerte ; aucune erreur
+- [x] Vérifié host+client (`net_probe_enemy.gd`) : les tirs du client font passer Enemy1 en combat, Enemy2 est alerté par partage puis passe en combat ; le client voit tous les états répliqués ; aucune erreur
+- Bug trouvé/corrigé en test réseau : une alerte reçue sans vue (partage, bruit, dégâts) retombait aussitôt en suspicion car `time_since_seen` n'était pas remis à zéro → `Alert.enter()` le réinitialise.
+- [ ] **Feel à valider en jouant** (temps de détection, vitesse de poursuite, durée de fouille, rayon de partage)
+- Limites : le combat ne tire pas encore (3.4) ; pas de retour au poste après alerte (reprend la patrouille au waypoint courant) ; `enemy.gd` ≈ 200 lignes (> objectif ~150) : extraire la conscience/alerte en composant si 3.4 le fait grossir.
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

@@ -3,6 +3,9 @@
 Format : date · décision · raison. Ajouter en haut.
 
 ## 2026-09-19 — Milestone 3 (IA)
+29. **Alerte globale = `call_group("enemies", "receive_alert")` avec rayon** (60 m ≈ toute l'arène), pas de nœud d'alerte central : simple, host seul.
+28. **Jauge de détection** (vue continue 1 s → alerte) plutôt qu'alerte instantanée : laisse une marge de réaction au joueur (pilier « jamais échec si détecté »). Bruit = suspicion, jamais alerte directe ; être touché = alerte.
+27. **États d'ennemi en nœuds enfants** (patron `PlayerState`), transitions via `enemy.change_state()` ; `Enemy` porte le mouvement navmesh (`move_to`) et la conscience.
 26. **Rayons de bruit dans les données d'arme/grenade** (`noise_radius`), émis par le host à la résolution ; ouïe = simple distance (pas de murs), suffisant pour le MVP.
 25. **Vision = cône + distance + 1 raycast monde vers la poitrine du joueur, toutes les 0.1 s** ; `Perception` n'expose que l'état perçu, les décisions sont dans les états (3.3).
 24. **`NoiseBus` = nœud de l'arène trouvé par groupe** (pas d'autoload), comme `grenade_spawner`.

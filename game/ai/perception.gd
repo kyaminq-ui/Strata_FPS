@@ -11,8 +11,6 @@ const WORLD_MASK := 1
 
 var seen_player: Player  # joueur actuellement visible (le plus proche), sinon null
 var last_seen_position := Vector3.ZERO
-var last_heard_position := Vector3.ZERO
-var heard_time_left := 0.0  # temps restant pendant lequel « vient d'entendre » est vrai
 
 var _enemy: Enemy
 var _vision_timer := 0.0
@@ -29,7 +27,6 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	heard_time_left = maxf(heard_time_left - delta, 0.0)
 	if _enemy.is_dead():
 		seen_player = null
 		return
@@ -71,6 +68,4 @@ func _scan_players() -> void:
 func _on_noise(position: Vector3, radius: float, kind: StringName) -> void:
 	if _enemy.is_dead() or _enemy.global_position.distance_to(position) > radius:
 		return
-	last_heard_position = position
-	heard_time_left = _enemy.config.heard_display_time
 	noise_heard.emit(position, kind)

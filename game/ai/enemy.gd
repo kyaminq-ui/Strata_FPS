@@ -1,10 +1,18 @@
 class_name Enemy
 extends CharacterBody3D
-## Ennemi de base (tranche 3.1). Simulé UNIQUEMENT par le host (patrouille, mort, respawn) ;
-## les clients interpolent `net_position` / `net_yaw` et affichent `Health.health` (répliqués).
+## Ennemi (host-autoritaire). Simulé UNIQUEMENT par le host : perception, états (Calm → Suspicious →
+## Alert → Combat, enfants de $States), mort, respawn. Les clients interpolent `net_position` /
+## `net_yaw` et affichent `net_state` + `Health.health` (répliqués).
 
 const BASE_COLOR := Color(0.85, 0.15, 0.15)
 const FLASH_COLOR := Color(1.0, 1.0, 1.0)
+const STATE_COLORS := {
+	"CALM": Color(0.7, 0.7, 0.7),
+	"SUSPICIOUS": Color(1.0, 0.9, 0.2),
+	"ALERT": Color(1.0, 0.55, 0.1),
+	"COMBAT": Color(1.0, 0.15, 0.15),
+	"DEAD": Color(0.4, 0.4, 0.4),
+}
 
 @export var config: EnemyConfig
 ## Nœud dont les enfants Marker3D forment la route de patrouille (boucle).
@@ -12,24 +20,30 @@ const FLASH_COLOR := Color(1.0, 1.0, 1.0)
 
 var net_position: Vector3
 var net_yaw: float
-var net_state: String = "PATROL"
+var net_state: String = "CALM"
 
-var _waypoints: Array[Vector3] = []
-var _wp_index := 0
-var _wait_left := 0.0
+var waypoints: Array[Vector3] = []
+var wp_index := 0
+var investigate_position := Vector3.ZERO  # dernière position perçue (vue ou bruit) : cible des états
+var time_since_seen := 0.0
+
+var _states := {}
+var _state: EnemyState
+var _detect := 0.0  # 0..1, monte quand un joueur est vu en suspicion ; à 1 = alerte
 var _home := Vector3.ZERO
 var _layer := 0
 var _last_health := -1.0
 var _material := StandardMaterial3D.new()
 
+@onready var perception: Perception = $Perception
 @onready var _health: HealthComponent = $Health
-@onready var _perception: Perception = $Perception
 @onready var _agent: NavigationAgent3D = $NavigationAgent3D
 @onready var _mesh: MeshInstance3D = $Mesh
 @onready var _label: Label3D = $Label
 
 
 func _ready() -> void:
+	add_to_group("enemies")
 	_layer = collision_layer
 	_material.albedo_color = BASE_COLOR
 	_mesh.material_override = _material
@@ -41,24 +55,24 @@ func _ready() -> void:
 	if not multiplayer.is_server():
 		return
 	_health.died.connect(_on_died)
+	_health.damaged.connect(_on_damaged)
+	perception.noise_heard.connect(_on_noise_heard)
 	if route:
 		for marker in route.get_children():
 			if marker is Marker3D:
-				_waypoints.append(marker.global_position)
-	if not _waypoints.is_empty():
-		_agent.target_position = _waypoints[0]
+				waypoints.append(marker.global_position)
+	for state: EnemyState in $States.get_children():
+		state.enemy = self
+		_states[state.name] = state
+	change_state(&"Calm")
 
 
 func _physics_process(delta: float) -> void:
 	if not multiplayer.is_server() or _health.is_dead():
 		return
-	velocity.y = velocity.y - config.gravity * delta if not is_on_floor() else 0.0
-	var wish := _patrol_direction(delta)
-	_show_perception()
-	velocity.x = wish.x * config.walk_speed
-	velocity.z = wish.z * config.walk_speed
-	if wish != Vector3.ZERO:
-		rotation.y = lerp_angle(rotation.y, atan2(-wish.x, -wish.z), config.turn_speed * delta)
+	velocity = Vector3(0.0, velocity.y - config.gravity * delta if not is_on_floor() else 0.0, 0.0)
+	_update_awareness(delta)
+	_state.physics_update(delta)
 	move_and_slide()
 	net_position = global_position
 	net_yaw = rotation.y
@@ -69,6 +83,7 @@ func _process(delta: float) -> void:
 	_mesh.visible = health > 0.0
 	_label.visible = health > 0.0
 	_label.text = "%s %d" % [net_state, ceili(health)]
+	_label.modulate = STATE_COLORS.get(net_state, Color.WHITE)
 	if _last_health > health and health > 0.0:
 		_material.albedo_color = FLASH_COLOR
 		create_tween().tween_property(_material, "albedo_color", BASE_COLOR, config.flash_time)
@@ -83,39 +98,101 @@ func _process(delta: float) -> void:
 	rotation.y = lerp_angle(rotation.y, net_yaw, t)
 
 
+func change_state(state_name: StringName) -> void:
+	if _state:
+		_state.exit()
+	_state = _states[state_name]
+	net_state = String(state_name).to_upper()
+	_state.enter()
+
+
 func is_dead() -> bool:
 	return _health.is_dead()
 
 
-## Debug 3.2 : l'état affiché reflète ce que l'ennemi perçoit (les vrais états arrivent en 3.3).
-func _show_perception() -> void:
-	if _perception.seen_player:
-		net_state = "SEES"
-	elif _perception.heard_time_left > 0.0:
-		net_state = "HEARD"
+func sees_player() -> bool:
+	return perception.seen_player != null
 
 
-## Direction horizontale voulue (zéro = à l'arrêt/en attente).
-func _patrol_direction(delta: float) -> Vector3:
-	if _waypoints.is_empty():
-		net_state = "IDLE"
-		return Vector3.ZERO
-	if _wait_left > 0.0:
-		_wait_left -= delta
-		net_state = "WAIT"
-		return Vector3.ZERO
-	net_state = "PATROL"
-	var flat_to_target := _waypoints[_wp_index] - global_position
-	flat_to_target.y = 0.0
-	# « navigation terminée » couvre un waypoint hors navmesh (le chemin s'arrête au bord).
-	if flat_to_target.length() <= config.waypoint_tolerance or _agent.is_navigation_finished():
-		_wp_index = (_wp_index + 1) % _waypoints.size()
-		_agent.target_position = _waypoints[_wp_index]
-		_wait_left = config.wait_time
-		return Vector3.ZERO
+func seen_distance() -> float:
+	return global_position.distance_to(perception.seen_player.global_position) if sees_player() else INF
+
+
+## Avance vers `target` par la navigation (met `velocity` horizontale, oriente l'ennemi).
+## Retourne vrai quand la cible est atteinte (ou que le chemin s'arrête au bord du navmesh).
+func move_to(target: Vector3, speed: float, delta: float) -> bool:
+	var flat := target - global_position
+	flat.y = 0.0
+	if flat.length() <= config.waypoint_tolerance:
+		return true
+	var retargeted := _agent.target_position.distance_to(target) > config.retarget_distance
+	if retargeted:
+		_agent.target_position = target
+	elif _agent.is_navigation_finished():
+		return true
 	var next := _agent.get_next_path_position() - global_position
 	next.y = 0.0
-	return next.normalized()
+	var direction := next.normalized()
+	velocity.x = direction.x * speed
+	velocity.z = direction.z * speed
+	if direction != Vector3.ZERO:
+		rotation.y = lerp_angle(rotation.y, atan2(-direction.x, -direction.z), config.turn_speed * delta)
+	return false
+
+
+func face_point(point: Vector3, delta: float) -> void:
+	var to := point - global_position
+	rotation.y = lerp_angle(rotation.y, atan2(-to.x, -to.z), config.turn_speed * delta)
+
+
+## Alerte partagée : un ennemi qui passe en alerte prévient tous les autres à portée.
+func become_alert() -> void:
+	change_state(&"Alert")
+	get_tree().call_group("enemies", "receive_alert", investigate_position)
+
+
+func receive_alert(position: Vector3) -> void:
+	if _health.is_dead() or not (_state.name == &"Calm" or _state.name == &"Suspicious"):
+		return
+	if global_position.distance_to(position) > config.alert_share_radius:
+		return
+	investigate_position = position
+	change_state(&"Alert")
+
+
+func _update_awareness(delta: float) -> void:
+	if sees_player():
+		time_since_seen = 0.0
+		investigate_position = perception.last_seen_position
+	else:
+		time_since_seen += delta
+	if not (_state.name == &"Calm" or _state.name == &"Suspicious"):
+		return
+	if sees_player():
+		_detect += delta / config.detect_time
+		if _detect >= 1.0:
+			become_alert()
+		elif _state.name == &"Calm":
+			change_state(&"Suspicious")
+	else:
+		_detect = maxf(_detect - delta / config.detect_decay_time, 0.0)
+
+
+func _on_noise_heard(position: Vector3, _kind: StringName) -> void:
+	if _state.name == &"Calm" or _state.name == &"Suspicious":
+		investigate_position = position
+		change_state(&"Suspicious")  # ré-entrée : relance l'enquête vers le nouveau bruit
+	elif _state.name == &"Alert" and not sees_player():
+		investigate_position = position
+
+
+## Être touché alerte l'ennemi et révèle la position du tireur.
+func _on_damaged(_amount: float, by_peer: int) -> void:
+	var shooter := get_tree().get_nodes_in_group("players").filter(func(p: Node) -> bool: return p.name == str(by_peer))
+	if not shooter.is_empty():
+		investigate_position = (shooter[0] as Node3D).global_position
+	if _state.name == &"Calm" or _state.name == &"Suspicious":
+		become_alert()
 
 
 func _on_died(_by_peer: int) -> void:
@@ -125,8 +202,8 @@ func _on_died(_by_peer: int) -> void:
 	_health.reset()
 	global_position = _home
 	net_position = _home
-	_wp_index = 0
-	_wait_left = 0.0
-	if not _waypoints.is_empty():
-		_agent.target_position = _waypoints[0]
+	wp_index = 0
+	_detect = 0.0
+	time_since_seen = config.alert_lose_time
+	change_state(&"Calm")
 	collision_layer = _layer
