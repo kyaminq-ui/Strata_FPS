@@ -8,6 +8,7 @@ extends CanvasLayer
 @onready var _status: Label = %Status
 
 var _player: Player
+var _weapon_name := ""
 var _tween: Tween
 
 
@@ -15,7 +16,9 @@ func bind(player: Player) -> void:
 	_player = player
 	var weapon := player.weapon
 	weapon.ammo_changed.connect(_on_ammo_changed)
-	weapon.reload_started.connect(func() -> void: _ammo.text = "RELOAD")
+	weapon.reload_started.connect(func() -> void: _ammo.text = "%s  RELOAD" % _weapon_name)
+	weapon.weapon_changed.connect(func(w: WeaponData) -> void: _weapon_name = w.display_name)
+	_weapon_name = weapon.data.display_name
 	weapon.hit_confirmed.connect(_on_hit_confirmed)
 	_on_ammo_changed(weapon.ammo, weapon.data.magazine_size)
 
@@ -36,7 +39,7 @@ func _process(_delta: float) -> void:
 
 
 func _on_ammo_changed(current: int, magazine: int) -> void:
-	_ammo.text = "%d / %d" % [current, magazine]
+	_ammo.text = "%s  %d / %d" % [_weapon_name, current, magazine]
 
 
 func _on_hit_confirmed(killed: bool) -> void:

@@ -38,4 +38,4 @@ Source unique : `game/player/default_movement.tres` (type `MovementConfig`). Ne 
 
 À verrouiller avant l'habillage (GDD §11) : vitesse au sol, distance de dash, hauteur/longueur de saut, wall-run, distance coop tolérée.
 
-Touches (physiques) : ZQSD/WASD, Espace = saut, Shift = dash, **Ctrl ou C = slide**, E = réanimer, clic gauche = tirer, R = recharger.
+Touches (physiques) : ZQSD/WASD, Espace = saut, Shift = dash, **Ctrl ou C = slide**, E = réanimer, clic gauche = tirer, R = recharger, 1 / 2 / molette = changer d'arme.

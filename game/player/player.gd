@@ -18,6 +18,7 @@ var net_position: Vector3
 var net_yaw: float
 var net_pitch: float
 var net_sliding: bool
+var net_weapon := 0  # index dans WeaponController.loadout
 
 ## Lus par les états de mouvement (autorité seulement).
 var wish_dir := Vector3.ZERO

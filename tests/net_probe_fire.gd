@@ -1,11 +1,12 @@
 extends SceneTree
 ## Sonde de test réseau (headless) : le client vise Dummy1 et tire 3 fois.
 ## Affiche les munitions, les hit-confirmations reçues et la santé vue par le client.
-## Usage : godot --headless --path . -s tests/net_probe_fire.gd -- --join=127.0.0.1
+## Usage : godot --headless --path . -s tests/net_probe_fire.gd -- --join=127.0.0.1 [--weapon=2]
+## --weapon=N équipe l'arme N (1 = pistolet, 2 = fusil) avant de tirer.
 
 const SETTLE_SECONDS := 2.0
 const SHOTS := 3
-const SHOT_INTERVAL := 0.4
+const SHOT_INTERVAL := 1.0
 const TARGET := Vector3(3.0, 1.0, -6.0)  # poitrine de Dummy1
 
 var _elapsed := 0.0
@@ -15,10 +16,16 @@ var _bound := false
 var _host_flashes := 0
 var _host_flash_was_visible := false
 var _host_gun_visible := false
+var _host_weapon_seen := 0
+var _host_gun_length := 0.0
+var _weapon_slot := 1
 var _main: Node
 
 
 func _initialize() -> void:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--weapon="):
+			_weapon_slot = int(arg.trim_prefix("--weapon="))
 	_main = load("res://game/main.tscn").instantiate()
 	root.add_child(_main)
 
@@ -32,15 +39,18 @@ func _process(delta: float) -> bool:
 	if not _bound:
 		player.weapon.hit_confirmed.connect(func(_killed: bool) -> void: _hits += 1)
 		_aim_at_target(player)
+		Input.action_press("weapon_%d" % _weapon_slot)
 		_bound = true
+	elif _shots_fired == 0 and _elapsed < SETTLE_SECONDS + 0.2:
+		Input.action_release("weapon_%d" % _weapon_slot)
 	Input.action_release("fire")
-	var due := SETTLE_SECONDS + 0.2 + _shots_fired * SHOT_INTERVAL
+	var due := SETTLE_SECONDS + 0.6 + _shots_fired * SHOT_INTERVAL
 	if _shots_fired < SHOTS and _elapsed >= due:
 		Input.action_press("fire")
 		_shots_fired += 1
 	elif _shots_fired >= SHOTS and _elapsed >= due + 2.0:
 		var health: HealthComponent = _main.get_node("ArenaGraybox/Dummies/Dummy1/Health")
-		print("[fire probe] tirs=", _shots_fired, " ammo=", player.weapon.ammo, " hits_confirmes=", _hits, " flashs_arme_du_host_vus=", _host_flashes, " arme_du_host_visible=", _host_gun_visible, " sante_vue_par_le_client=", health.health)
+		print("[fire probe] tirs=", _shots_fired, " ammo=", player.weapon.ammo, " arme_client=", player.weapon.current, " hits_confirmes=", _hits, " arme_du_host_vue=", _host_weapon_seen, " longueur_arme_host=", snappedf(_host_gun_length, 0.01), " flashs_arme_du_host_vus=", _host_flashes, " arme_du_host_visible=", _host_gun_visible, " sante_vue_par_le_client=", health.health)
 		quit()
 	return false
 
@@ -52,6 +62,8 @@ func _watch_host_weapon() -> void:
 		return
 	var flash: Node3D = host_player.get_node("Head/GunMesh/Flash")
 	_host_gun_visible = host_player.get_node("Head/GunMesh").visible
+	_host_weapon_seen = host_player.net_weapon
+	_host_gun_length = (host_player.get_node("Head/GunMesh").mesh as BoxMesh).size.z
 	if flash.visible and not _host_flash_was_visible:
 		_host_flashes += 1
 	_host_flash_was_visible = flash.visible

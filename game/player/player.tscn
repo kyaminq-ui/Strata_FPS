@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=28 format=3]
 
 [ext_resource type="Script" path="res://game/player/player.gd" id="1"]
 [ext_resource type="Resource" path="res://game/player/default_movement.tres" id="2"]
@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://game/player/player_life.gd" id="11"]
 [ext_resource type="Script" path="res://game/player/player_reviver.gd" id="12"]
 [ext_resource type="Script" path="res://game/components/health_component.gd" id="13"]
+[ext_resource type="Resource" path="res://game/weapons/shotgun.tres" id="14"]
+[ext_resource type="Script" path="res://game/weapons/weapon_data.gd" id="15"]
 
 [sub_resource type="CapsuleShape3D" id="shape"]
 radius = 0.4
@@ -48,6 +50,9 @@ properties/2/replication_mode = 1
 properties/3/path = NodePath(".:net_sliding")
 properties/3/spawn = false
 properties/3/replication_mode = 1
+properties/4/path = NodePath(".:net_weapon")
+properties/4/spawn = false
+properties/4/replication_mode = 1
 
 [sub_resource type="SceneReplicationConfig" id="server_replication"]
 properties/0/path = NodePath("Health:health")
@@ -139,7 +144,7 @@ script = ExtResource("7")
 
 [node name="Weapon" type="Node" parent="."]
 script = ExtResource("8")
-data = ExtResource("9")
+loadout = Array[ExtResource("15")]([ExtResource("9"), ExtResource("14")])
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("13")

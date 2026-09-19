@@ -63,6 +63,15 @@
 - [x] Arme répliquée visuellement : modèle 3e personne (`Head/GunMesh`) visible par les autres joueurs (inclinaison suivant le regard), viewmodel pour soi, flash de bouche cosmétique sur le tireur (déclenché par `show_shot` / tir local). Vérifié : host voit l'arme + 3 flashs du client, client voit l'arme + les flashs du host, solo OK, aucune erreur.
 - Limite : une seule arme ; quand la 2e arrive, répliquer l'id de l'arme équipée (propriété `net_weapon`) et instancier le modèle correspondant.
 
+## Milestone 2 (part 3) — 2e arme : fusil à pompe + changement d'arme
+- [x] `WeaponData` étendu (`pellets`, `spread_degrees`, `equip_time`, présentation graybox) ; `shotgun.tres` (8 plombs × 12, 4° de dispersion, cadence 0.9 s, 6 obus, rechargement 2 s, portée 40 m)
+- [x] `WeaponController` : `loadout` (pistolet, fusil), munitions **par arme**, changement d'arme (touches **1 / 2**, molette), changer annule le rechargement, arme équipée répliquée (`net_weapon`) → modèle 3e personne/viewmodel adaptés, HUD avec le nom de l'arme
+- [x] Résolution host **par plomb** avec **graine partagée** (client et host tirent les mêmes plombs ; traits = vérité serveur) ; arme demandée validée (index) et cadence de l'arme ; confirmation de hit agrégée par tir
+- [x] Vérifié : solo (96 dégâts à 4 m, 0 à 28 m sur 2 tirs, cadence, munitions conservées par arme, annulation du rechargement) ; host+client (client équipé fusil : 3 tirs, ammo 3, 2 hits confirmés, kill ; host voit l'arme du client et inversement) ; aucune erreur script
+- [ ] **Feel à valider en jouant** (dispersion, dégâts par distance, cadence, encombrement viewmodel, changement d'arme)
+- Limites : cadence serveur partagée entre armes (un cheater pourrait alterner pour tirer plus vite : à durcir si besoin), pas de recul/son/animations, pas d'échange d'arme ramassée.
+- Prochaines tranches : mêlée (1 système simple), gadget (1), puis IA.
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

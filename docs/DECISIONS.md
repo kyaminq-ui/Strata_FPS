@@ -3,6 +3,7 @@
 Format : date · décision · raison. Ajouter en haut.
 
 ## 2026-09-19 — Combat / vie
+19. **Graine partagée pour les plombs** (client → host) plutôt que d'envoyer chaque direction : petit message, host autoritaire, traits fidèles. `WeaponData.damage` est par plomb.
 15. **Tir résolu par le host** (raycast serveur, dégâts issus de `WeaponData`, validations cadence/origine/tireur) ; le client garde chargeur et trait immédiat. Raison : GDD (dégâts host) + sensation locale.
 16. **Deuxième synchronizer à autorité 1 sur le joueur** (`SyncServer`) pour la vie/le down : le propriétaire simule sa position, mais la santé appartient au host.
 17. **Down seulement s'il reste un partenaire vivant** ; sinon respawn immédiat (couvre solo, partenaire déconnecté, dernier debout). Raison : solo sans système down (GDD) et aucun état bloquant.
