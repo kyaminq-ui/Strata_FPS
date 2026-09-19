@@ -6,7 +6,7 @@ extends SceneTree
 const SETTLE_SECONDS := 2.0
 const LOG_INTERVAL := 1.0
 const SHOOT_START := 6.0
-const SHOTS := 3
+const SHOTS := 5
 const SHOT_INTERVAL := 0.8
 const SHOOT_DISTANCE := 6.0
 const AIM_HEIGHT := 1.0
@@ -34,7 +34,7 @@ func _process(delta: float) -> bool:
 		_bound = true
 	if _elapsed >= _next_log:
 		_next_log += LOG_INTERVAL
-		print("[enemy probe] t=%.1f %s | %s" % [_elapsed, _describe("Enemy1"), _describe("Enemy2")])
+		print("[enemy probe] t=%.1f %s | %s | myhp=%d" % [_elapsed, _describe("Enemy1"), _describe("Enemy2"), player.health.health])
 	Input.action_release("fire")
 	if _elapsed >= SHOOT_START:
 		_shoot_phase(player)

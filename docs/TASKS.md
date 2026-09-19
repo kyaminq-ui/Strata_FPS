@@ -131,6 +131,15 @@
 - [x] Vérifié solo : accroupi à l'arrêt (capsule 1.0 m, relevé au relâchement), slide 10.9 m/s → accroupi → relevé, dash-jump (vy 8.8, 12 m/s), saut après dash ; host+client (`tests/net_probe_crouch.gd`) : le host voit le client accroupi pendant 3 s puis relevé ; aucune erreur
 - [ ] **Feel à valider en jouant** (vitesse accroupi 4 m/s, élan du dash-jump 12 m/s)
 
+## Milestone 3 (tranche 3.4) — Combat ennemi + lag compensation
+- [x] `EnemyWeapon` (enfant `Weapon` de l'ennemi, host) : tir hitscan sur le joueur vu (monde + joueurs), 8 dégâts, cadence 0.9 s, dispersion 3°, **temps de réaction 0.7 s** de vue continue avant le premier tir ; dégâts via `Health.take_damage` (joueur : down/respawn existants) ; trait cosmétique (`Tracer`) local + RPC `show_shot` aux clients
+- [x] `Combat` : fait face au joueur, s'approche au-delà de 8 m (3.5 m/s), strafe latéral en deçà (2.5 m/s, change de côté toutes les 1.8 s ou sur obstacle), tire
+- [x] **Lag compensation** (`LagCompensator`, enfant `LagComp`, groupe `lag_comp`) : historique de positions ; à la résolution d'un tir **de client**, le host rembobine les ennemis de 0.15 s puis les remet (`WeaponController._server_fire`)
+- [x] Refactor : `enemy.gd` 250 → 150 lignes (`EnemyAwareness` = détection/alerte/bruit/dégâts ; `LagCompensator`)
+- [x] Vérifié solo : le joueur immobile à 9 m perd 8 PV/s, l'ennemi strafe (x oscille de 4 m), down/respawn du joueur sans erreur, mort/respawn de l'ennemi, rembobinage (0.47 m, raycast touche l'ancienne position, restauration exacte) ; host+client (`net_probe_enemy.gd`, 5 tirs) : **4/4 tirs valides du client touchent** l'ennemi mobile (avant : 2/3), kill vu des deux côtés, le client voit sa santé baisser sous les tirs ennemis (100→68), alerte partagée, aucune erreur
+- [ ] **Feel à valider en jouant** (dégâts/cadence/précision/réaction des ennemis, lisibilité du strafing, difficulté avec 2 ennemis)
+- Limites : **toujours pas de test avec latence artificielle** (tout en 127.0.0.1) ; tir ennemi sans son ni flash ; le strafing peut mener au bord de l'arène (pas de garde-fou) ; pas de couverture ; l'ennemi ne tire que le joueur vu (pas de tir de suppression) ; le tracer côté client non vérifié visuellement.
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

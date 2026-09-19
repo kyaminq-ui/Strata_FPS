@@ -192,6 +192,9 @@ func _server_fire(shooter_id: int, weapon_index: int, origin: Vector3, direction
 	var ends := PackedVector3Array()
 	var any_hit := false
 	var killed := false
+	var remote_shooter := shooter_id != multiplayer.get_unique_id()
+	if remote_shooter:
+		get_tree().call_group("lag_comp", "rewind")  # lag compensation : le client a visé ce qu'il voyait
 	for pellet_direction in pellet_directions(direction, weapon, seed_value):
 		var hit := _cast(origin, pellet_direction, weapon.max_range)
 		ends.append(hit.position if not hit.is_empty() else origin + pellet_direction * weapon.max_range)
@@ -201,6 +204,8 @@ func _server_fire(shooter_id: int, weapon_index: int, origin: Vector3, direction
 		if health:
 			any_hit = true
 			killed = health.take_damage(weapon.damage, shooter_id) or killed
+	if remote_shooter:
+		get_tree().call_group("lag_comp", "unrewind")
 	if any_hit:
 		if shooter_id == multiplayer.get_unique_id():
 			hit_confirmed.emit(killed)

@@ -11,8 +11,8 @@ func enter() -> void:
 
 
 func physics_update(delta: float) -> void:
-	if not _arrived or enemy.sees_player():
-		_arrived = enemy.move_to(enemy.investigate_position, enemy.config.investigate_speed, delta)
+	if not _arrived or enemy.awareness.sees_player():
+		_arrived = enemy.move_to(enemy.awareness.investigate_position, enemy.config.investigate_speed, delta)
 		return
 	enemy.rotation.y += enemy.config.search_turn_speed * delta  # regarde autour
 	_search_left -= delta

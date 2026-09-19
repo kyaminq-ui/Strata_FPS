@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://game/ai/enemy.gd" id="1"]
 [ext_resource type="Script" path="res://game/components/health_component.gd" id="2"]
@@ -8,6 +8,9 @@
 [ext_resource type="Script" path="res://game/ai/state_suspicious.gd" id="6"]
 [ext_resource type="Script" path="res://game/ai/state_alert.gd" id="7"]
 [ext_resource type="Script" path="res://game/ai/state_combat.gd" id="8"]
+[ext_resource type="Script" path="res://game/ai/enemy_weapon.gd" id="9"]
+[ext_resource type="Script" path="res://game/ai/enemy_awareness.gd" id="10"]
+[ext_resource type="Script" path="res://game/ai/lag_compensator.gd" id="11"]
 
 [sub_resource type="CapsuleShape3D" id="shape"]
 radius = 0.45
@@ -74,6 +77,16 @@ script = ExtResource("7")
 
 [node name="Combat" type="Node" parent="States"]
 script = ExtResource("8")
+
+[node name="Awareness" type="Node" parent="."]
+script = ExtResource("10")
+
+[node name="LagComp" type="Node" parent="."]
+script = ExtResource("11")
+window = 0.15
+
+[node name="Weapon" type="Node" parent="."]
+script = ExtResource("9")
 
 [node name="Perception" type="Node" parent="."]
 script = ExtResource("4")

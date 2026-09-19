@@ -24,18 +24,19 @@ var net_state: String = "CALM"
 
 var waypoints: Array[Vector3] = []
 var wp_index := 0
-var investigate_position := Vector3.ZERO  # dernière position perçue (vue ou bruit) : cible des états
-var time_since_seen := 0.0
+var state_name: StringName = &"Calm"
 
 var _states := {}
 var _state: EnemyState
-var _detect := 0.0  # 0..1, monte quand un joueur est vu en suspicion ; à 1 = alerte
 var _home := Vector3.ZERO
 var _layer := 0
 var _last_health := -1.0
 var _material := StandardMaterial3D.new()
 
 @onready var perception: Perception = $Perception
+@onready var awareness: EnemyAwareness = $Awareness
+@onready var weapon: EnemyWeapon = $Weapon
+@onready var _lag_comp: LagCompensator = $LagComp
 @onready var _health: HealthComponent = $Health
 @onready var _agent: NavigationAgent3D = $NavigationAgent3D
 @onready var _mesh: MeshInstance3D = $Mesh
@@ -55,8 +56,6 @@ func _ready() -> void:
 	if not multiplayer.is_server():
 		return
 	_health.died.connect(_on_died)
-	_health.damaged.connect(_on_damaged)
-	perception.noise_heard.connect(_on_noise_heard)
 	if route:
 		for marker in route.get_children():
 			if marker is Marker3D:
@@ -71,7 +70,6 @@ func _physics_process(delta: float) -> void:
 	if not multiplayer.is_server() or _health.is_dead():
 		return
 	velocity = Vector3(0.0, velocity.y - config.gravity * delta if not is_on_floor() else 0.0, 0.0)
-	_update_awareness(delta)
 	_state.physics_update(delta)
 	move_and_slide()
 	net_position = global_position
@@ -98,24 +96,17 @@ func _process(delta: float) -> void:
 	rotation.y = lerp_angle(rotation.y, net_yaw, t)
 
 
-func change_state(state_name: StringName) -> void:
+func change_state(new_state: StringName) -> void:
 	if _state:
 		_state.exit()
-	_state = _states[state_name]
-	net_state = String(state_name).to_upper()
+	_state = _states[new_state]
+	state_name = new_state
+	net_state = String(new_state).to_upper()
 	_state.enter()
 
 
 func is_dead() -> bool:
 	return _health.is_dead()
-
-
-func sees_player() -> bool:
-	return perception.seen_player != null
-
-
-func seen_distance() -> float:
-	return global_position.distance_to(perception.seen_player.global_position) if sees_player() else INF
 
 
 ## Avance vers `target` par la navigation (met `velocity` horizontale, oriente l'ennemi).
@@ -145,56 +136,6 @@ func face_point(point: Vector3, delta: float) -> void:
 	rotation.y = lerp_angle(rotation.y, atan2(-to.x, -to.z), config.turn_speed * delta)
 
 
-## Alerte partagée : un ennemi qui passe en alerte prévient tous les autres à portée.
-func become_alert() -> void:
-	change_state(&"Alert")
-	get_tree().call_group("enemies", "receive_alert", investigate_position)
-
-
-func receive_alert(position: Vector3) -> void:
-	if _health.is_dead() or not (_state.name == &"Calm" or _state.name == &"Suspicious"):
-		return
-	if global_position.distance_to(position) > config.alert_share_radius:
-		return
-	investigate_position = position
-	change_state(&"Alert")
-
-
-func _update_awareness(delta: float) -> void:
-	if sees_player():
-		time_since_seen = 0.0
-		investigate_position = perception.last_seen_position
-	else:
-		time_since_seen += delta
-	if not (_state.name == &"Calm" or _state.name == &"Suspicious"):
-		return
-	if sees_player():
-		_detect += delta / config.detect_time
-		if _detect >= 1.0:
-			become_alert()
-		elif _state.name == &"Calm":
-			change_state(&"Suspicious")
-	else:
-		_detect = maxf(_detect - delta / config.detect_decay_time, 0.0)
-
-
-func _on_noise_heard(position: Vector3, _kind: StringName) -> void:
-	if _state.name == &"Calm" or _state.name == &"Suspicious":
-		investigate_position = position
-		change_state(&"Suspicious")  # ré-entrée : relance l'enquête vers le nouveau bruit
-	elif _state.name == &"Alert" and not sees_player():
-		investigate_position = position
-
-
-## Être touché alerte l'ennemi et révèle la position du tireur.
-func _on_damaged(_amount: float, by_peer: int) -> void:
-	var shooter := get_tree().get_nodes_in_group("players").filter(func(p: Node) -> bool: return p.name == str(by_peer))
-	if not shooter.is_empty():
-		investigate_position = (shooter[0] as Node3D).global_position
-	if _state.name == &"Calm" or _state.name == &"Suspicious":
-		become_alert()
-
-
 func _on_died(_by_peer: int) -> void:
 	collision_layer = 0
 	net_state = "DEAD"
@@ -203,7 +144,7 @@ func _on_died(_by_peer: int) -> void:
 	global_position = _home
 	net_position = _home
 	wp_index = 0
-	_detect = 0.0
-	time_since_seen = config.alert_lose_time
+	_lag_comp.clear()
+	awareness.reset()
 	change_state(&"Calm")
 	collision_layer = _layer

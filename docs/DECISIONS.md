@@ -6,6 +6,8 @@ Format : date · décision · raison. Ajouter en haut.
 30. **C / Ctrl = slide si rapide, sinon accroupi** (même action) ; **saut possible pendant le dash** avec élan réduit (`dash_jump_speed`) plutôt que la vitesse de dash complète (33 m/s).
 
 ## 2026-09-19 — Milestone 3 (IA)
+32. **Lag compensation par rembobinage fixe** (0.15 s, `LagCompensator`) plutôt qu'un timestamp/RTT par client : simple, suffit en coop 2 joueurs ; à ajuster/tester avec latence artificielle. Seuls les tirs de clients rembobinent (le host tire sur l'état courant).
+31. **Réaction avant tir (0.7 s de vue continue) et faibles dégâts (8)** : lisibilité et liberté d'approche plutôt que difficulté (pilier « jamais échec si détecté »).
 29. **Alerte globale = `call_group("enemies", "receive_alert")` avec rayon** (60 m ≈ toute l'arène), pas de nœud d'alerte central : simple, host seul.
 28. **Jauge de détection** (vue continue 1 s → alerte) plutôt qu'alerte instantanée : laisse une marge de réaction au joueur (pilier « jamais échec si détecté »). Bruit = suspicion, jamais alerte directe ; être touché = alerte.
 27. **États d'ennemi en nœuds enfants** (patron `PlayerState`), transitions via `enemy.change_state()` ; `Enemy` porte le mouvement navmesh (`move_to`) et la conscience.

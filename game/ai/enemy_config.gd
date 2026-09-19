@@ -32,7 +32,18 @@ extends Resource
 @export var combat_distance: float = 12.0
 @export var combat_exit_margin: float = 3.0
 @export var combat_lose_time: float = 1.0
+@export var preferred_distance: float = 8.0  # en combat : s'approche au-delà, strafe en deçà
+@export var combat_speed: float = 3.5
+@export var strafe_speed: float = 2.5
+@export var strafe_change_time: float = 1.8
 @export var retarget_distance: float = 0.25  # cible de navigation : on ne recalcule qu'au-delà
+
+@export_group("Tir")
+@export var damage: float = 8.0
+@export var fire_interval: float = 0.9
+@export var reaction_time: float = 0.7  # vue continue avant le premier tir : le joueur peut réagir
+@export var spread_degrees: float = 3.0
+@export var attack_range: float = 40.0
 
 @export_group("Présentation")
 @export var net_smoothing: float = 15.0
