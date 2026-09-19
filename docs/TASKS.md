@@ -48,6 +48,16 @@
 - Limites : pas de recul/spread/son/VFX d'impact, pas de dégâts sur les joueurs (pas de PvP), pas de lag compensation (inutile tant que les cibles sont statiques ; à revoir avec l'IA mobile), munitions non validées côté host (le client est autoritaire sur son chargeur, la cadence est bornée par le host).
 - Prochaines tranches : 2e arme, mêlée, gadget, santé/down du joueur (coop), puis IA (patrouille → suspicion → alerte → combat).
 
+## Milestone 2 (part 2) — Santé du joueur, down, réanimation
+- [x] `HealthComponent` sur le joueur ; `PlayerLife` (host-autoritaire) : à 0 PV → **down** s'il y a un partenaire vivant (15 s), sinon respawn immédiat au point d'apparition (solo, partenaire parti/down) ; `PlayerReviver` : maintenir **E** à ≤ 2.5 m d'un partenaire down (3 s) → relevé à 50 % PV ; expiration → respawn à 100 % PV
+- [x] Joueur down : ne bouge plus, ne tire plus, mesh/caméra accroupis, visible des deux côtés ; HUD (PV, « DOWN Ns », progression de réanimation, invite « Hold E »)
+- [x] `DamageZone` (piège rouge dans l'arène, 40 PV/s) = source de dégâts de test et élément de level design
+- [x] Paramètres dans `LifeConfig` (`default_life.tres`)
+- [x] Vérifié : solo (dégâts directs et zone → respawn direct, pas de down) ; host+client : client down (vu par le client), réanimation par input réel (0 % hors portée, 50 % après 1.5 s, relevé à 50 PV), expiration → respawn, dernier debout qui tombe → respawn immédiat, joueur down immobile malgré « avancer » maintenu ; aucun erreur script
+- [ ] **À valider en jouant** : durées (down 15 s, réanimation 3 s), lisibilité HUD, feel du down ; test 2 fenêtres
+- Limites : pas de checkpoints réels (respawn = marqueurs `spawn_points`), pas de mort « partie perdue », pas de marqueur monde sur le joueur down (visible seulement par son mesh accroupi), pas de sons/VFX, le partenaire down reste au sol si le dernier debout respawn (réanimable jusqu'à l'expiration).
+- Prochaines tranches : 2e arme, mêlée, gadget, puis IA.
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

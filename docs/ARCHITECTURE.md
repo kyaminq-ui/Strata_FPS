@@ -33,6 +33,9 @@ Le mouvement lit **uniquement** `MovementConfig` (Resource). Il est réparti en 
 ## Combat
 `WeaponData` (Resource, données seules) → `WeaponController` (enfant `Weapon` de `Player`, logique de tir + RPC) → `HealthComponent` (composant réutilisable, joueur/ennemis/cibles). `Tracer` = trait cosmétique. HUD local (`game/ui/player_hud`) créé par `Player` pour l'autorité uniquement. Détails réseau : NETWORK.md.
 
+## Vie du joueur
+`Player` compose : `Health` (`HealthComponent`), `Life` (`PlayerLife` : down/respawn/réanimation, config `LifeConfig`), `Reviver` (`PlayerReviver` : demande de réanimation côté client). `Player.can_act()` (souris capturée et pas down) conditionne tir et réanimation ; `Player.respawn_at()` replace le joueur. Les marqueurs d'apparition sont dans le groupe `spawn_points` (pas de checkpoints réels pour l'instant).
+
 ## Collision layers
 1 = monde · 2 = joueurs · 3 = ennemis · 4 = projectiles/hitboxes.
 

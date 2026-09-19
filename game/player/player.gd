@@ -31,6 +31,9 @@ var _state: PlayerState
 
 @onready var crouch: PlayerCrouch = $Crouch
 @onready var weapon: WeaponController = $Weapon
+@onready var health: HealthComponent = $Health
+@onready var life: PlayerLife = $Life
+@onready var reviver: PlayerReviver = $Reviver
 @onready var _head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var _body_mesh: MeshInstance3D = $BodyMesh
@@ -40,6 +43,7 @@ var _state: PlayerState
 
 func _enter_tree() -> void:
 	set_multiplayer_authority(name.to_int())
+	$SyncServer.set_multiplayer_authority(1)  # vie/down : répliqués par le host
 
 
 func _ready() -> void:
@@ -69,7 +73,8 @@ func _ready() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		var hud := preload("res://game/ui/player_hud.tscn").instantiate()
 		add_child(hud)
-		hud.bind(weapon)
+		hud.bind(self)
+		life.downed_changed.connect(_on_downed_changed)
 	$Head/Camera3D/Viewmodel.visible = is_multiplayer_authority()
 
 
@@ -82,6 +87,37 @@ func change_state(state_name: StringName) -> void:
 
 func get_state(state_name: StringName) -> PlayerState:
 	return _states[state_name]
+
+
+## Peut agir (bouger volontairement, tirer, réanimer) : souris capturée et pas down.
+func can_act() -> bool:
+	return input_enabled and not life.downed
+
+
+## Host : replace le joueur (respawn). Le propriétaire simule sa position, donc on le lui demande.
+func respawn_at(pos: Vector3) -> void:
+	if get_multiplayer_authority() == multiplayer.get_unique_id():
+		_teleport(pos)
+	else:
+		teleport.rpc_id(get_multiplayer_authority(), pos)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func teleport(pos: Vector3) -> void:
+	if multiplayer.get_remote_sender_id() == 1:
+		_teleport(pos)
+
+
+func _teleport(pos: Vector3) -> void:
+	global_position = pos
+	velocity = Vector3.ZERO
+	net_position = pos
+
+
+func _on_downed_changed(downed: bool) -> void:
+	if downed:
+		change_state(&"Walk")  # quitte proprement slide / wall-run
+	crouch.crouched = downed
 
 
 func wants_dash() -> bool:
@@ -121,7 +157,12 @@ func _physics_process(delta: float) -> void:
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	wish_dir = (global_basis * Vector3(input.x, 0.0, input.y)).normalized()
 
-	_state.physics_update(delta)
+	if life.downed:
+		apply_gravity(delta)
+		velocity.x = move_toward(velocity.x, 0.0, config.ground_friction * delta)
+		velocity.z = move_toward(velocity.z, 0.0, config.ground_friction * delta)
+	else:
+		_state.physics_update(delta)
 	move_and_slide()
 
 	net_position = global_position
@@ -135,7 +176,7 @@ func _process(delta: float) -> void:
 		var roll_smoothing := 1.0 - exp(-CAMERA_ROLL_SMOOTHING * delta)
 		camera.rotation.z = lerp_angle(camera.rotation.z, deg_to_rad(camera_roll_target), roll_smoothing)
 		return
-	crouch.crouched = net_sliding
+	crouch.crouched = net_sliding or life.downed
 	var t := 1.0 - exp(-REMOTE_SMOOTHING * delta)
 	global_position = global_position.lerp(net_position, t)
 	rotation.y = lerp_angle(rotation.y, net_yaw, t)

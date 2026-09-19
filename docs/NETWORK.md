@@ -27,6 +27,9 @@ Client-authoritative pour le mouvement : choix simple et fluide pour du coop non
 Le peer propriétaire gère cadence, chargeur et visée, dessine son trait immédiatement, puis envoie `server_fire(origine, direction)` au host (RPC fiable, `any_peer`). Le host rejette le tir si l'émetteur n'est pas le propriétaire du joueur, si la cadence est violée (×0.8) ou si l'origine est à plus de 5 m de la tête répliquée du joueur ; sinon il refait le raycast (couches monde + ennemis), applique les dégâts de `WeaponData` via `HealthComponent.take_damage()` (jamais envoyés par le client), envoie `confirm_hit` au tireur (hitmarker) et `show_shot` aux autres (trait cosmétique, non fiable). Le host tirant appelle la même fonction directement ; en solo aussi (pas de branche solo).
 `HealthComponent.health` est répliqué par le `MultiplayerSynchronizer` de la scène propriétaire (mode « toujours », 10 Hz pour les mannequins).
 
+## Vie, down et réanimation
+Le `Player` a deux synchronizers : `Sync` (autorité = propriétaire : `net_position/yaw/pitch/sliding`) et `SyncServer` (autorité forcée à **1**, 10 Hz : `Health:health`, `Life:downed`, `Life:down_time_left`, `Life:revive_progress`). Le host applique tous les dégâts (`HealthComponent.take_damage`, serveur uniquement) et pilote `PlayerLife` (down / respawn / réanimation). Le réanimateur envoie seulement `request_revive(active)` (RPC vers le host, identifié par l'émetteur) ; le host vérifie que le réanimateur est vivant et à portée (×1.5 de tolérance) et fait progresser la jauge. Un respawn demande au propriétaire de se téléporter (`Player.teleport`, RPC accepté uniquement de l'id 1) puisque le propriétaire simule sa position.
+
 ## Piège connu : ordre de connexion
 Le client doit créer son peer **avant** d'ajouter l'arène : la scène existe alors quand les spawns du host arrivent, et `is_server()` est faux dès `_ready()`.
 
@@ -38,6 +41,7 @@ godot --path . -- --join=127.0.0.1
 godot --path . -- --solo
 ```
 Sans argument : menu de debug (Solo / Host / Join + adresse). Depuis l'éditeur : Debug → Run Multiple Instances (2), ou `project_run` (MCP) pour le host + un exécutable Godot lancé à la main pour le client.
+Sonde de vie (journal du client pendant que le host inflige down/réanimation) : `godot --headless --path . --log-file <fichier> -s tests/net_probe_life.gd -- --join=127.0.0.1`.
 Sonde de tir : `godot --headless --path . -s tests/net_probe_fire.gd -- --join=127.0.0.1` (le client vise Dummy1 et tire 3 fois ; affiche hits confirmés et santé vue).
 Sonde de mouvement (client headless, avance 6 s puis affiche ce qu'il voit) : `godot --headless --path . -s tests/net_probe.gd -- --join=127.0.0.1` pendant qu'un host tourne.
 Vérifier : 2 joueurs visibles des deux côtés, positions/orientations cohérentes, déconnexion propre (le client retourne au menu si le host part), solo intact.

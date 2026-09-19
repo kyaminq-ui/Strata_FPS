@@ -2,6 +2,12 @@
 
 Format : date · décision · raison. Ajouter en haut.
 
+## 2026-09-19 — Combat / vie
+15. **Tir résolu par le host** (raycast serveur, dégâts issus de `WeaponData`, validations cadence/origine/tireur) ; le client garde chargeur et trait immédiat. Raison : GDD (dégâts host) + sensation locale.
+16. **Deuxième synchronizer à autorité 1 sur le joueur** (`SyncServer`) pour la vie/le down : le propriétaire simule sa position, mais la santé appartient au host.
+17. **Down seulement s'il reste un partenaire vivant** ; sinon respawn immédiat (couvre solo, partenaire déconnecté, dernier debout). Raison : solo sans système down (GDD) et aucun état bloquant.
+18. **Respawn = marqueurs du groupe `spawn_points`** en attendant de vrais checkpoints.
+
 ## 2026-09-19 — Milestone 0
 13. **Spawn via `spawn_function` + données explicites** (peer_id, position) plutôt que réplication `spawn = true` : cette dernière ignore les propriétés dont l'autorité est le client (bug observé).
 14. **Actions d'input écrites à la main dans `project.godot`** : l'outil MCP `input_map_manage` ne sait pas créer de touches physiques. Éviter de re-modifier ces actions via MCP (risque de perdre le mode physique) ; en cas de besoin, redonner `physical_keycode`.

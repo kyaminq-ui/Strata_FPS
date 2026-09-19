@@ -40,7 +40,7 @@ func _physics_process(delta: float) -> void:
 			ammo = data.magazine_size
 			ammo_changed.emit(ammo, data.magazine_size)
 		return
-	if not _player.input_enabled:
+	if not _player.can_act():
 		return
 	if Input.is_action_just_pressed("reload") and ammo < data.magazine_size:
 		_start_reload()
