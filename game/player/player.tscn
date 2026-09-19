@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://game/player/player.gd" id="1"]
 [ext_resource type="Resource" path="res://game/player/default_movement.tres" id="2"]
@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://game/player/state_dash.gd" id="5"]
 [ext_resource type="Script" path="res://game/player/state_slide.gd" id="6"]
 [ext_resource type="Script" path="res://game/player/state_wallrun.gd" id="7"]
+[ext_resource type="Script" path="res://game/weapons/weapon_controller.gd" id="8"]
+[ext_resource type="Resource" path="res://game/weapons/pistol.tres" id="9"]
 
 [sub_resource type="CapsuleShape3D" id="shape"]
 radius = 0.4
@@ -18,6 +20,9 @@ height = 1.8
 
 [sub_resource type="BoxMesh" id="visor_mesh"]
 size = Vector3(0.5, 0.15, 0.3)
+
+[sub_resource type="BoxMesh" id="gun_mesh"]
+size = Vector3(0.08, 0.1, 0.4)
 
 [sub_resource type="SceneReplicationConfig" id="replication"]
 properties/0/path = NodePath(".:net_position")
@@ -53,6 +58,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 [node name="Camera3D" type="Camera3D" parent="Head"]
 fov = 90.0
 
+[node name="Viewmodel" type="MeshInstance3D" parent="Head/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -0.2, -0.5)
+mesh = SubResource("gun_mesh")
+
 [node name="VisorMesh" type="MeshInstance3D" parent="Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.3)
 mesh = SubResource("visor_mesh")
@@ -86,3 +95,7 @@ script = ExtResource("6")
 
 [node name="WallRun" type="Node" parent="States"]
 script = ExtResource("7")
+
+[node name="Weapon" type="Node" parent="."]
+script = ExtResource("8")
+data = ExtResource("9")

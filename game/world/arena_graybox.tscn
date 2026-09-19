@@ -1,6 +1,7 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://game/multiplayer/player_spawner.gd" id="1"]
+[ext_resource type="PackedScene" path="res://game/world/training_dummy.tscn" id="2"]
 
 [sub_resource type="Environment" id="env"]
 background_mode = 1
@@ -115,6 +116,17 @@ surface_material_override/0 = SubResource("mat_block")
 
 [node name="Shape" type="CollisionShape3D" parent="World/LowBeam"]
 shape = SubResource("beam_shape")
+
+[node name="Dummies" type="Node3D" parent="."]
+
+[node name="Dummy1" parent="Dummies" instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -6)
+
+[node name="Dummy2" parent="Dummies" instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -4)
+
+[node name="Dummy3" parent="Dummies" instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 8)
 
 [node name="SpawnPoints" type="Node3D" parent="."]
 

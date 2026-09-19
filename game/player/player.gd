@@ -24,13 +24,15 @@ var wish_dir := Vector3.ZERO
 var dash_cooldown_left := 0.0
 var wall_cooldown_left := 0.0
 var camera_roll_target := 0.0  # degrés, piloté par les états
+var input_enabled := true  # faux quand la souris est libérée (Échap)
 
 var _states: Dictionary[StringName, PlayerState] = {}
 var _state: PlayerState
 
 @onready var crouch: PlayerCrouch = $Crouch
+@onready var weapon: WeaponController = $Weapon
 @onready var _head: Node3D = $Head
-@onready var _camera: Camera3D = $Head/Camera3D
+@onready var camera: Camera3D = $Head/Camera3D
 @onready var _body_mesh: MeshInstance3D = $BodyMesh
 @onready var _visor_mesh: MeshInstance3D = $Head/VisorMesh
 @onready var _label: Label3D = $NameLabel
@@ -60,11 +62,15 @@ func _ready() -> void:
 
 	if is_multiplayer_authority():
 		# Vue à la première personne : son propre corps est masqué.
-		_camera.current = true
+		camera.current = true
 		_body_mesh.hide()
 		_visor_mesh.hide()
 		_label.hide()
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		var hud := preload("res://game/ui/player_hud.tscn").instantiate()
+		add_child(hud)
+		hud.bind(weapon)
+	$Head/Camera3D/Viewmodel.visible = is_multiplayer_authority()
 
 
 func change_state(state_name: StringName) -> void:
@@ -100,8 +106,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		_head.rotation.x = clampf(_head.rotation.x - event.relative.y * config.mouse_sensitivity, -limit, limit)
 	elif event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		input_enabled = false
 	elif event is InputEventMouseButton and event.pressed and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		# Le clic qui recapture la souris ne doit pas tirer.
+		get_tree().create_timer(0.1).timeout.connect(func() -> void: input_enabled = true)
 
 
 func _physics_process(delta: float) -> void:
@@ -124,7 +133,7 @@ func _physics_process(delta: float) -> void:
 func _process(delta: float) -> void:
 	if is_multiplayer_authority():
 		var roll_smoothing := 1.0 - exp(-CAMERA_ROLL_SMOOTHING * delta)
-		_camera.rotation.z = lerp_angle(_camera.rotation.z, deg_to_rad(camera_roll_target), roll_smoothing)
+		camera.rotation.z = lerp_angle(camera.rotation.z, deg_to_rad(camera_roll_target), roll_smoothing)
 		return
 	crouch.crouched = net_sliding
 	var t := 1.0 - exp(-REMOTE_SMOOTHING * delta)

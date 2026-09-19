@@ -11,7 +11,7 @@ game/
   player/                    player.tscn/gd, movement_config.gd + default_movement.tres
   multiplayer/               player_spawner.gd
   world/                     arena_graybox.tscn (arène de test)
-  weapons/ ai/ missions/ ui/ (vides — pas de besoin actuel)
+  weapons/ (WeaponData, WeaponController, Tracer, pistol.tres)   components/ (HealthComponent)   ui/ (player_hud)   ai/ missions/ (vides)
 assets/{generated,source,approved}   audio/{music,sfx}   tests/   docs/
 ```
 
@@ -29,6 +29,9 @@ Ordre important : le réseau est créé **avant** l'arène, sinon `multiplayer.i
 | Présentation | interpolation des remotes, mesh, label, caméra | tous les peers |
 
 Le mouvement lit **uniquement** `MovementConfig` (Resource). Il est réparti en états enfants de `Player/States` (`PlayerState` : `enter/exit/physics_update`, transitions via `player.change_state(&"Nom")`) : `Walk` (sol + air, saut, coyote, buffer), `Dash`, `Slide`, `WallRun`. `Player` garde les entrées partagées (`wish_dir`, cooldowns), la réplication et la présentation ; `PlayerCrouch` gère la hauteur (collision/tête/mesh). Nouvelle capacité = nouvel état + champs de config.
+
+## Combat
+`WeaponData` (Resource, données seules) → `WeaponController` (enfant `Weapon` de `Player`, logique de tir + RPC) → `HealthComponent` (composant réutilisable, joueur/ennemis/cibles). `Tracer` = trait cosmétique. HUD local (`game/ui/player_hud`) créé par `Player` pour l'autorité uniquement. Détails réseau : NETWORK.md.
 
 ## Collision layers
 1 = monde · 2 = joueurs · 3 = ennemis · 4 = projectiles/hitboxes.

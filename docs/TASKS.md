@@ -36,6 +36,18 @@
 - [ ] **Feel à valider en jouant** (accroche, durée, chute, saut de mur, roulis) — le mur de 20 m de l'arène sert de test ; enchaînements complets (saut → wall-run → saut de mur → dash → slide)
 - Limites connues : accroche seulement en longeant le mur (pas de face-mur), un seul mur détecté (pas de coins), pas de VFX/son de wall-run, le wall-run n'est pas répliqué comme état (seule la position l'est).
 
+## Milestone 1 — validé (feel joué par le développeur : marche, saut, dash, slide, wall-run, 2 joueurs)
+
+## Milestone 2 — COMBAT (premier tranche : tir)
+- [x] `WeaponData` (Resource) + `pistol.tres` : hitscan, 25 dégâts, 0.25 s, 12 balles, rechargement 1.2 s
+- [x] `WeaponController` (nœud `Player/Weapon`) : cadence/munitions/visée locales, tir résolu **par le host** (raycast serveur, dégâts = valeur de `WeaponData`), validation serveur (bon tireur, cadence, origine), confirmation au tireur, traits cosmétiques sur tous les peers
+- [x] `HealthComponent` + `training_dummy` (3 mannequins dans l'arène, host-autoritaires, respawn 3 s, santé répliquée)
+- [x] HUD minimal (viseur, munitions, hitmarker), viewmodel graybox
+- [x] Vérifié : solo (100→0 en 4 coups, kill confirmé, respawn, rechargement, tir en slide), rate limit / origine falsifiée / faux tireur rejetés, host+client (client : 3 tirs, 3 hits confirmés, santé 25 identique chez host et client)
+- [ ] **Feel du tir à valider en jouant** (cadence, viseur, hitmarker, recul absent, viewmodel) + test host/client fenêtré
+- Limites : pas de recul/spread/son/VFX d'impact, pas de dégâts sur les joueurs (pas de PvP), pas de lag compensation (inutile tant que les cibles sont statiques ; à revoir avec l'IA mobile), munitions non validées côté host (le client est autoritaire sur son chargeur, la cadence est bornée par le host).
+- Prochaines tranches : 2e arme, mêlée, gadget, santé/down du joueur (coop), puis IA (patrouille → suspicion → alerte → combat).
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 
