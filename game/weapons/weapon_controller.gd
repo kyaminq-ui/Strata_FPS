@@ -79,6 +79,11 @@ func _physics_process(delta: float) -> void:
 			_start_reload()
 
 
+## Empêche de tirer pendant `seconds` (ex. coup de mêlée).
+func block_for(seconds: float) -> void:
+	_cooldown_left = maxf(_cooldown_left, seconds)
+
+
 func _handle_switch_input() -> void:
 	if Input.is_action_just_pressed("weapon_1"):
 		equip(0)

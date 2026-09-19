@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="Script" path="res://game/player/player.gd" id="1"]
 [ext_resource type="Resource" path="res://game/player/default_movement.tres" id="2"]
@@ -15,6 +15,8 @@
 [ext_resource type="Script" path="res://game/components/health_component.gd" id="13"]
 [ext_resource type="Resource" path="res://game/weapons/shotgun.tres" id="14"]
 [ext_resource type="Script" path="res://game/weapons/weapon_data.gd" id="15"]
+[ext_resource type="Script" path="res://game/weapons/melee_controller.gd" id="16"]
+[ext_resource type="Resource" path="res://game/weapons/default_melee.tres" id="17"]
 
 [sub_resource type="CapsuleShape3D" id="shape"]
 radius = 0.4
@@ -53,6 +55,9 @@ properties/3/replication_mode = 1
 properties/4/path = NodePath(".:net_weapon")
 properties/4/spawn = false
 properties/4/replication_mode = 1
+properties/5/path = NodePath(".:net_dashing")
+properties/5/spawn = false
+properties/5/replication_mode = 1
 
 [sub_resource type="SceneReplicationConfig" id="server_replication"]
 properties/0/path = NodePath("Health:health")
@@ -145,6 +150,10 @@ script = ExtResource("7")
 [node name="Weapon" type="Node" parent="."]
 script = ExtResource("8")
 loadout = Array[ExtResource("15")]([ExtResource("9"), ExtResource("14")])
+
+[node name="Melee" type="Node" parent="."]
+script = ExtResource("16")
+config = ExtResource("17")
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("13")

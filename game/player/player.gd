@@ -19,6 +19,7 @@ var net_yaw: float
 var net_pitch: float
 var net_sliding: bool
 var net_weapon := 0  # index dans WeaponController.loadout
+var net_dashing := false  # dash récent (fenêtre dash -> mêlée), lu par le host
 
 ## Lus par les états de mouvement (autorité seulement).
 var wish_dir := Vector3.ZERO
@@ -32,6 +33,7 @@ var _state: PlayerState
 
 @onready var crouch: PlayerCrouch = $Crouch
 @onready var weapon: WeaponController = $Weapon
+@onready var melee: MeleeController = $Melee
 @onready var health: HealthComponent = $Health
 @onready var life: PlayerLife = $Life
 @onready var reviver: PlayerReviver = $Reviver
@@ -172,6 +174,7 @@ func _physics_process(delta: float) -> void:
 	net_yaw = rotation.y
 	net_pitch = _head.rotation.x
 	net_sliding = _state.name == &"Slide"
+	net_dashing = dash_cooldown_left > config.dash_cooldown - config.dash_melee_window
 
 
 func _process(delta: float) -> void:

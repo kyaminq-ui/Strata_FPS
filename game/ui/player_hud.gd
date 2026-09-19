@@ -20,6 +20,7 @@ func bind(player: Player) -> void:
 	weapon.weapon_changed.connect(func(w: WeaponData) -> void: _weapon_name = w.display_name)
 	_weapon_name = weapon.data.display_name
 	weapon.hit_confirmed.connect(_on_hit_confirmed)
+	player.melee.hit_confirmed.connect(_on_hit_confirmed)
 	_on_ammo_changed(weapon.ammo, weapon.data.magazine_size)
 
 

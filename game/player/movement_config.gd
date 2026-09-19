@@ -19,6 +19,7 @@ extends Resource
 @export var dash_distance: float = 6.0
 @export var dash_duration: float = 0.18
 @export var dash_cooldown: float = 0.8
+@export var dash_melee_window: float = 0.5  # après le début du dash : mêlée renforcée
 
 @export_group("Couche E - Slide")
 @export var slide_min_entry_speed: float = 5.0

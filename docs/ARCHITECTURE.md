@@ -31,7 +31,7 @@ Ordre important : le réseau est créé **avant** l'arène, sinon `multiplayer.i
 Le mouvement lit **uniquement** `MovementConfig` (Resource). Il est réparti en états enfants de `Player/States` (`PlayerState` : `enter/exit/physics_update`, transitions via `player.change_state(&"Nom")`) : `Walk` (sol + air, saut, coyote, buffer), `Dash`, `Slide`, `WallRun`. `Player` garde les entrées partagées (`wish_dir`, cooldowns), la réplication et la présentation ; `PlayerCrouch` gère la hauteur (collision/tête/mesh). Nouvelle capacité = nouvel état + champs de config.
 
 ## Combat
-`WeaponData` (Resource, données seules) → `WeaponController` (enfant `Weapon` de `Player`, logique de tir + RPC) → `HealthComponent` (composant réutilisable, joueur/ennemis/cibles). `Tracer` = trait cosmétique. HUD local (`game/ui/player_hud`) créé par `Player` pour l'autorité uniquement. Détails réseau : NETWORK.md.
+`WeaponData` (Resource, données seules) → `WeaponController` (enfant `Weapon` de `Player`, logique de tir + RPC) → `HealthComponent` (composant réutilisable, joueur/ennemis/cibles). `MeleeController` (+ `MeleeConfig`) : mêlée, même schéma réseau. `Tracer` = trait cosmétique. HUD local (`game/ui/player_hud`) créé par `Player` pour l'autorité uniquement. Détails réseau : NETWORK.md.
 
 ## Vie du joueur
 `Player` compose : `Health` (`HealthComponent`), `Life` (`PlayerLife` : down/respawn/réanimation, config `LifeConfig`), `Reviver` (`PlayerReviver` : demande de réanimation côté client). `Player.can_act()` (souris capturée et pas down) conditionne tir et réanimation ; `Player.respawn_at()` replace le joueur. Les marqueurs d'apparition sont dans le groupe `spawn_points` (pas de checkpoints réels pour l'instant).

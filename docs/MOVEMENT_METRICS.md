@@ -17,6 +17,7 @@ Source unique : `game/player/default_movement.tres` (type `MovementConfig`). Ne 
 | Distance du dash (vitesse = distance / durée ≈ 33 m/s) | `dash_distance` | D | 6.0 m | à tuner |
 | Durée du dash | `dash_duration` | D | 0.18 s | à tuner |
 | Cooldown du dash | `dash_cooldown` | D | 0.8 s | à tuner |
+| Fenêtre dash → mêlée renforcée | `dash_melee_window` | D | 0.5 s | à tuner |
 | Vitesse minimale pour lancer un slide | `slide_min_entry_speed` | E | 5.0 m/s | à tuner |
 | Vitesse de slide (au moins) | `slide_speed` | E | 12.0 m/s | à tuner |
 | Durée du slide | `slide_duration` | E | 0.8 s | à tuner |
@@ -38,4 +39,4 @@ Source unique : `game/player/default_movement.tres` (type `MovementConfig`). Ne 
 
 À verrouiller avant l'habillage (GDD §11) : vitesse au sol, distance de dash, hauteur/longueur de saut, wall-run, distance coop tolérée.
 
-Touches (physiques) : ZQSD/WASD, Espace = saut, Shift = dash, **Ctrl ou C = slide**, E = réanimer, clic gauche = tirer, R = recharger, 1 / 2 / molette = changer d'arme.
+Touches (physiques) : ZQSD/WASD, Espace = saut, Shift = dash, **Ctrl ou C = slide**, E = réanimer, clic gauche = tirer, R = recharger, 1 / 2 / molette = changer d'arme, V = mêlée.

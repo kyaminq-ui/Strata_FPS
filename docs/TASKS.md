@@ -72,6 +72,16 @@
 - Limites : cadence serveur partagée entre armes (un cheater pourrait alterner pour tirer plus vite : à durcir si besoin), pas de recul/son/animations, pas d'échange d'arme ramassée.
 - Prochaines tranches : mêlée (1 système simple), gadget (1), puis IA.
 
+## Milestone 2 (part 4) — Mêlée
+- [x] `MeleeController` (nœud `Player/Melee`, config `MeleeConfig` / `default_melee.tres`) : touche **V**, 40 dégâts, portée 2.4 m, cône ±50°, cooldown 0.55 s, bloque le tir pendant le coup, utilisable dans tous les états de mouvement (dont slide)
+- [x] **Dash → mêlée** : dans les 0.5 s après le début d'un dash (`net_dashing`, répliqué et lu par le host) : ×1.5 dégâts (60) et +1 m de portée
+- [x] **Finisseur** : cible à ≤ 30 % de PV → dégâts = PV max (kill)
+- [x] Résolution host (cône + ligne de vue bloquée par le monde, cadence/origine/tireur validés, confirmation → hitmarker) ; animation du coup cosmétique, visible par les autres
+- [x] Vérifié : solo (100→60→20→finisseur, cooldown, hors portée 3.6 m / hors cône / derrière un mur = 0 dégât, dash-mêlée = 60 à 3.1 m) ; host+client (client : 3 coups, 3 hits confirmés dont finisseur, host voit ses 3 coups ; host : le client voit ses 2 coups) ; aucune erreur script
+- [ ] **Feel à valider en jouant** (portée, cône, cooldown, punch du viewmodel, enchaînement dash → mêlée, absence d'animation de recul)
+- Limites : pas de knockback ni d'animation d'arme complète, pas de mêlée silencieuse/infiltration (élimination discrète) : à définir avec l'IA, pas de son.
+- Prochaines tranches : gadget (1), puis IA (patrouille → suspicion → alerte → combat).
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 
