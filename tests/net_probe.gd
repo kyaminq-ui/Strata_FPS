@@ -31,16 +31,17 @@ func _process(delta: float) -> bool:
 	return false
 
 
-## Cycle de 3 s : jump+dash à 0 s, slide à +1 s (appuis d'une frame).
+## Cycle de 3 s : dash à 0 s, slide à +1 s, saut à +2 s (appuis d'une frame).
 func _press_scheduled_actions(delta: float) -> void:
 	var phase := fmod(_elapsed, 3.0)
 	for action in ["jump", "dash", "slide"]:
 		Input.action_release(action)
 	if phase < delta:
-		Input.action_press("jump")
 		Input.action_press("dash")
 	elif phase >= 1.0 and phase < 1.0 + delta:
 		Input.action_press("slide")
+	elif phase >= 2.0 and phase < 2.0 + delta:
+		Input.action_press("jump")
 
 
 func _report(label: String) -> void:

@@ -28,7 +28,7 @@ Ordre important : le réseau est créé **avant** l'arène, sinon `multiplayer.i
 | État répliqué | `net_position`, `net_yaw`, `net_pitch` | `MultiplayerSynchronizer` |
 | Présentation | interpolation des remotes, mesh, label, caméra | tous les peers |
 
-Le mouvement lit **uniquement** `MovementConfig` (Resource). Les futures capacités (saut, dash, slide, wall-run) s'ajoutent en états + champs de config, une couche à la fois.
+Le mouvement lit **uniquement** `MovementConfig` (Resource). Il est réparti en états enfants de `Player/States` (`PlayerState` : `enter/exit/physics_update`, transitions via `player.change_state(&"Nom")`) : `Walk` (sol + air, saut, coyote, buffer), `Dash`, `Slide`, `WallRun`. `Player` garde les entrées partagées (`wish_dir`, cooldowns), la réplication et la présentation ; `PlayerCrouch` gère la hauteur (collision/tête/mesh). Nouvelle capacité = nouvel état + champs de config.
 
 ## Collision layers
 1 = monde · 2 = joueurs · 3 = ennemis · 4 = projectiles/hitboxes.
@@ -39,7 +39,6 @@ Le mouvement lit **uniquement** `MovementConfig` (Resource). Les futures capacit
 - `_mcp_game_helper` : addon godot-ai (ne pas toucher).
 
 ## Dette / hypothèses
-- `player.gd` (~200 lignes) dépasse la cible de 150 : avant/avec le wall-run, extraire marche/saut/dash/slide en états (machine à états du GDD) plutôt que d'ajouter au fichier.
 - `PlayerCrouch` (composant) gère hauteur de collision/tête/mesh ; la géométrie debout (1.8 m / tête 1.6 m) est en constantes, doit rester alignée avec `player.tscn`.
 - Interpolation des remotes basique (lerp exponentiel), pas de prédiction ni réconciliation.
 - Arène et menu = debug/graybox, jetables.

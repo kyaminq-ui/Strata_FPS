@@ -1,8 +1,12 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://game/player/player.gd" id="1"]
 [ext_resource type="Resource" path="res://game/player/default_movement.tres" id="2"]
 [ext_resource type="Script" path="res://game/player/player_crouch.gd" id="3"]
+[ext_resource type="Script" path="res://game/player/state_walk.gd" id="4"]
+[ext_resource type="Script" path="res://game/player/state_dash.gd" id="5"]
+[ext_resource type="Script" path="res://game/player/state_slide.gd" id="6"]
+[ext_resource type="Script" path="res://game/player/state_wallrun.gd" id="7"]
 
 [sub_resource type="CapsuleShape3D" id="shape"]
 radius = 0.4
@@ -68,3 +72,17 @@ config = ExtResource("2")
 shape_node = NodePath("../CollisionShape3D")
 head = NodePath("../Head")
 body_mesh = NodePath("../BodyMesh")
+
+[node name="States" type="Node" parent="."]
+
+[node name="Walk" type="Node" parent="States"]
+script = ExtResource("4")
+
+[node name="Dash" type="Node" parent="States"]
+script = ExtResource("5")
+
+[node name="Slide" type="Node" parent="States"]
+script = ExtResource("6")
+
+[node name="WallRun" type="Node" parent="States"]
+script = ExtResource("7")
