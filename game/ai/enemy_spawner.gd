@@ -37,7 +37,7 @@ func on_alert(position: Vector3) -> void:
 	_cooldown_left = config.cooldown
 	var markers := points.get_children()
 	for i in mini(config.count, config.max_alive - _alive_units()):
-		var enemy := spawn({"id": _next_id, "position": (markers[i % markers.size()] as Marker3D).global_position}) as Enemy
+		var enemy := spawn({"id": _next_id, "type": i % config.unit_types.size() if not config.unit_types.is_empty() else -1, "position": (markers[i % markers.size()] as Marker3D).global_position}) as Enemy
 		_next_id += 1
 		if enemy:
 			enemy.awareness.force_alert(position)
@@ -48,6 +48,8 @@ func _create_enemy(data: Dictionary) -> Node:
 	enemy.name = "Reinforcement%d" % data.id
 	enemy.position = data.position
 	enemy.respawns = false
+	if data.type >= 0:
+		enemy.config = config.unit_types[data.type]
 	enemy.add_to_group("reinforcement_units")
 	return enemy
 

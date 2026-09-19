@@ -38,26 +38,33 @@ func _fire(target: Player) -> void:
 	var config := _enemy.config
 	_cooldown = config.fire_interval
 	var origin := _enemy.global_position + Vector3.UP * config.eye_height
-	var aim := target.global_position + Vector3.UP * config.target_height
-	var direction := _with_spread((aim - origin).normalized(), config.spread_degrees)
-	var end := origin + direction * config.attack_range
-	var query := PhysicsRayQueryParameters3D.create(origin, end, WORLD_MASK | PLAYER_MASK)
-	var hit := _enemy.get_world_3d().direct_space_state.intersect_ray(query)
-	if not hit.is_empty():
-		end = hit.position
-		var health := (hit.collider as Node).get_node_or_null("Health") as HealthComponent
-		if health:
-			health.take_damage(config.damage, 0)  # 0 = pas de tireur joueur
-	var start := _muzzle.global_position  # le trait part du canon (le tir, lui, part des yeux)
-	Tracer.spawn(_enemy.get_parent(), start, end)
-	_flash()
+	var aim_direction := (target.global_position + Vector3.UP * config.target_height - origin).normalized()
+	var space := _enemy.get_world_3d().direct_space_state
+	var ends := PackedVector3Array()
+	for i in config.pellets:
+		var direction := _with_spread(aim_direction, config.spread_degrees)
+		var end := origin + direction * config.attack_range
+		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(origin, end, WORLD_MASK | PLAYER_MASK))
+		if not hit.is_empty():
+			end = hit.position
+			var health := (hit.collider as Node).get_node_or_null("Health") as HealthComponent
+			if health:
+				health.take_damage(config.damage, 0)  # 0 = pas de tireur joueur
+		ends.append(end)
+	var start := _muzzle.global_position  # les traits partent du canon (le tir, lui, part des yeux)
+	_show_shot_local(start, ends)
 	if not multiplayer.get_peers().is_empty():
-		show_shot.rpc(start, end)
+		show_shot.rpc(start, ends)
 
 
 @rpc("authority", "call_remote", "unreliable")
-func show_shot(from: Vector3, to: Vector3) -> void:
-	Tracer.spawn(_enemy.get_parent(), from, to)
+func show_shot(from: Vector3, ends: PackedVector3Array) -> void:
+	_show_shot_local(from, ends)
+
+
+func _show_shot_local(from: Vector3, ends: PackedVector3Array) -> void:
+	for end in ends:
+		Tracer.spawn(_enemy.get_parent(), from, end)
 	_flash()
 
 

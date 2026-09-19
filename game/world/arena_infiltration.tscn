@@ -1,0 +1,360 @@
+[gd_scene load_steps=40 format=3]
+
+[ext_resource type="Script" path="res://game/multiplayer/player_spawner.gd" id="ps"]
+[ext_resource type="Script" path="res://game/multiplayer/grenade_spawner.gd" id="gs"]
+[ext_resource type="PackedScene" path="res://game/ai/enemy.tscn" id="enemy"]
+[ext_resource type="Script" path="res://game/ai/nav_baker.gd" id="nav"]
+[ext_resource type="Script" path="res://game/ai/noise_bus.gd" id="noise"]
+[ext_resource type="Script" path="res://game/ai/enemy_spawner.gd" id="spawner"]
+[ext_resource type="Resource" path="res://game/ai/infiltration_reinforcement.tres" id="rcfg"]
+[ext_resource type="Resource" path="res://game/ai/security_agent.tres" id="cfg_agent"]
+[ext_resource type="Resource" path="res://game/ai/elite.tres" id="cfg_elite"]
+
+[sub_resource type="Environment" id="env"]
+background_mode = 1
+background_color = Color(0.03, 0.04, 0.07, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.55, 0.7, 1)
+ambient_light_energy = 0.6
+
+[sub_resource type="StandardMaterial3D" id="mat_floor"]
+albedo_color = Color(0.22, 0.24, 0.28, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_block"]
+albedo_color = Color(0.5, 0.52, 0.56, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_terminal"]
+shading_mode = 0
+albedo_color = Color(0.2, 0.9, 1, 1)
+
+[sub_resource type="NavigationMesh" id="navmesh"]
+geometry_parsed_geometry_type = 1
+geometry_collision_mask = 1
+agent_height = 2.0
+agent_radius = 0.5
+
+[sub_resource type="BoxMesh" id="m_1_2p7_3"]
+size = Vector3(1, 2.7, 3)
+
+[sub_resource type="BoxShape3D" id="s_1_2p7_3"]
+size = Vector3(1, 2.7, 3)
+
+[sub_resource type="BoxMesh" id="m_1_4_9"]
+size = Vector3(1, 4, 9)
+
+[sub_resource type="BoxShape3D" id="s_1_4_9"]
+size = Vector3(1, 4, 9)
+
+[sub_resource type="BoxMesh" id="m_1_4_10"]
+size = Vector3(1, 4, 10)
+
+[sub_resource type="BoxShape3D" id="s_1_4_10"]
+size = Vector3(1, 4, 10)
+
+[sub_resource type="BoxMesh" id="m_1p2_1p5_1p2"]
+size = Vector3(1.2, 1.5, 1.2)
+
+[sub_resource type="BoxShape3D" id="s_1p2_1p5_1p2"]
+size = Vector3(1.2, 1.5, 1.2)
+
+[sub_resource type="BoxMesh" id="m_2_1p2_2"]
+size = Vector3(2, 1.2, 2)
+
+[sub_resource type="BoxShape3D" id="s_2_1p2_2"]
+size = Vector3(2, 1.2, 2)
+
+[sub_resource type="BoxMesh" id="m_4_2_4"]
+size = Vector3(4, 2, 4)
+
+[sub_resource type="BoxShape3D" id="s_4_2_4"]
+size = Vector3(4, 2, 4)
+
+[sub_resource type="BoxMesh" id="m_9_4_1"]
+size = Vector3(9, 4, 1)
+
+[sub_resource type="BoxShape3D" id="s_9_4_1"]
+size = Vector3(9, 4, 1)
+
+[sub_resource type="BoxMesh" id="m_24_4_1"]
+size = Vector3(24, 4, 1)
+
+[sub_resource type="BoxShape3D" id="s_24_4_1"]
+size = Vector3(24, 4, 1)
+
+[sub_resource type="BoxMesh" id="m_50_1_50"]
+size = Vector3(50, 1, 50)
+
+[sub_resource type="BoxShape3D" id="s_50_1_50"]
+size = Vector3(50, 1, 50)
+
+[node name="ArenaInfiltration" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.383, 0.321, 0, 0.643, 0.766, -0.5, -0.663, 0.557, 0, 10, 0)
+shadow_enabled = true
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/Floor"]
+mesh = SubResource("m_50_1_50")
+surface_material_override/0 = SubResource("mat_floor")
+
+[node name="Shape" type="CollisionShape3D" parent="World/Floor"]
+shape = SubResource("s_50_1_50")
+
+[node name="SouthL" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 2, 4)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/SouthL"]
+mesh = SubResource("m_9_4_1")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/SouthL"]
+shape = SubResource("s_9_4_1")
+
+[node name="SouthR" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 2, 4)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/SouthR"]
+mesh = SubResource("m_9_4_1")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/SouthR"]
+shape = SubResource("s_9_4_1")
+
+[node name="North" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -18)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/North"]
+mesh = SubResource("m_24_4_1")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/North"]
+shape = SubResource("s_24_4_1")
+
+[node name="EastA" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 2, -13.5)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/EastA"]
+mesh = SubResource("m_1_4_9")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/EastA"]
+shape = SubResource("s_1_4_9")
+
+[node name="EastB" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 2, -1)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/EastB"]
+mesh = SubResource("m_1_4_10")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/EastB"]
+shape = SubResource("s_1_4_10")
+
+[node name="WestA" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 2, -13.5)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/WestA"]
+mesh = SubResource("m_1_4_9")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/WestA"]
+shape = SubResource("s_1_4_9")
+
+[node name="WestB" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 2, -1)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/WestB"]
+mesh = SubResource("m_1_4_10")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/WestB"]
+shape = SubResource("s_1_4_10")
+
+[node name="WestLintel" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 2.65, -7.5)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/WestLintel"]
+mesh = SubResource("m_1_2p7_3")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/WestLintel"]
+shape = SubResource("s_1_2p7_3")
+
+[node name="CenterBlock" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -8)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/CenterBlock"]
+mesh = SubResource("m_4_2_4")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/CenterBlock"]
+shape = SubResource("s_4_2_4")
+
+[node name="Terminal" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, -15)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/Terminal"]
+mesh = SubResource("m_1p2_1p5_1p2")
+surface_material_override/0 = SubResource("mat_terminal")
+
+[node name="Shape" type="CollisionShape3D" parent="World/Terminal"]
+shape = SubResource("s_1p2_1p5_1p2")
+
+[node name="CrateA" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.6, 12)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/CrateA"]
+mesh = SubResource("m_2_1p2_2")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/CrateA"]
+shape = SubResource("s_2_1p2_2")
+
+[node name="CrateB" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.6, 14)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/CrateB"]
+mesh = SubResource("m_2_1p2_2")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/CrateB"]
+shape = SubResource("s_2_1p2_2")
+
+[node name="CrateC" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 10)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/CrateC"]
+mesh = SubResource("m_2_1p2_2")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/CrateC"]
+shape = SubResource("s_2_1p2_2")
+
+[node name="CrateD" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.6, -2)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/CrateD"]
+mesh = SubResource("m_2_1p2_2")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/CrateD"]
+shape = SubResource("s_2_1p2_2")
+
+[node name="CrateE" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.6, -12)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/CrateE"]
+mesh = SubResource("m_2_1p2_2")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/CrateE"]
+shape = SubResource("s_2_1p2_2")
+
+[node name="NavRegion" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("navmesh")
+script = ExtResource("nav")
+
+[node name="NoiseBus" type="Node" parent="."]
+script = ExtResource("noise")
+
+[node name="PatrolRoutes" type="Node3D" parent="."]
+
+[node name="RouteGate" type="Node3D" parent="PatrolRoutes"]
+
+[node name="P1" type="Marker3D" parent="PatrolRoutes/RouteGate"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, 1)
+
+[node name="P2" type="Marker3D" parent="PatrolRoutes/RouteGate"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 1)
+
+[node name="RouteEast" type="Node3D" parent="PatrolRoutes"]
+
+[node name="P1" type="Marker3D" parent="PatrolRoutes/RouteEast"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 3)
+
+[node name="P2" type="Marker3D" parent="PatrolRoutes/RouteEast"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, -14)
+
+[node name="RouteAgent" type="Node3D" parent="PatrolRoutes"]
+
+[node name="P1" type="Marker3D" parent="PatrolRoutes/RouteAgent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -4)
+
+[node name="P2" type="Marker3D" parent="PatrolRoutes/RouteAgent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -4)
+
+[node name="P3" type="Marker3D" parent="PatrolRoutes/RouteAgent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -13)
+
+[node name="P4" type="Marker3D" parent="PatrolRoutes/RouteAgent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -13)
+
+[node name="RouteElite" type="Node3D" parent="PatrolRoutes"]
+
+[node name="P1" type="Marker3D" parent="PatrolRoutes/RouteElite"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -15)
+
+[node name="P2" type="Marker3D" parent="PatrolRoutes/RouteElite"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -15)
+
+[node name="ReinforcementPoints" type="Node3D" parent="."]
+
+[node name="R1" type="Marker3D" parent="ReinforcementPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 22)
+
+[node name="R2" type="Marker3D" parent="ReinforcementPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, 22)
+
+[node name="Enemies" type="Node3D" parent="."]
+
+[node name="Reinforcements" type="MultiplayerSpawner" parent="." node_paths=PackedStringArray("points")]
+spawn_path = NodePath("../Enemies")
+script = ExtResource("spawner")
+config = ExtResource("rcfg")
+points = NodePath("../ReinforcementPoints")
+
+[node name="GuardGate" parent="Enemies" node_paths=PackedStringArray("route") instance=ExtResource("enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, 1)
+route = NodePath("../../PatrolRoutes/RouteGate")
+
+[node name="GuardEast" parent="Enemies" node_paths=PackedStringArray("route") instance=ExtResource("enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 3)
+route = NodePath("../../PatrolRoutes/RouteEast")
+
+[node name="AgentHall" parent="Enemies" node_paths=PackedStringArray("route") instance=ExtResource("enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -4)
+config = ExtResource("cfg_agent")
+route = NodePath("../../PatrolRoutes/RouteAgent")
+
+[node name="EliteTerminal" parent="Enemies" node_paths=PackedStringArray("route") instance=ExtResource("enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -15)
+config = ExtResource("cfg_elite")
+route = NodePath("../../PatrolRoutes/RouteElite")
+
+[node name="SpawnPoints" type="Node3D" parent="."]
+
+[node name="Spawn1" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, 20)
+
+[node name="Spawn2" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, 20)
+
+[node name="Players" type="Node3D" parent="."]
+[node name="Grenades" type="Node3D" parent="."]
+
+[node name="GrenadeSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../Grenades")
+script = ExtResource("gs")
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../Players")
+script = ExtResource("ps")
+spawn_points_path = NodePath("../SpawnPoints")

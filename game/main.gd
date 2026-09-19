@@ -1,14 +1,20 @@
 extends Node
 ## Scène de démarrage (menu de debug). Crée le réseau AVANT l'arène : le client
 ## doit être « en connexion » quand l'arène entre dans l'arbre (voir docs/NETWORK.md).
-## Arguments de test (après --) : --solo | --host | --join=<adresse>
+## Arguments de test (après --) : --solo | --host | --join=<adresse> [--arena=infiltration]
+## Le host et le client doivent choisir la même arène.
 
-const ARENA := preload("res://game/world/arena_graybox.tscn")
+const ARENAS: Array[PackedScene] = [
+	preload("res://game/world/arena_graybox.tscn"),
+	preload("res://game/world/arena_infiltration.tscn"),
+]
+const ARENA_ARGS := {"graybox": 0, "infiltration": 1}
 
 var _arena: Node
 
 @onready var _menu: Control = $Menu
 @onready var _address: LineEdit = %Address
+@onready var _arena_picker: OptionButton = %ArenaPicker
 @onready var _status: Label = %Status
 
 
@@ -22,6 +28,9 @@ func _ready() -> void:
 
 
 func _apply_command_line() -> void:
+	for arg in OS.get_cmdline_user_args():  # --arena d'abord : il doit être connu avant le démarrage
+		if arg.begins_with("--arena=") and ARENA_ARGS.has(arg.trim_prefix("--arena=")):
+			_arena_picker.select(ARENA_ARGS[arg.trim_prefix("--arena=")])
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--solo":
 			_start_solo()
@@ -51,7 +60,7 @@ func _start_join(address: String) -> void:
 
 func _enter_arena() -> void:
 	_menu.hide()
-	_arena = ARENA.instantiate()
+	_arena = ARENAS[_arena_picker.selected].instantiate()
 	add_child(_arena)
 
 

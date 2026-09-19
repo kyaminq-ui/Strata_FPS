@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://game/ai/enemy_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "ELITE"
+body_color = Color(0.7, 0.25, 0.9, 1)
+max_health = 220.0
+walk_speed = 3.4
+investigate_speed = 4.0
+chase_speed = 6.5
+combat_speed = 4.5
+strafe_speed = 3.5
+preferred_distance = 9.0
+combat_distance = 16.0
+detect_time = 0.45
+view_distance = 26.0
+view_fov_degrees = 120.0
+search_time = 6.0
+alert_lose_time = 9.0
+silent_takedown = false
+damage = 10.0
+spread_degrees = 1.5
+fire_interval = 0.6
+reaction_time = 0.35
+attack_range = 50.0

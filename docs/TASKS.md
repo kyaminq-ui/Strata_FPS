@@ -150,6 +150,17 @@
 - [ ] **Feel à valider en jouant** (angle du dos, portée, lisibilité des cadavres, délai/nombre des renforts, difficulté du couloir)
 - Limites : takedown vérifié côté host (même code pour un client, non rejoué en réseau) ; le corps n'est pas « fouillé »/caché ; pas de vrai chemin alternatif vertical (toit/conduit) dans l'arène ; les renforts arrivent toujours des mêmes points ; le bruit n'est toujours pas atténué par les murs ; les traits de tir ennemis sont enfants de `Enemies` (cosmétique).
 
+## Milestone 3 (tranche 3.6) — Contenu : archétypes, élite, arène d'infiltration
+- [x] `EnemyConfig` étendue (`display_name`, `body_color`, `pellets`, `silent_takedown`) ; `EnemyWeapon` multi-plombs (un seul RPC `show_shot(from, ends)`) ; 3 archétypes en `.tres` :
+  - **GARDE** (`default_enemy.tres`) : 80 PV, pistolet 8 dégâts, rouge
+  - **AGENT** (`security_agent.tres`) : 140 PV, plus lent, fusil 6 plombs × 4 (dispersion 7°, cadence 1.5 s), s'approche à 5 m, détecte plus vite (0.7 s), cône 130° / 16 m, bleu
+  - **ELITE** (`elite.tres`) : 220 PV, rapide (poursuite 6.5), tir précis 10 dégâts / 0.6 s (dispersion 1.5°), voit à 26 m, détecte en 0.45 s, fouille plus longtemps, **pas d'élimination silencieuse dans le dos**, violet
+- [x] **Renforts mixtes** : `ReinforcementConfig.unit_types` (arène d'infiltration : AGENT puis GARDE en alternance)
+- [x] **Arène d'infiltration** (`arena_infiltration.tscn`, choix dans le menu ou `--arena=infiltration`, host et client doivent choisir la même) : enceinte avec **porte frontale** (2 gardes), **porte latérale est** (garde qui patrouille dehors), **passage bas à l'ouest** (linteau à 1.3 m : accroupi/slide seulement, les ennemis ne peuvent pas y passer), agent dans le hall, élite au terminal, couvertures dehors, renforts au sud
+- [x] Vérifié solo : chargement (136 polygones de navmesh, 4 ennemis, types/PV/couleurs), élite non silençable / garde et agent silençables, mêlée sur élite = 40 dégâts sans kill, **slide sous le linteau** de l'ouest vers l'intérieur, combat de l'agent (≈ 24-30 par volée à 4 m) et de l'élite (≈ 17-24 dps à 10 m), renforts AGENT + GARDE, arène d'origine intacte ; host+client (`tests/net_probe_types.gd --arena=infiltration`) : le client voit les 4 archétypes, leurs états et patrouilles, volées à plombs multiples sans erreur
+- [ ] **Feel à valider en jouant** (létalité de l'agent et de l'élite, tailles des cônes, difficulté des trois routes, lisibilité des couleurs/étiquettes)
+- Limites : pas d'objectif réel dans l'arène (le terminal n'est qu'un repère : missions = phase suivante) ; les archétypes ne diffèrent que par leurs valeurs et leur arme (pas de comportement scripté propre : couverture, grenade, etc.) ; navmesh non vérifié sur une éventuelle route par le toit
+
 ## Corrections (retours du développeur, après 3.5)
 - [x] **Accroupi / slide en l'air** : C / Ctrl en l'air → `Crouch` aérien (hitbox réduite, élan conservé, contrôle aérien normal) ; atterrissage à ≥ 5 m/s = slide, plus lent = reste accroupi ; relâcher → se relève. Fin de slide / chute d'un slide avec la touche maintenue → reste accroupi. Vérifié solo (saut → C → atterrissage 8 m/s = Slide ; atterrissage lent = Crouch ; relâchement = Walk, capsule 1.8)
 - [x] **Arme visible sur les ennemis** : modèle (boîte sombre côté droit), point de bouche (`Muzzle`), flash au tir (local + `show_shot`), le trait part du canon ; vérifié par capture d'écran + flash à 0.06 s

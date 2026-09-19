@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://game/ai/enemy_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "AGENT"
+body_color = Color(0.2, 0.35, 0.9, 1)
+max_health = 140.0
+walk_speed = 2.6
+investigate_speed = 3.2
+chase_speed = 5.0
+combat_speed = 4.5
+strafe_speed = 1.5
+preferred_distance = 5.0
+combat_distance = 10.0
+detect_time = 0.7
+view_distance = 16.0
+view_fov_degrees = 130.0
+damage = 4.0
+pellets = 6
+spread_degrees = 7.0
+fire_interval = 1.5
+reaction_time = 0.6
+attack_range = 25.0

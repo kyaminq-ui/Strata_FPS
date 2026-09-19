@@ -2,6 +2,10 @@ class_name EnemyConfig
 extends Resource
 ## Métriques d'un ennemi (tranche 3.1 : patrouille). Perception/combat s'ajouteront avec leurs tranches.
 
+@export_group("Identité")
+@export var display_name: String = "GARDE"
+@export var body_color: Color = Color(0.85, 0.15, 0.15)
+
 @export_group("Vie")
 @export var max_health: float = 80.0
 @export var respawn_delay: float = 30.0  # le cadavre reste ce temps (il peut être découvert)
@@ -39,11 +43,13 @@ extends Resource
 @export var retarget_distance: float = 0.25  # cible de navigation : on ne recalcule qu'au-delà
 
 @export_group("Infiltration")
+@export var silent_takedown: bool = true  # faux (élite) : le dos n'est pas une élimination silencieuse
 @export_range(-1.0, 1.0) var takedown_back_dot: float = -0.2  # attaquant derrière : cos(angle) <= ceci (≈ hors du demi-plan avant)
 @export var body_height: float = 0.3  # point visé sur un cadavre pour la ligne de vue
 
 @export_group("Tir")
-@export var damage: float = 8.0
+@export var damage: float = 8.0  # par plomb
+@export var pellets: int = 1
 @export var fire_interval: float = 0.9
 @export var reaction_time: float = 0.7  # vue continue avant le premier tir : le joueur peut réagir
 @export var spread_degrees: float = 3.0

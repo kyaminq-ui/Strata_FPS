@@ -12,7 +12,7 @@ Principe : on ne passe à la phase suivante que si le livrable est testé en sit
 | 0. Pipeline | Godot + Claude Code + MCP + Git, conventions, docs | ✅ fait (Blender/Meshy/audio non testés, voir « Pipeline assets » ci-dessous) |
 | 1. Mouvement réseau | Arène grise, 2 joueurs, mouvements synchronisés | ✅ fait, feel validé par le développeur |
 | 2. Combat coop | Tir, dégâts, revive, arène de combat réseau | ✅ fait (validé jusqu'à la grenade, clignotement corrigé mais pas encore revalidé à la main) |
-| 3. IA & infiltration | Perception, alertes, approche libre | ⏭️ **prochaine phase** |
+| 3. IA & infiltration | Perception, alertes, approche libre | ✅ fait (3.1-3.6), feel à valider en jouant |
 | 4. Vertical slice | Secteur complet + boss, démo 30-45 min | ⬜ |
 | 5. Art / audio / polish | Habillage, SFX, musique, perf | ⬜ |
 | 6. Steam / QA | Invitations, sessions, bugs réseau | ⬜ |
@@ -29,8 +29,8 @@ Principe : on ne passe à la phase suivante que si le livrable est testé en sit
 | 1 gadget | ✅ grenade explosive destructible par tir |
 | Coop : spawn, synchro, revive | ✅ |
 | Coop : checkpoints / lobby privé | ⬜ (respawn sur marqueurs ; pas de lobby) |
-| 2 archétypes d'ennemis + 1 élite | ⬜ |
-| IA patrouille / suspicion / alerte / combat | ⬜ (**phase 3**) |
+| 2 archétypes d'ennemis + 1 élite | ✅ garde, agent, élite (graybox) |
+| IA patrouille / suspicion / alerte / combat | ✅ |
 | 1 secteur vertical dense + hub | ⬜ (blockout à faire) |
 | 2 missions principales | ⬜ (objectifs host-autoritaires, `GameSession` à créer) |
 | 1 boss / cible majeure | ⬜ |

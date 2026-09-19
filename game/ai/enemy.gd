@@ -4,7 +4,6 @@ extends CharacterBody3D
 ## Alert → Combat, enfants de $States), mort, respawn. Les clients interpolent `net_position` /
 ## `net_yaw` et affichent `net_state` + `Health.health` (répliqués).
 
-const BASE_COLOR := Color(0.85, 0.15, 0.15)
 const FLASH_COLOR := Color(1.0, 1.0, 1.0)
 const CORPSE_COLOR := Color(0.3, 0.3, 0.32)
 const CORPSE_ROTATION_X := -PI / 2.0  # capsule couchée
@@ -53,7 +52,7 @@ var _material := StandardMaterial3D.new()
 func _ready() -> void:
 	add_to_group("enemies")
 	_layer = collision_layer
-	_material.albedo_color = BASE_COLOR
+	_material.albedo_color = config.body_color
 	_mesh.material_override = _material
 	_health.max_health = config.max_health
 	_health.reset()
@@ -87,17 +86,17 @@ func _process(delta: float) -> void:
 	var health := _health.health
 	var dead := health <= 0.0
 	_label.visible = not dead
-	_label.text = "%s %d" % [net_state, ceili(health)]
+	_label.text = "%s %s %d" % [config.display_name, net_state, ceili(health)]
 	_label.modulate = STATE_COLORS.get(net_state, Color.WHITE)
 	_mesh.rotation.x = CORPSE_ROTATION_X if dead else 0.0  # le cadavre reste visible, couché
 	_mesh.position.y = CORPSE_Y if dead else STANDING_Y
 	if dead:
 		_material.albedo_color = CORPSE_COLOR
 	elif _was_dead:
-		_material.albedo_color = BASE_COLOR
+		_material.albedo_color = config.body_color
 	elif _last_health > health:
 		_material.albedo_color = FLASH_COLOR
-		create_tween().tween_property(_material, "albedo_color", BASE_COLOR, config.flash_time)
+		create_tween().tween_property(_material, "albedo_color", config.body_color, config.flash_time)
 	_was_dead = dead
 	_last_health = health
 	if multiplayer.is_server():
@@ -125,7 +124,7 @@ func is_dead() -> bool:
 
 ## Élimination silencieuse (contrat lu par la mêlée) : ennemi non alerté attaqué dans le dos.
 func can_be_silenced(from: Vector3) -> bool:
-	if _health.is_dead() or not awareness.is_unaware():
+	if not config.silent_takedown or _health.is_dead() or not awareness.is_unaware():
 		return false
 	var to_attacker := (from - global_position) * Vector3(1.0, 0.0, 1.0)
 	return (-global_basis.z).dot(to_attacker.normalized()) <= config.takedown_back_dot

@@ -6,3 +6,5 @@ extends Resource
 @export var count: int = 2
 @export var cooldown: float = 60.0  # entre deux vagues
 @export var max_alive: int = 3
+## Archétypes des renforts, en alternance (vide = la config de la scène ennemie).
+@export var unit_types: Array[EnemyConfig] = []

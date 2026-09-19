@@ -68,7 +68,7 @@ Règles : simplicité > robustesse > extensibilité hypothétique ; une tranche 
 **Tranche 3.3 — États** ✅ FAIT (voir TASKS.md ; prochaine : 3.4) : calme → suspicion (regarde/va vers la dernière position perçue) → alerte (poursuit, prévient les autres : alerte globale partagée) → combat ; retour au calme avec délais. Machine à états simple (même pattern que `PlayerState` : nœuds enfants). Pas de « échec si détecté ».
 **Tranche 3.4 — Combat ennemi** ✅ FAIT (voir TASKS.md ; prochaine : 3.5) : tir hitscan avec cadence/dispersion via une Resource, dégâts sur `Player.health` (host), le joueur down/respawn existant s'applique ; mouvement simple (rapprochement, strafing léger) ; ne pas exiger de couverture au début.
 **Tranche 3.5 — Infiltration** ✅ FAIT (voir TASKS.md ; prochaine : 3.6) : élimination silencieuse (mêlée depuis le dos/sur ennemi non alerté), corps qui déclenchent la suspicion, renforts en frontal, routes alternatives dans l'arène de test.
-**Tranche 3.6 — Contenu** : 2 archétypes (ex. garde standard, agent de sécurité avec comportement/arme différents) + 1 variante élite ; petite arène d'infiltration de test.
+**Tranche 3.6 — Contenu** ✅ FAIT (voir TASKS.md) — **Milestone 3 terminé, feel à valider ; prochaine phase = Phase 4 (voir ROADMAP.md)** : 2 archétypes (ex. garde standard, agent de sécurité avec comportement/arme différents) + 1 variante élite ; petite arène d'infiltration de test.
 
 À chaque tranche : mettre à jour `TASKS.md` (section Milestone 3), `NETWORK.md` (autorité IA), `DECISIONS.md`, et ajouter une sonde `tests/net_probe_*.gd` si un comportement réseau est nouveau. Prévoir un test avec **latence artificielle** dès que des ennemis mobiles sont touchés par des tirs client.
 
