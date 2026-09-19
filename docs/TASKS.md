@@ -150,6 +150,11 @@
 - [ ] **Feel à valider en jouant** (angle du dos, portée, lisibilité des cadavres, délai/nombre des renforts, difficulté du couloir)
 - Limites : takedown vérifié côté host (même code pour un client, non rejoué en réseau) ; le corps n'est pas « fouillé »/caché ; pas de vrai chemin alternatif vertical (toit/conduit) dans l'arène ; les renforts arrivent toujours des mêmes points ; le bruit n'est toujours pas atténué par les murs ; les traits de tir ennemis sont enfants de `Enemies` (cosmétique).
 
+## Corrections (retours du développeur, après 3.5)
+- [x] **Accroupi / slide en l'air** : C / Ctrl en l'air → `Crouch` aérien (hitbox réduite, élan conservé, contrôle aérien normal) ; atterrissage à ≥ 5 m/s = slide, plus lent = reste accroupi ; relâcher → se relève. Fin de slide / chute d'un slide avec la touche maintenue → reste accroupi. Vérifié solo (saut → C → atterrissage 8 m/s = Slide ; atterrissage lent = Crouch ; relâchement = Walk, capsule 1.8)
+- [x] **Arme visible sur les ennemis** : modèle (boîte sombre côté droit), point de bouche (`Muzzle`), flash au tir (local + `show_shot`), le trait part du canon ; vérifié par capture d'écran + flash à 0.06 s
+- [x] **Down du dernier joueur debout** : avant, un joueur qui tombait sans partenaire *vivant* respawnait immédiatement (cas typique : le client est déjà down → le host « ne pouvait pas » tomber). Maintenant il tombe aussi en down ; **si tous sont down, respawn de tous après `all_down_respawn_delay` (3 s)** ; solo / partenaire parti = respawn immédiat. Vérifié host+client (client down puis host down : les deux down, respawn ensemble à ~3 s, PV 100) et solo. Non reproduit : « host qui respawn alors que le client est vivant » (il tombe bien en down dans mes tests)
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

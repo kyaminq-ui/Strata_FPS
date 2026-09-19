@@ -1,8 +1,9 @@
 class_name PlayerLife
 extends Node
-## Vie du joueur. Coop : à 0 PV on passe « down » et le partenaire peut réanimer ; si le
-## délai expire, ou s'il n'y a aucun partenaire vivant (solo, les deux down, partenaire
-## parti), respawn au point d'apparition. Le HOST décide de tout ; downed / down_time_left /
+## Vie du joueur. Coop : à 0 PV on passe « down » (même si le partenaire est déjà down) et le
+## partenaire vivant peut réanimer ; si le délai expire, respawn au point d'apparition. Quand tous
+## les joueurs sont down, ils respawn ensemble après un court délai. Sans partenaire du tout
+## (solo, partenaire parti) : respawn immédiat. Le HOST décide de tout ; downed / down_time_left /
 ## revive_progress sont répliqués par SyncServer (autorité = host).
 
 signal downed_changed(downed: bool)
@@ -43,8 +44,13 @@ func _physics_process(delta: float) -> void:
 		revive_progress = 0.0
 	if revive_progress >= 1.0:
 		_revive()
-	elif down_time_left <= 0.0 or _other_alive_players().is_empty():
-		_respawn()
+	elif _other_players().is_empty():
+		_respawn()  # plus de partenaire (parti) : rien à attendre
+	else:
+		if _other_alive_players().is_empty():  # tous down : on n'attend pas la fin du délai complet
+			down_time_left = minf(down_time_left, config.all_down_respawn_delay)
+		if down_time_left <= 0.0:
+			_respawn()
 
 
 ## Appelé par le réanimateur (son client -> host). Le tireur est identifié par le RPC.
@@ -62,8 +68,8 @@ func set_reviver(peer_id: int, active: bool) -> void:
 
 
 func _on_health_depleted(_by_peer: int) -> void:
-	if _other_alive_players().is_empty():
-		_respawn()
+	if _other_players().is_empty():
+		_respawn()  # solo / partenaire parti : pas de down
 		return
 	downed = true
 	down_time_left = config.down_duration
@@ -99,6 +105,15 @@ func _valid_reviver() -> Player:
 	if reviver.net_position.distance_to(_player.net_position) > config.revive_range * SERVER_RANGE_TOLERANCE:
 		return null
 	return reviver
+
+
+func _other_players() -> Array[Player]:
+	var result: Array[Player] = []
+	for node in _player.get_parent().get_children():
+		var other := node as Player
+		if other != null and other != _player:
+			result.append(other)
+	return result
 
 
 func _other_alive_players() -> Array[Player]:

@@ -3,6 +3,7 @@
 Format : date · décision · raison. Ajouter en haut.
 
 ## 2026-09-19 — Mouvement
+36. **Tous down = respawn de tous après 3 s** (remplace « respawn immédiat du dernier debout », décision 17) : chaque joueur peut tomber ; solo inchangé.
 30. **C / Ctrl = slide si rapide, sinon accroupi** (même action) ; **saut possible pendant le dash** avec élan réduit (`dash_jump_speed`) plutôt que la vitesse de dash complète (33 m/s).
 
 ## 2026-09-19 — Milestone 3 (IA)

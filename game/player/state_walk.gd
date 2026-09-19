@@ -18,8 +18,9 @@ func physics_update(delta: float) -> void:
 	if player.wants_dash():
 		player.change_state(&"Dash")
 		return
-	if Input.is_action_just_pressed("slide") and player.is_on_floor():
-		player.change_state(&"Slide" if _can_slide() else &"Crouch")  # rapide = slide, sinon accroupi
+	if Input.is_action_just_pressed("slide"):
+		# au sol : rapide = slide, sinon accroupi ; en l'air : accroupi (slide à l'atterrissage si rapide)
+		player.change_state(&"Slide" if player.is_on_floor() and _can_slide() else &"Crouch")
 		return
 
 	player.apply_gravity(delta)

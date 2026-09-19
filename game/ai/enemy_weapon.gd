@@ -5,10 +5,14 @@ extends Node
 
 const WORLD_MASK := 1
 const PLAYER_MASK := 2
+const FLASH_TIME := 0.06  # cosmétique
 
 var _enemy: Enemy
 var _aim_time := 0.0
 var _cooldown := 0.0
+
+@onready var _muzzle: Marker3D = $"../Mesh/Gun/Muzzle"
+@onready var _flash_mesh: MeshInstance3D = $"../Mesh/Gun/Flash"
 
 
 func _ready() -> void:
@@ -44,14 +48,22 @@ func _fire(target: Player) -> void:
 		var health := (hit.collider as Node).get_node_or_null("Health") as HealthComponent
 		if health:
 			health.take_damage(config.damage, 0)  # 0 = pas de tireur joueur
-	Tracer.spawn(_enemy.get_parent(), origin, end)
+	var start := _muzzle.global_position  # le trait part du canon (le tir, lui, part des yeux)
+	Tracer.spawn(_enemy.get_parent(), start, end)
+	_flash()
 	if not multiplayer.get_peers().is_empty():
-		show_shot.rpc(origin, end)
+		show_shot.rpc(start, end)
 
 
 @rpc("authority", "call_remote", "unreliable")
 func show_shot(from: Vector3, to: Vector3) -> void:
 	Tracer.spawn(_enemy.get_parent(), from, to)
+	_flash()
+
+
+func _flash() -> void:
+	_flash_mesh.show()
+	get_tree().create_timer(FLASH_TIME).timeout.connect(_flash_mesh.hide)
 
 
 static func _with_spread(direction: Vector3, degrees: float) -> Vector3:
