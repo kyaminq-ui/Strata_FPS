@@ -14,7 +14,9 @@ Source unique : `game/player/default_movement.tres` (type `MovementConfig`). Ne 
 | Hauteur de saut (vélocité = √(2·g·h)) | `jump_height` | B | 1.6 m | à tuner |
 | Coyote time | `coyote_time` | B | 0.12 s | à tuner |
 | Jump buffer | `jump_buffer_time` | B | 0.12 s | à tuner |
-| Dash (vitesse, distance, cooldown) | — | D | — | non implémenté |
+| Distance du dash (vitesse = distance / durée ≈ 33 m/s) | `dash_distance` | D | 6.0 m | à tuner |
+| Durée du dash | `dash_duration` | D | 0.18 s | à tuner |
+| Cooldown du dash | `dash_cooldown` | D | 0.8 s | à tuner |
 | Slide (vitesse, durée, friction) | — | E | — | non implémenté |
 | Wall-run | — | F | — | non implémenté |
 

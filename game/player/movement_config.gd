@@ -15,6 +15,11 @@ extends Resource
 @export var coyote_time: float = 0.12
 @export var jump_buffer_time: float = 0.12
 
+@export_group("Couche D - Dash")
+@export var dash_distance: float = 6.0
+@export var dash_duration: float = 0.18
+@export var dash_cooldown: float = 0.8
+
 @export_group("Regard")
 @export var mouse_sensitivity: float = 0.0022
 @export var max_pitch_degrees: float = 89.0

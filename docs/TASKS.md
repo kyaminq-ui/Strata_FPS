@@ -17,8 +17,14 @@
 - [x] Vérifié techniquement : apex 1.67 m, vol 0.73 s, buffer (rebond à l'atterrissage), coyote (saut 0.07 s après le bord), réplication host↔client (y max vu par le host : 1.64 m)
 - [ ] **Feel à valider en jouant** (hauteur, gravité, tolérances) avant la couche D
 
+## Couche D — Dash
+- [x] Dash horizontal (Shift physique), sol ou air, direction = input (sinon avant), gravité suspendue pendant le dash, sortie à la vitesse de marche, cooldown
+- [x] Vérifié techniquement : ≈ 6.3 m au sol et latéral, bloqué par le cooldown, y constant en l'air, réplication host↔client (pic 42 m/s vu par le host vs 8 m/s en marche)
+- [ ] **Feel à valider en jouant** (distance, durée, cooldown, sortie de dash, enchaînement dash + saut) avant la couche E
+- Note : le dash coupe la vélocité verticale en l'air ; enchaînement saut pendant le dash à décider au tuning.
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
-C réplication (validée avec B) → D dash → E slide → F wall-run → combat → IA/infiltration → contenu.
+E slide → F wall-run → combat → IA/infiltration → contenu.
 
 ## Actions pour le développeur
 - `git init` (pas de dépôt actuellement) puis premier commit.

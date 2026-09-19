@@ -18,6 +18,9 @@ var net_pitch: float
 
 var _coyote_left := 0.0
 var _jump_buffer_left := 0.0
+var _dash_left := 0.0
+var _dash_cooldown_left := 0.0
+var _dash_dir := Vector3.ZERO
 
 @onready var _head: Node3D = $Head
 @onready var _camera: Camera3D = $Head/Camera3D
@@ -71,6 +74,23 @@ func _physics_process(delta: float) -> void:
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var wish_dir := (global_basis * Vector3(input.x, 0.0, input.y)).normalized()
 
+	_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
+	if Input.is_action_just_pressed("dash") and _dash_cooldown_left <= 0.0:
+		_start_dash(wish_dir)
+
+	if _dash_left > 0.0:
+		_update_dash(delta)
+	else:
+		_update_walk(delta, wish_dir)
+
+	move_and_slide()
+
+	net_position = global_position
+	net_yaw = rotation.y
+	net_pitch = _head.rotation.x
+
+
+func _update_walk(delta: float, wish_dir: Vector3) -> void:
 	if not is_on_floor():
 		velocity.y -= config.gravity * delta
 	_update_jump(delta)
@@ -84,11 +104,21 @@ func _physics_process(delta: float) -> void:
 	velocity.x = horizontal.x
 	velocity.z = horizontal.y
 
-	move_and_slide()
 
-	net_position = global_position
-	net_yaw = rotation.y
-	net_pitch = _head.rotation.x
+## Impulsion horizontale courte, au sol ou en l'air. Sans direction voulue : vers l'avant.
+func _start_dash(wish_dir: Vector3) -> void:
+	_dash_dir = wish_dir if wish_dir != Vector3.ZERO else -global_basis.z
+	_dash_dir.y = 0.0
+	_dash_dir = _dash_dir.normalized()
+	_dash_left = config.dash_duration
+	_dash_cooldown_left = config.dash_cooldown
+
+
+func _update_dash(delta: float) -> void:
+	_dash_left -= delta
+	velocity = _dash_dir * (config.dash_distance / config.dash_duration)
+	if _dash_left <= 0.0:
+		velocity = _dash_dir * config.walk_speed
 
 
 func _update_jump(delta: float) -> void:

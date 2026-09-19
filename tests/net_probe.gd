@@ -28,8 +28,10 @@ func _process(delta: float) -> bool:
 		quit()
 	if _walking and fmod(_elapsed, 1.0) < delta:
 		Input.action_press("jump")
+		Input.action_press("dash")
 	elif _walking:
 		Input.action_release("jump")
+		Input.action_release("dash")
 	return false
 
 
