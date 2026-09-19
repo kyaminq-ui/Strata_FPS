@@ -1,0 +1,22 @@
+# DECISIONS
+
+Format : date · décision · raison. Ajouter en haut.
+
+## 2026-09-19 — Milestone 0
+13. **Spawn via `spawn_function` + données explicites** (peer_id, position) plutôt que réplication `spawn = true` : cette dernière ignore les propriétés dont l'autorité est le client (bug observé).
+14. **Actions d'input écrites à la main dans `project.godot`** : l'outil MCP `input_map_manage` ne sait pas créer de touches physiques. Éviter de re-modifier ces actions via MCP (risque de perdre le mode physique) ; en cas de besoin, redonner `physical_keycode`.
+1. **Transport ENet via MultiplayerAPI haut niveau**, isolé dans `MultiplayerManager`. Raison : le plus simple ; Steam/WebRTC = autre `MultiplayerPeer` plus tard.
+2. **Solo = host sans client**, même code que le host. Raison : évite deux chemins de code et garantit que le solo reste jouable.
+3. **Un seul autoload** (`MultiplayerManager`). `GameSession` reporté jusqu'au besoin (checkpoints/missions).
+4. **Mouvement client-authoritative** (peer propriétaire) pour le MVP. Validation host ajoutée avec le combat.
+5. **Autorité du joueur déduite du nom du nœud** (`str(peer_id)`) posé par le spawner.
+6. **Le réseau est créé avant l'arène**, pour que la scène cliente existe avant les spawns et que `is_server()` soit correct.
+7. **Scène de démarrage pilotée par `main.gd`** (instanciation de l'arène en enfant, pas de `change_scene`), pour un ordre d'initialisation déterministe.
+8. **Touches physiques** dans l'InputMap (AZERTY/QWERTY).
+9. **MovementConfig = une Resource** ; les champs dash/slide/wall-run seront ajoutés avec chaque couche (pas de champs morts).
+10. **Arborescence sous `game/`**, non sous `scripts/` comme dans l'exemple du GDD, plus proche de la structure demandée.
+11. **GDD en PDF** (`docs/GDD_Strata_FPS.pdf`) : `GDD.md` du GDD n'existe pas ; le PDF fait foi.
+12. **Git** : le dossier n'est pas un dépôt. À initialiser par le développeur (voir TASKS.md).
+
+## Points ouverts (GDD §16, non bloquants)
+Titre définitif · nom/voix des opérateurs · structure hub/continue · séparation max entre joueurs · drop-in · progression commune/individuelle · fin · financement.
