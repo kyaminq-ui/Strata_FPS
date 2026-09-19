@@ -81,6 +81,8 @@ func _server_melee(shooter_id: int, origin: Vector3, direction: Vector3) -> void
 		var damage := config.damage * (config.dash_damage_multiplier if after_dash else 1.0)
 		if health.health <= health.max_health * config.finisher_health_fraction:
 			damage = health.max_health  # finisseur
+		if target.has_method("can_be_silenced") and target.can_be_silenced(origin):
+			damage = health.max_health  # élimination silencieuse (dans le dos d'un ennemi non alerté)
 		var killed := health.take_damage(damage, shooter_id)
 		if shooter_id == multiplayer.get_unique_id():
 			hit_confirmed.emit(killed)

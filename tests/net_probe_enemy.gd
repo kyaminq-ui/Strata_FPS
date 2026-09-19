@@ -10,6 +10,7 @@ const SHOTS := 5
 const SHOT_INTERVAL := 0.8
 const SHOOT_DISTANCE := 6.0
 const AIM_HEIGHT := 1.0
+const END_SECONDS := 22.0  # laisse le temps aux renforts d'arriver (delay 8 s après l'alerte)
 
 var _elapsed := 0.0
 var _next_log := 0.0
@@ -34,7 +35,7 @@ func _process(delta: float) -> bool:
 		_bound = true
 	if _elapsed >= _next_log:
 		_next_log += LOG_INTERVAL
-		print("[enemy probe] t=%.1f %s | %s | myhp=%d" % [_elapsed, _describe("Enemy1"), _describe("Enemy2"), player.health.health])
+		print("[enemy probe] t=%.1f %s | %s | myhp=%d | enemies=%s" % [_elapsed, _describe("Enemy1"), _describe("Enemy2"), player.health.health, _enemy_names()])
 	Input.action_release("fire")
 	if _elapsed >= SHOOT_START:
 		_shoot_phase(player)
@@ -53,9 +54,17 @@ func _shoot_phase(player: Player) -> void:
 		player.get_node("Head").rotation.x = atan2(to_target.y, Vector2(to_target.x, to_target.z).length())
 		Input.action_press("fire")
 		_shots += 1
-	elif _shots >= SHOTS and _elapsed >= SHOOT_START + SHOTS * SHOT_INTERVAL + 1.5:
+	elif _shots >= SHOTS and _elapsed >= END_SECONDS:
 		print("[enemy probe] tirs=%d hits_confirmes=%d sante_vue_enemy1=%s" % [_shots, _hits, _enemy("Enemy1").get_node("Health").health])
 		quit()
+
+
+func _enemy_names() -> String:
+	var names: PackedStringArray = []
+	for enemy in _main.get_node("ArenaGraybox/Enemies").get_children():
+		if enemy is Enemy:  # les traits cosmétiques sont aussi enfants de ce nœud
+			names.append("%s:%s" % [enemy.name, enemy.net_state])
+	return ",".join(names)
 
 
 func _enemy(enemy_name: String) -> Node3D:

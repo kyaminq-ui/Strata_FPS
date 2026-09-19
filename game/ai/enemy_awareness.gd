@@ -20,6 +20,7 @@ func _ready() -> void:
 	add_to_group("enemy_awareness")
 	_perception = _enemy.get_node("Perception")
 	_perception.noise_heard.connect(_on_noise_heard)
+	_perception.body_spotted.connect(_on_body_spotted)
 	(_enemy.get_node("Health") as HealthComponent).damaged.connect(_on_damaged)
 
 
@@ -44,7 +45,7 @@ func _physics_process(delta: float) -> void:
 		investigate_position = _perception.last_seen_position
 	else:
 		time_since_seen += delta
-	if not _is_unaware():
+	if not is_unaware():
 		return
 	if sees_player():
 		_detect += delta / _enemy.config.detect_time
@@ -60,10 +61,17 @@ func _physics_process(delta: float) -> void:
 func become_alert() -> void:
 	_enemy.change_state(&"Alert")
 	get_tree().call_group("enemy_awareness", "receive_alert", investigate_position)
+	get_tree().call_group("reinforcements", "on_alert", investigate_position)
+
+
+## Alerte imposée (renforts qui arrivent) : pas de propagation.
+func force_alert(position: Vector3) -> void:
+	investigate_position = position
+	_enemy.change_state(&"Alert")
 
 
 func receive_alert(position: Vector3) -> void:
-	if _enemy.is_dead() or not _is_unaware():
+	if _enemy.is_dead() or not is_unaware():
 		return
 	if _enemy.global_position.distance_to(position) > _enemy.config.alert_share_radius:
 		return
@@ -71,22 +79,31 @@ func receive_alert(position: Vector3) -> void:
 	_enemy.change_state(&"Alert")
 
 
-func _is_unaware() -> bool:
+func is_unaware() -> bool:
 	return _enemy.state_name == &"Calm" or _enemy.state_name == &"Suspicious"
 
 
 func _on_noise_heard(position: Vector3, _kind: StringName) -> void:
-	if _is_unaware():
+	if is_unaware():
 		investigate_position = position
 		_enemy.change_state(&"Suspicious")  # ré-entrée : relance l'enquête vers le nouveau bruit
 	elif _enemy.state_name == &"Alert" and not sees_player():
 		investigate_position = position
 
 
+## Un cadavre découvert rend suspect (jamais une alerte directe).
+func _on_body_spotted(position: Vector3) -> void:
+	if is_unaware():
+		investigate_position = position
+		_enemy.change_state(&"Suspicious")
+
+
 ## Être touché alerte l'ennemi et révèle la position du tireur.
 func _on_damaged(_amount: float, by_peer: int) -> void:
+	if _enemy.is_dead():
+		return  # coup mortel (dont élimination silencieuse) : personne n'est prévenu
 	var shooter := get_tree().get_nodes_in_group("players").filter(func(p: Node) -> bool: return p.name == str(by_peer))
 	if not shooter.is_empty():
 		investigate_position = (shooter[0] as Node3D).global_position
-	if _is_unaware():
+	if is_unaware():
 		become_alert()

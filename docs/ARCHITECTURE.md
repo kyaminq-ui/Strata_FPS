@@ -11,7 +11,7 @@ game/
   player/                    player.tscn/gd, movement_config.gd + default_movement.tres
   multiplayer/               player_spawner.gd
   world/                     arena_graybox.tscn (arène de test)
-  weapons/ (WeaponData, WeaponController, Tracer, pistol.tres)   components/ (HealthComponent)   ui/ (player_hud)   ai/ (Enemy, EnemyConfig, EnemyState + états, EnemyAwareness, EnemyWeapon, Perception, NoiseBus, LagCompensator, nav_baker)   missions/ (vide)
+  weapons/ (WeaponData, WeaponController, Tracer, pistol.tres)   components/ (HealthComponent)   ui/ (player_hud)   ai/ (Enemy, EnemyConfig, EnemyState + états, EnemyAwareness, EnemyWeapon, Perception, NoiseBus, LagCompensator, EnemySpawner + ReinforcementConfig, nav_baker)   missions/ (vide)
 assets/{generated,source,approved}   audio/{music,sfx}   tests/   docs/
 ```
 

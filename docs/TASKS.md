@@ -140,6 +140,16 @@
 - [ ] **Feel à valider en jouant** (dégâts/cadence/précision/réaction des ennemis, lisibilité du strafing, difficulté avec 2 ennemis)
 - Limites : **toujours pas de test avec latence artificielle** (tout en 127.0.0.1) ; tir ennemi sans son ni flash ; le strafing peut mener au bord de l'arène (pas de garde-fou) ; pas de couverture ; l'ennemi ne tire que le joueur vu (pas de tir de suppression) ; le tracer côté client non vérifié visuellement.
 
+## Milestone 3 (tranche 3.5) — Infiltration
+- [x] **Élimination silencieuse** : mêlée dans le dos (`takedown_back_dot` −0.2) d'un ennemi **calme ou suspicieux** = kill en un coup (`MeleeController` lit le contrat `can_be_silenced(from)` de la cible) ; un coup mortel ne prévient personne (`EnemyAwareness._on_damaged` ignore si mort) ; de face, ou contre un ennemi en alerte/combat = mêlée normale (40 dégâts, alerte)
+- [x] **Cadavres** : un ennemi mort reste visible, couché, grisé, pendant `respawn_delay` (30 s), groupe `enemy_bodies` ; `Perception` détecte les cadavres (cône, distance, ligne de vue) → **suspicion** (jamais alerte directe), un seul déclenchement par cadavre et par ennemi
+- [x] **Renforts** (`EnemySpawner`, `ReinforcementConfig` : délai 8 s, 2 ennemis, cooldown 60 s, 3 max) : alerte frontale qui dure → 2 ennemis arrivent des points `ReinforcementPoints` déjà en alerte vers le joueur ; spawn répliqué (`MultiplayerSpawner` + `spawn_function`) ; sans respawn, le cadavre disparaît (`queue_free`) ; pas de renforts si l'alerte est retombée avant la fin du délai
+- [x] Arène : **couloir gardé** (2 murs, `Enemy3` patrouille dedans, ouvert aux deux bouts) → face (vu), ou contournement par l'arrière pour l'élimination silencieuse
+- [x] Vérifié solo : takedown dans le dos (kill, autres ennemis restent calmes), refusé de face / en alerte / en combat (règle testée état par état), mêlée de face = 40 dégâts + combat ; cadavre découvert → suspicion → retour au calme sans re-déclenchement ; renforts (vus après ~8 s de combat), disparition d'un renfort mort ; host+client (`net_probe_enemy.gd`, 22 s) : Reinforcement0/1 apparaissent chez le client en alerte puis en combat, la santé du client baisse (il meurt à t=20 sans erreur)
+- Bug trouvé/corrigé : `points` du spawner nul (un export de nœud dans un `.tscn` écrit à la main exige `node_paths=PackedStringArray(...)`) ; couloir garde visible depuis le point d'apparition → reculé.
+- [ ] **Feel à valider en jouant** (angle du dos, portée, lisibilité des cadavres, délai/nombre des renforts, difficulté du couloir)
+- Limites : takedown vérifié côté host (même code pour un client, non rejoué en réseau) ; le corps n'est pas « fouillé »/caché ; pas de vrai chemin alternatif vertical (toit/conduit) dans l'arène ; les renforts arrivent toujours des mêmes points ; le bruit n'est toujours pas atténué par les murs ; les traits de tir ennemis sont enfants de `Enemies` (cosmétique).
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

@@ -6,6 +6,10 @@ extends CharacterBody3D
 
 const BASE_COLOR := Color(0.85, 0.15, 0.15)
 const FLASH_COLOR := Color(1.0, 1.0, 1.0)
+const CORPSE_COLOR := Color(0.3, 0.3, 0.32)
+const CORPSE_ROTATION_X := -PI / 2.0  # capsule couchée
+const CORPSE_Y := 0.45  # rayon de la capsule
+const STANDING_Y := 0.9
 const STATE_COLORS := {
 	"CALM": Color(0.7, 0.7, 0.7),
 	"SUSPICIOUS": Color(1.0, 0.9, 0.2),
@@ -17,6 +21,8 @@ const STATE_COLORS := {
 @export var config: EnemyConfig
 ## Nœud dont les enfants Marker3D forment la route de patrouille (boucle).
 @export var route: Node3D
+## Faux pour les renforts : pas de respawn, le cadavre disparaît après `respawn_delay`.
+var respawns := true
 
 var net_position: Vector3
 var net_yaw: float
@@ -31,6 +37,7 @@ var _state: EnemyState
 var _home := Vector3.ZERO
 var _layer := 0
 var _last_health := -1.0
+var _was_dead := false
 var _material := StandardMaterial3D.new()
 
 @onready var perception: Perception = $Perception
@@ -78,13 +85,20 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	var health := _health.health
-	_mesh.visible = health > 0.0
-	_label.visible = health > 0.0
+	var dead := health <= 0.0
+	_label.visible = not dead
 	_label.text = "%s %d" % [net_state, ceili(health)]
 	_label.modulate = STATE_COLORS.get(net_state, Color.WHITE)
-	if _last_health > health and health > 0.0:
+	_mesh.rotation.x = CORPSE_ROTATION_X if dead else 0.0  # le cadavre reste visible, couché
+	_mesh.position.y = CORPSE_Y if dead else STANDING_Y
+	if dead:
+		_material.albedo_color = CORPSE_COLOR
+	elif _was_dead:
+		_material.albedo_color = BASE_COLOR
+	elif _last_health > health:
 		_material.albedo_color = FLASH_COLOR
 		create_tween().tween_property(_material, "albedo_color", BASE_COLOR, config.flash_time)
+	_was_dead = dead
 	_last_health = health
 	if multiplayer.is_server():
 		return
@@ -107,6 +121,14 @@ func change_state(new_state: StringName) -> void:
 
 func is_dead() -> bool:
 	return _health.is_dead()
+
+
+## Élimination silencieuse (contrat lu par la mêlée) : ennemi non alerté attaqué dans le dos.
+func can_be_silenced(from: Vector3) -> bool:
+	if _health.is_dead() or not awareness.is_unaware():
+		return false
+	var to_attacker := (from - global_position) * Vector3(1.0, 0.0, 1.0)
+	return (-global_basis.z).dot(to_attacker.normalized()) <= config.takedown_back_dot
 
 
 ## Avance vers `target` par la navigation (met `velocity` horizontale, oriente l'ennemi).
@@ -139,7 +161,13 @@ func face_point(point: Vector3, delta: float) -> void:
 func _on_died(_by_peer: int) -> void:
 	collision_layer = 0
 	net_state = "DEAD"
+	add_to_group("enemy_bodies")
 	await get_tree().create_timer(config.respawn_delay).timeout
+	if not respawns:
+		queue_free()
+		return
+	remove_from_group("enemy_bodies")
+	get_tree().call_group("perception", "forget_body", self)
 	_health.reset()
 	global_position = _home
 	net_position = _home

@@ -6,6 +6,9 @@ Format : date · décision · raison. Ajouter en haut.
 30. **C / Ctrl = slide si rapide, sinon accroupi** (même action) ; **saut possible pendant le dash** avec élan réduit (`dash_jump_speed`) plutôt que la vitesse de dash complète (33 m/s).
 
 ## 2026-09-19 — Milestone 3 (IA)
+35. **Renforts = `EnemySpawner` (MultiplayerSpawner) déclenché par `become_alert`, si l'alerte dure encore après un délai** : pas de vagues sans fin (cooldown + max vivants), pas de respawn (le corps disparaît). Résout la décision « pas de spawner » (22) : il en faut un dès qu'un système crée des ennemis dynamiquement.
+34. **Cadavre = ennemi mort visible, pas d'objet séparé** : découverte → suspicion seulement (« jamais échec si détecté »).
+33. **Élimination silencieuse = contrat `can_be_silenced(from)` sur la cible** (duck-typing, comme `Health`) : la mêlée ne connaît pas `Enemy` ; calme/suspicion + dans le dos = kill.
 32. **Lag compensation par rembobinage fixe** (0.15 s, `LagCompensator`) plutôt qu'un timestamp/RTT par client : simple, suffit en coop 2 joueurs ; à ajuster/tester avec latence artificielle. Seuls les tirs de clients rembobinent (le host tire sur l'état courant).
 31. **Réaction avant tir (0.7 s de vue continue) et faibles dégâts (8)** : lisibilité et liberté d'approche plutôt que difficulté (pilier « jamais échec si détecté »).
 29. **Alerte globale = `call_group("enemies", "receive_alert")` avec rayon** (60 m ≈ toute l'arène), pas de nœud d'alerte central : simple, host seul.

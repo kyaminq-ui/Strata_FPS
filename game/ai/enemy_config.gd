@@ -4,7 +4,7 @@ extends Resource
 
 @export_group("Vie")
 @export var max_health: float = 80.0
-@export var respawn_delay: float = 5.0
+@export var respawn_delay: float = 30.0  # le cadavre reste ce temps (il peut être découvert)
 
 @export_group("Patrouille")
 @export var walk_speed: float = 3.0
@@ -37,6 +37,10 @@ extends Resource
 @export var strafe_speed: float = 2.5
 @export var strafe_change_time: float = 1.8
 @export var retarget_distance: float = 0.25  # cible de navigation : on ne recalcule qu'au-delà
+
+@export_group("Infiltration")
+@export_range(-1.0, 1.0) var takedown_back_dot: float = -0.2  # attaquant derrière : cos(angle) <= ceci (≈ hors du demi-plan avant)
+@export var body_height: float = 0.3  # point visé sur un cadavre pour la ligne de vue
 
 @export_group("Tir")
 @export var damage: float = 8.0
