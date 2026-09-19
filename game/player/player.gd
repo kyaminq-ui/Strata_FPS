@@ -17,7 +17,7 @@ const GUEST_COLOR := Color(1.0, 0.25, 0.7)
 var net_position: Vector3
 var net_yaw: float
 var net_pitch: float
-var net_sliding: bool
+var net_crouched: bool
 var net_weapon := 0  # index dans WeaponController.loadout
 var net_dashing := false  # dash récent (fenêtre dash -> mêlée), lu par le host
 
@@ -175,7 +175,7 @@ func _physics_process(delta: float) -> void:
 	net_position = global_position
 	net_yaw = rotation.y
 	net_pitch = _head.rotation.x
-	net_sliding = _state.name == &"Slide"
+	net_crouched = _state.name == &"Slide" or _state.name == &"Crouch"
 	net_dashing = dash_cooldown_left > config.dash_cooldown - config.dash_melee_window
 
 
@@ -184,7 +184,7 @@ func _process(delta: float) -> void:
 		var roll_smoothing := 1.0 - exp(-CAMERA_ROLL_SMOOTHING * delta)
 		camera.rotation.z = lerp_angle(camera.rotation.z, deg_to_rad(camera_roll_target), roll_smoothing)
 		return
-	crouch.crouched = net_sliding or life.downed
+	crouch.crouched = net_crouched or life.downed
 	var t := 1.0 - exp(-REMOTE_SMOOTHING * delta)
 	global_position = global_position.lerp(net_position, t)
 	rotation.y = lerp_angle(rotation.y, net_yaw, t)

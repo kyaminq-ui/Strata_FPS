@@ -20,13 +20,15 @@ extends Resource
 @export var dash_duration: float = 0.18
 @export var dash_cooldown: float = 0.8
 @export var dash_melee_window: float = 0.5  # après le début du dash : mêlée renforcée
+@export var dash_jump_speed: float = 12.0  # vitesse horizontale conservée en sautant pendant un dash
 
 @export_group("Couche E - Slide")
 @export var slide_min_entry_speed: float = 5.0
 @export var slide_speed: float = 12.0
 @export var slide_duration: float = 0.8
 @export var slide_friction: float = 6.0
-@export var crawl_speed: float = 3.0
+@export var crawl_speed: float = 3.0  # sous un obstacle, fin de slide
+@export var crouch_speed: float = 4.0  # accroupi volontaire (C / Ctrl maintenu)
 @export var slide_height: float = 1.0
 @export var slide_head_height: float = 0.75
 @export var crouch_transition: float = 0.1

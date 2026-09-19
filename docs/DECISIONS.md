@@ -2,6 +2,9 @@
 
 Format : date · décision · raison. Ajouter en haut.
 
+## 2026-09-19 — Mouvement
+30. **C / Ctrl = slide si rapide, sinon accroupi** (même action) ; **saut possible pendant le dash** avec élan réduit (`dash_jump_speed`) plutôt que la vitesse de dash complète (33 m/s).
+
 ## 2026-09-19 — Milestone 3 (IA)
 29. **Alerte globale = `call_group("enemies", "receive_alert")` avec rayon** (60 m ≈ toute l'arène), pas de nœud d'alerte central : simple, host seul.
 28. **Jauge de détection** (vue continue 1 s → alerte) plutôt qu'alerte instantanée : laisse une marge de réaction au joueur (pilier « jamais échec si détecté »). Bruit = suspicion, jamais alerte directe ; être touché = alerte.

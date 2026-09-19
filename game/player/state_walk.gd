@@ -18,8 +18,8 @@ func physics_update(delta: float) -> void:
 	if player.wants_dash():
 		player.change_state(&"Dash")
 		return
-	if Input.is_action_just_pressed("slide") and _can_slide():
-		player.change_state(&"Slide")
+	if Input.is_action_just_pressed("slide") and player.is_on_floor():
+		player.change_state(&"Slide" if _can_slide() else &"Crouch")  # rapide = slide, sinon accroupi
 		return
 
 	player.apply_gravity(delta)

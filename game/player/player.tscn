@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://game/player/player.gd" id="1"]
 [ext_resource type="Resource" path="res://game/player/default_movement.tres" id="2"]
 [ext_resource type="Script" path="res://game/player/player_crouch.gd" id="3"]
+[ext_resource type="Script" path="res://game/player/state_crouch.gd" id="crouch_state"]
 [ext_resource type="Script" path="res://game/player/state_walk.gd" id="4"]
 [ext_resource type="Script" path="res://game/player/state_dash.gd" id="5"]
 [ext_resource type="Script" path="res://game/player/state_slide.gd" id="6"]
@@ -51,7 +52,7 @@ properties/1/replication_mode = 1
 properties/2/path = NodePath(".:net_pitch")
 properties/2/spawn = false
 properties/2/replication_mode = 1
-properties/3/path = NodePath(".:net_sliding")
+properties/3/path = NodePath(".:net_crouched")
 properties/3/spawn = false
 properties/3/replication_mode = 1
 properties/4/path = NodePath(".:net_weapon")
@@ -145,6 +146,9 @@ script = ExtResource("5")
 
 [node name="Slide" type="Node" parent="States"]
 script = ExtResource("6")
+
+[node name="Crouch" type="Node" parent="States"]
+script = ExtResource("crouch_state")
 
 [node name="WallRun" type="Node" parent="States"]
 script = ExtResource("7")

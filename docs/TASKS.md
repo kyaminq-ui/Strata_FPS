@@ -124,6 +124,13 @@
 - [ ] **Feel à valider en jouant** (temps de détection, vitesse de poursuite, durée de fouille, rayon de partage)
 - Limites : le combat ne tire pas encore (3.4) ; pas de retour au poste après alerte (reprend la patrouille au waypoint courant) ; `enemy.gd` ≈ 200 lignes (> objectif ~150) : extraire la conscience/alerte en composant si 3.4 le fait grossir.
 
+## Mouvement — accroupi et saut de dash (demande du développeur)
+- [x] **Accroupi volontaire** : maintenir C / Ctrl (action `slide`) au sol. Rapide (≥ 5 m/s) = slide comme avant ; lent ou à l'arrêt = état `Crouch` (`state_crouch.gd`, 4 m/s). Fin de slide avec la touche encore maintenue → reste accroupi ; relâcher → se relève s'il y a la place. Saut et dash possibles depuis l'accroupi (une fois relevable)
+- [x] **Saut pendant le dash** : jump pendant un dash au sol → saut immédiat qui garde 12 m/s (`dash_jump_speed`) dans la direction du dash ; saut juste après la fin du dash OK
+- [x] `net_sliding` renommé `net_crouched` (slide ou accroupi), pilote la hauteur/mesh des autres joueurs
+- [x] Vérifié solo : accroupi à l'arrêt (capsule 1.0 m, relevé au relâchement), slide 10.9 m/s → accroupi → relevé, dash-jump (vy 8.8, 12 m/s), saut après dash ; host+client (`tests/net_probe_crouch.gd`) : le host voit le client accroupi pendant 3 s puis relevé ; aucune erreur
+- [ ] **Feel à valider en jouant** (vitesse accroupi 4 m/s, élan du dash-jump 12 m/s)
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

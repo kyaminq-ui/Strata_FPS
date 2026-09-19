@@ -17,6 +17,12 @@ func enter() -> void:
 func physics_update(delta: float) -> void:
 	var config := player.config
 	_left -= delta
+	if Input.is_action_just_pressed("jump") and player.is_on_floor():
+		# saut immédiat pendant le dash : on garde de l'élan dans la direction du dash
+		player.velocity = _dir * config.dash_jump_speed
+		player.velocity.y = player.jump_velocity()
+		player.change_state(&"Walk")
+		return
 	player.velocity = _dir * (config.dash_distance / config.dash_duration)
 	if _left <= 0.0:
 		player.velocity = _dir * config.walk_speed

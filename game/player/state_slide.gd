@@ -34,7 +34,9 @@ func physics_update(delta: float) -> void:
 		player.change_state(&"Dash")
 		return
 	if can_stand and (_left <= 0.0 or not player.is_on_floor()):
-		player.change_state(&"Walk")
+		# touche toujours maintenue au sol : on reste accroupi
+		var keep_crouch := player.is_on_floor() and Input.is_action_pressed("slide")
+		player.change_state(&"Crouch" if keep_crouch else &"Walk")
 		return
 
 	if _left > 0.0:
