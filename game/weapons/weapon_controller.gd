@@ -14,6 +14,7 @@ const HEAD_HEIGHT := 1.6
 const SERVER_ORIGIN_TOLERANCE := 5.0  # m : couvre latence + dash
 const SERVER_RATE_TOLERANCE := 0.8  # tolère un peu de gigue sur la cadence
 const MUZZLE_OFFSET := Vector3(0.25, -0.2, -0.5)
+const FLASH_DURATION := 0.05
 
 @export var data: WeaponData
 
@@ -24,6 +25,8 @@ var _reload_left := 0.0
 var _server_last_shot_msec := -100000
 
 @onready var _player: Player = get_parent()
+@onready var _flash_first_person: Node3D = _player.get_node("Head/Camera3D/Viewmodel/Flash")
+@onready var _flash_third_person: Node3D = _player.get_node("Head/GunMesh/Flash")
 
 
 func _ready() -> void:
@@ -68,6 +71,7 @@ func _fire() -> void:
 	var hit := _cast(origin, direction)
 	var end: Vector3 = hit.position if not hit.is_empty() else origin + direction * data.max_range
 	Tracer.spawn(_player.get_parent(), origin + camera.global_basis * MUZZLE_OFFSET, end)
+	_flash()
 	if multiplayer.is_server():
 		_server_fire(multiplayer.get_unique_id(), origin, direction)
 	else:
@@ -111,6 +115,7 @@ func _server_fire(shooter_id: int, origin: Vector3, direction: Vector3) -> void:
 	var start := origin + Vector3.DOWN * 0.2 + direction * 0.5
 	if shooter_id != multiplayer.get_unique_id():
 		Tracer.spawn(_player.get_parent(), start, end)
+		_flash()
 	if not multiplayer.get_peers().is_empty():
 		show_shot.rpc(start, end)
 
@@ -125,3 +130,11 @@ func confirm_hit(killed: bool) -> void:
 func show_shot(from: Vector3, to: Vector3) -> void:
 	if multiplayer.get_remote_sender_id() == 1 and not _player.is_multiplayer_authority():
 		Tracer.spawn(_player.get_parent(), from, to)
+		_flash()
+
+
+## Flash de bouche cosmétique : viewmodel pour le tireur, modèle 3e personne pour les autres.
+func _flash() -> void:
+	var flash := _flash_first_person if _player.is_multiplayer_authority() else _flash_third_person
+	flash.show()
+	get_tree().create_timer(FLASH_DURATION).timeout.connect(flash.hide)

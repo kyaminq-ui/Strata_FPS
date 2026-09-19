@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://game/player/player.gd" id="1"]
 [ext_resource type="Resource" path="res://game/player/default_movement.tres" id="2"]
@@ -27,6 +27,13 @@ size = Vector3(0.5, 0.15, 0.3)
 
 [sub_resource type="BoxMesh" id="gun_mesh"]
 size = Vector3(0.08, 0.1, 0.4)
+
+[sub_resource type="BoxMesh" id="flash_mesh"]
+size = Vector3(0.14, 0.14, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="flash_material"]
+shading_mode = 0
+albedo_color = Color(1, 0.85, 0.4, 1)
 
 [sub_resource type="SceneReplicationConfig" id="replication"]
 properties/0/path = NodePath(".:net_position")
@@ -79,6 +86,22 @@ fov = 90.0
 [node name="Viewmodel" type="MeshInstance3D" parent="Head/Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -0.2, -0.5)
 mesh = SubResource("gun_mesh")
+
+[node name="Flash" type="MeshInstance3D" parent="Head/Camera3D/Viewmodel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.22)
+visible = false
+mesh = SubResource("flash_mesh")
+surface_material_override/0 = SubResource("flash_material")
+
+[node name="GunMesh" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -0.2, -0.4)
+mesh = SubResource("gun_mesh")
+
+[node name="Flash" type="MeshInstance3D" parent="Head/GunMesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.22)
+visible = false
+mesh = SubResource("flash_mesh")
+surface_material_override/0 = SubResource("flash_material")
 
 [node name="VisorMesh" type="MeshInstance3D" parent="Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.3)

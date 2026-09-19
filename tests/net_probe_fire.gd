@@ -12,6 +12,9 @@ var _elapsed := 0.0
 var _shots_fired := 0
 var _hits := 0
 var _bound := false
+var _host_flashes := 0
+var _host_flash_was_visible := false
+var _host_gun_visible := false
 var _main: Node
 
 
@@ -25,6 +28,7 @@ func _process(delta: float) -> bool:
 	var player := _find_local_player()
 	if player == null or _elapsed < SETTLE_SECONDS:
 		return false
+	_watch_host_weapon()
 	if not _bound:
 		player.weapon.hit_confirmed.connect(func(_killed: bool) -> void: _hits += 1)
 		_aim_at_target(player)
@@ -34,11 +38,23 @@ func _process(delta: float) -> bool:
 	if _shots_fired < SHOTS and _elapsed >= due:
 		Input.action_press("fire")
 		_shots_fired += 1
-	elif _shots_fired >= SHOTS and _elapsed >= due + 0.5:
+	elif _shots_fired >= SHOTS and _elapsed >= due + 2.0:
 		var health: HealthComponent = _main.get_node("ArenaGraybox/Dummies/Dummy1/Health")
-		print("[fire probe] tirs=", _shots_fired, " ammo=", player.weapon.ammo, " hits_confirmes=", _hits, " sante_vue_par_le_client=", health.health)
+		print("[fire probe] tirs=", _shots_fired, " ammo=", player.weapon.ammo, " hits_confirmes=", _hits, " flashs_arme_du_host_vus=", _host_flashes, " arme_du_host_visible=", _host_gun_visible, " sante_vue_par_le_client=", health.health)
 		quit()
 	return false
+
+
+## Le client doit voir l'arme du host (modèle 3e personne) et son flash de bouche quand il tire.
+func _watch_host_weapon() -> void:
+	var host_player := _main.get_node_or_null("ArenaGraybox/Players/1")
+	if host_player == null:
+		return
+	var flash: Node3D = host_player.get_node("Head/GunMesh/Flash")
+	_host_gun_visible = host_player.get_node("Head/GunMesh").visible
+	if flash.visible and not _host_flash_was_visible:
+		_host_flashes += 1
+	_host_flash_was_visible = flash.visible
 
 
 func _find_local_player() -> Player:

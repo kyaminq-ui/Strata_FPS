@@ -58,6 +58,11 @@
 - Limites : pas de checkpoints réels (respawn = marqueurs `spawn_points`), pas de mort « partie perdue », pas de marqueur monde sur le joueur down (visible seulement par son mesh accroupi), pas de sons/VFX, le partenaire down reste au sol si le dernier debout respawn (réanimable jusqu'à l'expiration).
 - Prochaines tranches : 2e arme, mêlée, gadget, puis IA.
 
+## Ajustements demandés après validation
+- [x] Slide sur **Ctrl ou C** (touches physiques, les deux liées à l'action `slide`)
+- [x] Arme répliquée visuellement : modèle 3e personne (`Head/GunMesh`) visible par les autres joueurs (inclinaison suivant le regard), viewmodel pour soi, flash de bouche cosmétique sur le tireur (déclenché par `show_shot` / tir local). Vérifié : host voit l'arme + 3 flashs du client, client voit l'arme + les flashs du host, solo OK, aucune erreur.
+- Limite : une seule arme ; quand la 2e arrive, répliquer l'id de l'arme équipée (propriété `net_weapon`) et instancier le modèle correspondant.
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

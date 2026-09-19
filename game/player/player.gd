@@ -75,7 +75,9 @@ func _ready() -> void:
 		add_child(hud)
 		hud.bind(self)
 		life.downed_changed.connect(_on_downed_changed)
+	# Arme : viewmodel pour soi, modèle à la 3e personne pour les autres.
 	$Head/Camera3D/Viewmodel.visible = is_multiplayer_authority()
+	$Head/GunMesh.visible = not is_multiplayer_authority()
 
 
 func change_state(state_name: StringName) -> void:

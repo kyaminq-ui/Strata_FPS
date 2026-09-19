@@ -25,6 +25,7 @@ Client-authoritative pour le mouvement : choix simple et fluide pour du coop non
 
 ## Combat (tir)
 Le peer propriétaire gère cadence, chargeur et visée, dessine son trait immédiatement, puis envoie `server_fire(origine, direction)` au host (RPC fiable, `any_peer`). Le host rejette le tir si l'émetteur n'est pas le propriétaire du joueur, si la cadence est violée (×0.8) ou si l'origine est à plus de 5 m de la tête répliquée du joueur ; sinon il refait le raycast (couches monde + ennemis), applique les dégâts de `WeaponData` via `HealthComponent.take_damage()` (jamais envoyés par le client), envoie `confirm_hit` au tireur (hitmarker) et `show_shot` aux autres (trait cosmétique, non fiable). Le host tirant appelle la même fonction directement ; en solo aussi (pas de branche solo).
+Présentation de l'arme : chaque joueur a un modèle d'arme 3e personne (visible par les autres) et un viewmodel (visible par soi). Le flash de bouche est cosmétique : le tireur le déclenche localement, les autres peers sur réception de `show_shot`, le host pour un tireur distant à la résolution du tir. Aucun état d'arme n'est répliqué tant qu'il n'y a qu'une arme.
 `HealthComponent.health` est répliqué par le `MultiplayerSynchronizer` de la scène propriétaire (mode « toujours », 10 Hz pour les mannequins).
 
 ## Vie, down et réanimation

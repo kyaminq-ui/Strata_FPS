@@ -37,3 +37,5 @@ Source unique : `game/player/default_movement.tres` (type `MovementConfig`). Ne 
 | Saut de mur (poussée / hauteur) | `wall_jump_push`, `wall_jump_height` | F | 6.0 m/s / 1.6 m | à tuner |
 
 À verrouiller avant l'habillage (GDD §11) : vitesse au sol, distance de dash, hauteur/longueur de saut, wall-run, distance coop tolérée.
+
+Touches (physiques) : ZQSD/WASD, Espace = saut, Shift = dash, **Ctrl ou C = slide**, E = réanimer, clic gauche = tirer, R = recharger.
