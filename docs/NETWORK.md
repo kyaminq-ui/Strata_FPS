@@ -12,7 +12,7 @@
 | Mouvement/regard d'un joueur | Son peer (client-authoritative pour le MVP) |
 | Spawn/despawn des joueurs | Host (`PlayerSpawner`) |
 | Résolution des tirs et dégâts (mannequins, puis ennemis) | Host |
-| IA, objectifs, boss, loot | Host (à venir) |
+| IA (ennemis : patrouille, mort, respawn), objectifs, boss, loot | Host |
 | VFX, audio | Local |
 
 Client-authoritative pour le mouvement : choix simple et fluide pour du coop non compétitif. Validation host (anti-téléport, dégâts) à ajouter avec le combat.
@@ -33,6 +33,9 @@ Mêlée : même schéma que le tir (`MeleeController.server_melee` → host). Le
 
 ## Vie, down et réanimation
 Le `Player` a deux synchronizers : `Sync` (autorité = propriétaire : `net_position/yaw/pitch/sliding`) et `SyncServer` (autorité forcée à **1**, 10 Hz : `Health:health`, `Life:downed`, `Life:down_time_left`, `Life:revive_progress`). Le host applique tous les dégâts (`HealthComponent.take_damage`, serveur uniquement) et pilote `PlayerLife` (down / respawn / réanimation). Le réanimateur envoie seulement `request_revive(active)` (RPC vers le host, identifié par l'émetteur) ; le host vérifie que le réanimateur est vivant et à portée (×1.5 de tolérance) et fait progresser la jauge. Un respawn demande au propriétaire de se téléporter (`Player.teleport`, RPC accepté uniquement de l'id 1) puisque le propriétaire simule sa position.
+
+## Ennemis (IA)
+`Enemy` (`game/ai/`) est placé dans la scène de l'arène : chaque peer a la même instance, autorité 1 (host). Seul le host exécute `_physics_process` (patrouille via `NavigationAgent3D`, navmesh baké chez lui seulement). Le `Sync` réplique `net_position`/`net_yaw` (10 Hz, non fiable), `net_state` (fiable, sur changement, label debug) et `Health:health`. Les clients interpolent et masquent l'ennemi quand `health <= 0` (en se collant à `net_position` pour éviter un glissement au respawn). Mort/respawn décidés par le host (`HealthComponent.died`). Les tirs/mêlée/explosions le touchent via le contrat `Health` (couche 3). Sonde : `tests/net_probe_enemy.gd`.
 
 ## Piège connu : ordre de connexion
 Le client doit créer son peer **avant** d'ajouter l'arène : la scène existe alors quand les spawns du host arrivent, et `is_server()` est faux dès `_ready()`.

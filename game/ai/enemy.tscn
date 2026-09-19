@@ -1,0 +1,67 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://game/ai/enemy.gd" id="1"]
+[ext_resource type="Script" path="res://game/components/health_component.gd" id="2"]
+[ext_resource type="Resource" path="res://game/ai/default_enemy.tres" id="3"]
+
+[sub_resource type="CapsuleShape3D" id="shape"]
+radius = 0.45
+height = 1.8
+
+[sub_resource type="CapsuleMesh" id="mesh"]
+radius = 0.45
+height = 1.8
+
+[sub_resource type="BoxMesh" id="nose_mesh"]
+size = Vector3(0.2, 0.2, 0.5)
+
+[sub_resource type="SceneReplicationConfig" id="replication"]
+properties/0/path = NodePath(".:net_position")
+properties/0/spawn = false
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:net_yaw")
+properties/1/spawn = false
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:net_state")
+properties/2/spawn = false
+properties/2/replication_mode = 2
+properties/3/path = NodePath("Health:health")
+properties/3/spawn = false
+properties/3/replication_mode = 1
+
+[node name="Enemy" type="CharacterBody3D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1")
+config = ExtResource("3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("shape")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("mesh")
+
+[node name="Nose" type="MeshInstance3D" parent="Mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, -0.4)
+mesh = SubResource("nose_mesh")
+
+[node name="Label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+billboard = 1
+text = "ENEMY"
+font_size = 64
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.5
+target_desired_distance = 0.5
+radius = 0.5
+path_height_offset = 0.5
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_interval = 0.1
+replication_config = SubResource("replication")

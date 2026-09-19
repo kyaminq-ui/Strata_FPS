@@ -2,6 +2,11 @@
 
 Format : date · décision · raison. Ajouter en haut.
 
+## 2026-09-19 — Milestone 3 (IA)
+23. **Navmesh baké au chargement par le host** (`nav_baker.gd` : parse des colliders statiques de l'arène, pas de fichier `.res` à maintenir). Le client ne bake rien : l'IA ne tourne que chez le host. `NavigationAgent3D.path_height_offset = 0.5` (= rayon de l'agent) car le navmesh baké est surélevé de l'agent_radius.
+22. **Ennemis placés dans la scène** (comme les mannequins), pas de spawner tant qu'aucune mission n'en crée dynamiquement ; route = nœud `Marker3D` enfants (`@export var route`).
+21. **Ennemi = `CharacterBody3D` simulé par le host seul**, autorité 1 par défaut ; les clients interpolent `net_position/net_yaw` (10 Hz, non fiable) et reçoivent `net_state` (fiable, à chaque changement) + `Health:health`. Waypoint atteint = distance plate ≤ tolérance **ou** navigation terminée (waypoint hors navmesh).
+
 ## 2026-09-19 — Combat / vie
 20. **Gadget = grenade explosive destructible par les tirs** (choix du développeur). Elle a un `HealthComponent` : « touchée par un tir » = dégâts, sans cas particulier dans les armes ; 0.5× de dégâts sur les joueurs (tir ami/auto-dégâts) à ajuster au feel.
 19. **Graine partagée pour les plombs** (client → host) plutôt que d'envoyer chaque direction : petit message, host autoritaire, traits fidèles. `WeaponData.damage` est par plomb.

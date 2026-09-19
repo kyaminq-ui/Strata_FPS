@@ -93,6 +93,16 @@
 - Limites : stock géré côté propriétaire, pas d'inertie du joueur transmise à la grenade, pas de trajectoire prévisionnelle/son/VFX final.
 - Prochaine étape : Milestone 3 — **IA** (patrouille → suspicion → alerte → combat), host-autoritaire.
 
+## Milestone 3 (tranche 3.1) — Ennemi de base + navigation + patrouille
+- [x] `game/ai/` : `EnemyConfig` (+ `default_enemy.tres` : 80 PV, marche 3 m/s, attente 1.5 s, respawn 5 s), `Enemy` (`enemy.tscn`, couche 3, enfant `Health`, `NavigationAgent3D`, label debug d'état), `nav_baker.gd`
+- [x] Arène : `NavRegion` (bake host au chargement), `PatrolRoutes/RouteA|RouteB` (4 `Marker3D` chacune), `Enemies/Enemy1|Enemy2`
+- [x] Simulation 100 % host ; réplication `net_position`, `net_yaw`, `net_state`, `Health:health` (synchronizer autorité 1)
+- [x] Vérifié solo : les 2 ennemis bouclent sur les 4 waypoints (contournement du bloc, attente, pas de blocage) ; pistolet (80→55→30→5→mort sur cible mobile), mêlée (40 puis finisseur), grenade (80→4.8) les blessent ; mort → disparition → respawn au point de départ après 5 s ; aucune erreur
+- [x] Vérifié host+client (`tests/net_probe_enemy.gd`) : positions/états vus par le client = ceux du host (écart ≤ 0.1 m) ; le client blesse un ennemi mobile (2 tirs confirmés sur 3, kill vu des deux côtés) ; mort et respawn répliqués
+- [ ] **Feel à valider en jouant** (vitesse de marche, fluidité de l'interpolation, lisibilité de la capsule)
+- Bugs trouvés/corrigés : navmesh à y=0.5 (premier point du chemin jamais « atteint ») → `path_height_offset` ; waypoint collé à la poutre basse hors navmesh → avance aussi sur `is_navigation_finished()`.
+- Limites : **1 tir client sur 3 raté** sur cible mobile (positions du host ≠ ce que voit le client) → lag compensation/tolérance à traiter avant 3.4 ; pas de test avec latence artificielle ; ennemis toujours aveugles/inoffensifs (3.2+).
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

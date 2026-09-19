@@ -57,7 +57,7 @@ Cycle par tranche : lire docs → implémenter le plus petit changement → `fil
 Objectif : prouver « patrouille → suspicion → alerte → combat » en graybox, jouable seul et à deux, sans complexité inutile (GDD §4, §9 : perception = événements de bruit, vision, corps ; alerte globale partagée ; navigation 3D contrôlée ; éviter les ennemis extrêmement mobiles).
 Règles : simplicité > robustesse > extensibilité hypothétique ; une tranche à la fois, vérifiée solo + host/client avant la suivante ; ne pas commiter sans autorisation.
 
-**Tranche 3.1 — Ennemi de base + patrouille**
+**Tranche 3.1 — Ennemi de base + patrouille** ✅ FAIT (voir TASKS.md ; prochaine : 3.2)
 - Scène `game/ai/enemy.tscn` : `CharacterBody3D` (couche 3 = valeur 4, mask 1), capsule graybox distincte (ex. rouge), enfant `Health` (`HealthComponent`, 60-100 PV), label debug d'état.
 - Navigation : `NavigationRegion3D` dans `arena_graybox.tscn` (mesh de navigation à baker depuis la géométrie de l'arène, ou `NavigationMesh` généré au chargement) + `NavigationAgent3D` sur l'ennemi. Points de patrouille : `Marker3D` groupés (`patrol_route_a`…) ou export `Array[NodePath]`.
 - **Simulation 100 % host** ; réplication : un `EnemySpawner` (MultiplayerSpawner + `spawn_function` comme `GrenadeSpawner`) ou ennemis statiques dans la scène avec synchronizer autorité 1 (`net_position`, `net_yaw`, `net_state`) interpolés chez les clients ; santé via le mécanisme existant (`Health:health` dans le synchronizer, comme `training_dummy.tscn`).
