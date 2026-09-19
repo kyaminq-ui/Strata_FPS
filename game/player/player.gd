@@ -15,18 +15,24 @@ const GUEST_COLOR := Color(1.0, 0.25, 0.7)
 var net_position: Vector3
 var net_yaw: float
 var net_pitch: float
+var net_sliding: bool
 
 var _coyote_left := 0.0
 var _jump_buffer_left := 0.0
 var _dash_left := 0.0
 var _dash_cooldown_left := 0.0
 var _dash_dir := Vector3.ZERO
+var _sliding := false
+var _slide_left := 0.0
+var _slide_speed := 0.0
+var _slide_dir := Vector3.ZERO
 
 @onready var _head: Node3D = $Head
 @onready var _camera: Camera3D = $Head/Camera3D
 @onready var _body_mesh: MeshInstance3D = $BodyMesh
 @onready var _visor_mesh: MeshInstance3D = $Head/VisorMesh
 @onready var _label: Label3D = $NameLabel
+@onready var _crouch: PlayerCrouch = $Crouch
 
 
 func _enter_tree() -> void:
@@ -75,11 +81,15 @@ func _physics_process(delta: float) -> void:
 	var wish_dir := (global_basis * Vector3(input.x, 0.0, input.y)).normalized()
 
 	_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
-	if Input.is_action_just_pressed("dash") and _dash_cooldown_left <= 0.0:
+	if Input.is_action_just_pressed("dash") and _dash_cooldown_left <= 0.0 and (not _sliding or _end_slide()):
 		_start_dash(wish_dir)
+	if Input.is_action_just_pressed("slide") and _can_start_slide():
+		_start_slide()
 
 	if _dash_left > 0.0:
 		_update_dash(delta)
+	elif _sliding:
+		_update_slide(delta, wish_dir)
 	else:
 		_update_walk(delta, wish_dir)
 
@@ -88,6 +98,7 @@ func _physics_process(delta: float) -> void:
 	net_position = global_position
 	net_yaw = rotation.y
 	net_pitch = _head.rotation.x
+	net_sliding = _sliding
 
 
 func _update_walk(delta: float, wish_dir: Vector3) -> void:
@@ -121,6 +132,53 @@ func _update_dash(delta: float) -> void:
 		velocity = _dash_dir * config.walk_speed
 
 
+func _jump_velocity() -> float:
+	return sqrt(2.0 * config.gravity * config.jump_height)
+
+
+func _can_start_slide() -> bool:
+	var speed := Vector2(velocity.x, velocity.z).length()
+	return not _sliding and _dash_left <= 0.0 and is_on_floor() and speed >= config.slide_min_entry_speed
+
+
+## Glissade qui conserve l'élan : direction figée, vitesse >= slide_speed puis friction.
+func _start_slide() -> void:
+	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
+	_slide_dir = horizontal.normalized()
+	_slide_speed = maxf(horizontal.length(), config.slide_speed)
+	_slide_left = config.slide_duration
+	_sliding = true
+	_crouch.crouched = true
+
+
+## Après slide_duration, on se relève si possible ; sinon on rampe sous l'obstacle (contrôle libre).
+func _update_slide(delta: float, wish_dir: Vector3) -> void:
+	_slide_left -= delta
+	if not is_on_floor():
+		velocity.y -= config.gravity * delta
+	if Input.is_action_just_pressed("jump") and _end_slide():
+		velocity.y = _jump_velocity()  # saut hors du slide : l'élan est conservé
+		return
+	if (_slide_left <= 0.0 or not is_on_floor()) and _end_slide():
+		return
+	if _slide_left > 0.0:
+		_slide_speed = maxf(_slide_speed - config.slide_friction * delta, 0.0)
+		velocity.x = _slide_dir.x * _slide_speed
+		velocity.z = _slide_dir.z * _slide_speed
+	else:
+		velocity.x = wish_dir.x * config.crawl_speed
+		velocity.z = wish_dir.z * config.crawl_speed
+
+
+## Termine le slide si la place permet de se relever (sinon on reste accroupi sous l'obstacle).
+func _end_slide() -> bool:
+	if not _crouch.can_stand():
+		return false
+	_sliding = false
+	_crouch.crouched = false
+	return true
+
+
 func _update_jump(delta: float) -> void:
 	_coyote_left = config.coyote_time if is_on_floor() else maxf(_coyote_left - delta, 0.0)
 	if Input.is_action_just_pressed("jump"):
@@ -128,7 +186,7 @@ func _update_jump(delta: float) -> void:
 	else:
 		_jump_buffer_left = maxf(_jump_buffer_left - delta, 0.0)
 	if _jump_buffer_left > 0.0 and _coyote_left > 0.0:
-		velocity.y = sqrt(2.0 * config.gravity * config.jump_height)
+		velocity.y = _jump_velocity()
 		_jump_buffer_left = 0.0
 		_coyote_left = 0.0
 
@@ -136,6 +194,7 @@ func _update_jump(delta: float) -> void:
 func _process(delta: float) -> void:
 	if is_multiplayer_authority():
 		return
+	_crouch.crouched = net_sliding
 	var t := 1.0 - exp(-REMOTE_SMOOTHING * delta)
 	global_position = global_position.lerp(net_position, t)
 	rotation.y = lerp_angle(rotation.y, net_yaw, t)

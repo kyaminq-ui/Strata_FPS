@@ -20,6 +20,16 @@ extends Resource
 @export var dash_duration: float = 0.18
 @export var dash_cooldown: float = 0.8
 
+@export_group("Couche E - Slide")
+@export var slide_min_entry_speed: float = 5.0
+@export var slide_speed: float = 12.0
+@export var slide_duration: float = 0.8
+@export var slide_friction: float = 6.0
+@export var crawl_speed: float = 3.0
+@export var slide_height: float = 1.0
+@export var slide_head_height: float = 0.75
+@export var crouch_transition: float = 0.1
+
 @export_group("Regard")
 @export var mouse_sensitivity: float = 0.0022
 @export var max_pitch_degrees: float = 89.0

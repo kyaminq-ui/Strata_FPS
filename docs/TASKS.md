@@ -23,8 +23,14 @@
 - [ ] **Feel à valider en jouant** (distance, durée, cooldown, sortie de dash, enchaînement dash + saut) avant la couche E
 - Note : le dash coupe la vélocité verticale en l'air ; enchaînement saut pendant le dash à décider au tuning.
 
+## Couche E — Slide
+- [x] Slide (Ctrl physique) depuis la marche au sol : élan conservé (≥ `slide_speed`), friction, capsule réduite, saut et dash possibles hors du slide, rampement si impossible de se relever sous un obstacle (poutre `LowBeam` de l'arène)
+- [x] Vérifié techniquement : passage sous la poutre (marche bloquée à z≈-3.6), sortie et relevé, saut hors slide (élan 11 m/s conservé), dash coupe le slide, réplication visuelle host↔client (accroupi, tête, mesh)
+- [ ] **Feel à valider en jouant** avant la couche F ; « compatible avec le tir » sera à revérifier avec le combat
+- Bug trouvé/corrigé en test : joueur coincé accroupi sous l'obstacle quand la vitesse de slide tombait à 0 → mode ramper.
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
-E slide → F wall-run → combat → IA/infiltration → contenu.
+F wall-run → combat → IA/infiltration → contenu.
 
 ## Actions pour le développeur
 - `git init` (pas de dépôt actuellement) puis premier commit.

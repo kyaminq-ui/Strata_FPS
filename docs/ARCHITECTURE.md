@@ -39,5 +39,7 @@ Le mouvement lit **uniquement** `MovementConfig` (Resource). Les futures capacit
 - `_mcp_game_helper` : addon godot-ai (ne pas toucher).
 
 ## Dette / hypothèses
+- `player.gd` (~200 lignes) dépasse la cible de 150 : avant/avec le wall-run, extraire marche/saut/dash/slide en états (machine à états du GDD) plutôt que d'ajouter au fichier.
+- `PlayerCrouch` (composant) gère hauteur de collision/tête/mesh ; la géométrie debout (1.8 m / tête 1.6 m) est en constantes, doit rester alignée avec `player.tscn`.
 - Interpolation des remotes basique (lerp exponentiel), pas de prédiction ni réconciliation.
 - Arène et menu = debug/graybox, jetables.

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://game/multiplayer/player_spawner.gd" id="1"]
 
@@ -38,6 +38,12 @@ size = Vector3(8, 1, 8)
 
 [sub_resource type="BoxShape3D" id="platform_shape"]
 size = Vector3(8, 1, 8)
+
+[sub_resource type="BoxMesh" id="beam_mesh"]
+size = Vector3(4, 1, 8)
+
+[sub_resource type="BoxShape3D" id="beam_shape"]
+size = Vector3(4, 1, 8)
 
 [node name="ArenaGraybox" type="Node3D"]
 
@@ -99,6 +105,16 @@ surface_material_override/0 = SubResource("mat_block")
 
 [node name="Shape" type="CollisionShape3D" parent="World/Platform"]
 shape = SubResource("platform_shape")
+
+[node name="LowBeam" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.9, -8)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/LowBeam"]
+mesh = SubResource("beam_mesh")
+surface_material_override/0 = SubResource("mat_block")
+
+[node name="Shape" type="CollisionShape3D" parent="World/LowBeam"]
+shape = SubResource("beam_shape")
 
 [node name="SpawnPoints" type="Node3D" parent="."]
 

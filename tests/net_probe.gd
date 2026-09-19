@@ -26,13 +26,21 @@ func _process(delta: float) -> bool:
 		Input.action_release("move_forward")
 		_report("apres")
 		quit()
-	if _walking and fmod(_elapsed, 1.0) < delta:
+	if _walking:
+		_press_scheduled_actions(delta)
+	return false
+
+
+## Cycle de 3 s : jump+dash à 0 s, slide à +1 s (appuis d'une frame).
+func _press_scheduled_actions(delta: float) -> void:
+	var phase := fmod(_elapsed, 3.0)
+	for action in ["jump", "dash", "slide"]:
+		Input.action_release(action)
+	if phase < delta:
 		Input.action_press("jump")
 		Input.action_press("dash")
-	elif _walking:
-		Input.action_release("jump")
-		Input.action_release("dash")
-	return false
+	elif phase >= 1.0 and phase < 1.0 + delta:
+		Input.action_press("slide")
 
 
 func _report(label: String) -> void:
