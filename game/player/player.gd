@@ -34,6 +34,7 @@ var _state: PlayerState
 @onready var crouch: PlayerCrouch = $Crouch
 @onready var weapon: WeaponController = $Weapon
 @onready var melee: MeleeController = $Melee
+@onready var grenades: GrenadeThrower = $Grenades
 @onready var health: HealthComponent = $Health
 @onready var life: PlayerLife = $Life
 @onready var reviver: PlayerReviver = $Reviver

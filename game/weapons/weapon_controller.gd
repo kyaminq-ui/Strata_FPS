@@ -11,7 +11,7 @@ signal weapon_changed(weapon: WeaponData)
 signal reload_started
 signal hit_confirmed(killed: bool)
 
-const HIT_MASK := 1 | 4  # monde (couche 1) + ennemis (couche 3)
+const HIT_MASK := 1 | 4 | 8  # monde (couche 1) + ennemis (couche 3) + projectiles (couche 4)
 const HEAD_HEIGHT := 1.6
 const SERVER_ORIGIN_TOLERANCE := 5.0  # m : couvre latence + dash
 const SERVER_RATE_TOLERANCE := 0.8  # tolère un peu de gigue sur la cadence

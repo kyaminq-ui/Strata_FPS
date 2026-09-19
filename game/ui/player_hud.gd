@@ -6,6 +6,7 @@ extends CanvasLayer
 @onready var _hit_marker: Label = %HitMarker
 @onready var _health: Label = %Health
 @onready var _status: Label = %Status
+@onready var _grenades: Label = %Grenades
 
 var _player: Player
 var _weapon_name := ""
@@ -21,6 +22,8 @@ func bind(player: Player) -> void:
 	_weapon_name = weapon.data.display_name
 	weapon.hit_confirmed.connect(_on_hit_confirmed)
 	player.melee.hit_confirmed.connect(_on_hit_confirmed)
+	player.grenades.count_changed.connect(_on_grenades_changed)
+	_on_grenades_changed(player.grenades.count)
 	_on_ammo_changed(weapon.ammo, weapon.data.magazine_size)
 
 
@@ -37,6 +40,10 @@ func _process(_delta: float) -> void:
 		_status.text = "Hold E to revive  %d%%" % roundi(_player.reviver.target.revive_progress * 100.0)
 	else:
 		_status.text = ""
+
+
+func _on_grenades_changed(count: int) -> void:
+	_grenades.text = "[G] grenades: %d" % count
 
 
 func _on_ammo_changed(current: int, magazine: int) -> void:

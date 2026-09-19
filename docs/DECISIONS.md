@@ -3,6 +3,7 @@
 Format : date · décision · raison. Ajouter en haut.
 
 ## 2026-09-19 — Combat / vie
+20. **Gadget = grenade explosive destructible par les tirs** (choix du développeur). Elle a un `HealthComponent` : « touchée par un tir » = dégâts, sans cas particulier dans les armes ; 0.5× de dégâts sur les joueurs (tir ami/auto-dégâts) à ajuster au feel.
 19. **Graine partagée pour les plombs** (client → host) plutôt que d'envoyer chaque direction : petit message, host autoritaire, traits fidèles. `WeaponData.damage` est par plomb.
 15. **Tir résolu par le host** (raycast serveur, dégâts issus de `WeaponData`, validations cadence/origine/tireur) ; le client garde chargeur et trait immédiat. Raison : GDD (dégâts host) + sensation locale.
 16. **Deuxième synchronizer à autorité 1 sur le joueur** (`SyncServer`) pour la vie/le down : le propriétaire simule sa position, mais la santé appartient au host.

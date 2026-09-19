@@ -1,8 +1,9 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://game/multiplayer/player_spawner.gd" id="1"]
 [ext_resource type="PackedScene" path="res://game/world/training_dummy.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://game/world/damage_zone.tscn" id="3"]
+[ext_resource type="Script" path="res://game/multiplayer/grenade_spawner.gd" id="4"]
 
 [sub_resource type="Environment" id="env"]
 background_mode = 1
@@ -141,6 +142,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, 0)
 
 [node name="Players" type="Node3D" parent="."]
+
+[node name="Grenades" type="Node3D" parent="."]
+
+[node name="GrenadeSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../Grenades")
+script = ExtResource("4")
 
 [node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("../Players")

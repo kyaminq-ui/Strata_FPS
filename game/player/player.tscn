@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="Script" path="res://game/player/player.gd" id="1"]
 [ext_resource type="Resource" path="res://game/player/default_movement.tres" id="2"]
@@ -17,6 +17,8 @@
 [ext_resource type="Script" path="res://game/weapons/weapon_data.gd" id="15"]
 [ext_resource type="Script" path="res://game/weapons/melee_controller.gd" id="16"]
 [ext_resource type="Resource" path="res://game/weapons/default_melee.tres" id="17"]
+[ext_resource type="Script" path="res://game/weapons/grenade_thrower.gd" id="18"]
+[ext_resource type="Resource" path="res://game/weapons/default_grenade.tres" id="19"]
 
 [sub_resource type="CapsuleShape3D" id="shape"]
 radius = 0.4
@@ -154,6 +156,10 @@ loadout = Array[ExtResource("15")]([ExtResource("9"), ExtResource("14")])
 [node name="Melee" type="Node" parent="."]
 script = ExtResource("16")
 config = ExtResource("17")
+
+[node name="Grenades" type="Node" parent="."]
+script = ExtResource("18")
+config = ExtResource("19")
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("13")
