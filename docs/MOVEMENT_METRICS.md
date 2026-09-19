@@ -33,10 +33,11 @@ Source unique : `game/player/default_movement.tres` (type `MovementConfig`). Ne 
 | Adhérence au mur | `wallrun_stick_speed` | F | 2.0 m/s | à tuner |
 | Angle d'approche max (|cos| vitesse·normale) | `wallrun_max_approach_dot` | F | 0.8 | à tuner |
 | Délai avant ré-accroche | `wallrun_reattach_cooldown` | F | 0.35 s | à tuner |
+| Lean : décalage / roulis / lissage / marge mur | `lean_offset`, `lean_roll_degrees`, `lean_speed`, `lean_wall_margin` | G | 0.35 m / 12° / 14 / 0.25 m | à tuner |
 | Roulis caméra | `wallrun_camera_tilt_degrees` | F | 8° | à tuner |
 | Détection du mur (distance / hauteur du rayon) | `wall_check_distance`, `wall_check_height` | F | 0.7 / 1.0 m | à tuner |
 | Saut de mur (poussée / hauteur) | `wall_jump_push`, `wall_jump_height` | F | 6.0 m/s / 1.6 m | à tuner |
 
 À verrouiller avant l'habillage (GDD §11) : vitesse au sol, distance de dash, hauteur/longueur de saut, wall-run, distance coop tolérée.
 
-Touches (physiques) : ZQSD/WASD, Espace = saut, Shift = dash, **Ctrl ou C = slide**, E = réanimer, clic gauche = tirer, R = recharger, 1 / 2 / molette = changer d'arme, V = mêlée, G = grenade.
+Touches (physiques) : ZQSD/WASD, Espace = saut, Shift = dash, **Ctrl ou C = slide**, **Q/E (AZERTY : A/E) ou molette cliquée / bouton latéral = pencher gauche/droite**, F = réanimer, clic gauche = tirer, R = recharger, 1 / 2 / molette = changer d'arme, V = mêlée, G = grenade.

@@ -20,6 +20,7 @@ var net_pitch: float
 var net_crouched: bool
 var net_weapon := 0  # index dans WeaponController.loadout
 var net_dashing := false  # dash récent (fenêtre dash -> mêlée), lu par le host
+var net_lean := 0.0  # penchement cible -1..1 (PlayerLean)
 
 ## Lus par les états de mouvement (autorité seulement).
 var wish_dir := Vector3.ZERO

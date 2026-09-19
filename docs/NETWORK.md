@@ -31,6 +31,9 @@ Grenades : le propriétaire demande un lancer (`GrenadeThrower.server_throw`, RP
 Mêlée : même schéma que le tir (`MeleeController.server_melee` → host). Le host trouve la cible (sphère + filtre de cône + rayon de ligne de vue), applique les dégâts (renforcés si `net_dashing`, finisseur sous le seuil de PV) et confirme au tireur ; `show_melee` déclenche l'animation chez les autres.
 `HealthComponent.health` est répliqué par le `MultiplayerSynchronizer` de la scène propriétaire (mode « toujours », 10 Hz pour les mannequins).
 
+## Lean
+`net_lean` (-1..1, propriétaire, `Sync`, non fiable) : cible de penchement déjà limitée par les murs côté propriétaire. `PlayerLean` lisse et applique décalage/roulis sur la tête et le mesh chez tous les peers ; purement présentation, la hitbox ne bouge pas. Sonde : `tests/net_probe_lean.gd`.
+
 ## Vie, down et réanimation
 Le `Player` a deux synchronizers : `Sync` (autorité = propriétaire : `net_position/yaw/pitch/sliding`) et `SyncServer` (autorité forcée à **1**, 10 Hz : `Health:health`, `Life:downed`, `Life:down_time_left`, `Life:revive_progress`). Le host applique tous les dégâts (`HealthComponent.take_damage`, serveur uniquement) et pilote `PlayerLife` (down / respawn / réanimation). Le réanimateur envoie seulement `request_revive(active)` (RPC vers le host, identifié par l'émetteur) ; le host vérifie que le réanimateur est vivant et à portée (×1.5 de tolérance) et fait progresser la jauge. Un respawn demande au propriétaire de se téléporter (`Player.teleport`, RPC accepté uniquement de l'id 1) puisque le propriétaire simule sa position.
 

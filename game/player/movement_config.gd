@@ -48,6 +48,12 @@ extends Resource
 @export var wall_jump_push: float = 6.0
 @export var wall_jump_height: float = 1.6
 
+@export_group("Lean")
+@export var lean_offset: float = 0.35  # décalage latéral de la tête (m)
+@export var lean_roll_degrees: float = 12.0
+@export var lean_speed: float = 14.0  # lissage (1/s)
+@export var lean_wall_margin: float = 0.25  # distance gardée avec un mur en se penchant
+
 @export_group("Regard")
 @export var mouse_sensitivity: float = 0.0022
 @export var max_pitch_degrees: float = 89.0

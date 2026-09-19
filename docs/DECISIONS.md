@@ -3,6 +3,7 @@
 Format : date · décision · raison. Ajouter en haut.
 
 ## 2026-09-19 — Mouvement
+39. **Lean = composant `PlayerLean`, cible répliquée `net_lean`** (-1..1, propriétaire, non fiable) : l'autorité limite contre les murs, chaque peer lisse et applique décalage/roulis de la tête et du mesh. Pas de déplacement de la hitbox (simplicité). `interact` (réanimer) déplacé de E à F pour libérer E (lean droite). Mapping souris : molette cliquée = gauche, bouton latéral 1 = droite (à ajuster selon le retour).
 38. **Archétypes = `EnemyConfig` différentes, pas de scènes/héritage** : mêmes scripts, valeurs et arme (plombs) distinctes ; l'élite ajoute une règle (`silent_takedown = false`). Simple à étendre ; un comportement vraiment différent demandera un nouvel état.
 37. **Arène d'infiltration = 2e scène sélectionnable** (menu de debug ou `--arena=`) : le host et le client choisissent la même (pas de synchronisation automatique du choix, debug seulement).
 36. **Tous down = respawn de tous après 3 s** (remplace « respawn immédiat du dernier debout », décision 17) : chaque joueur peut tomber ; solo inchangé.

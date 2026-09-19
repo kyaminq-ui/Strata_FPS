@@ -166,6 +166,12 @@
 - [x] **Arme visible sur les ennemis** : modèle (boîte sombre côté droit), point de bouche (`Muzzle`), flash au tir (local + `show_shot`), le trait part du canon ; vérifié par capture d'écran + flash à 0.06 s
 - [x] **Down du dernier joueur debout** : avant, un joueur qui tombait sans partenaire *vivant* respawnait immédiatement (cas typique : le client est déjà down → le host « ne pouvait pas » tomber). Maintenant il tombe aussi en down ; **si tous sont down, respawn de tous après `all_down_respawn_delay` (3 s)** ; solo / partenaire parti = respawn immédiat. Vérifié host+client (client down puis host down : les deux down, respawn ensemble à ~3 s, PV 100) et solo. Non reproduit : « host qui respawn alors que le client est vivant » (il tombe bien en down dans mes tests)
 
+## Phase 4.0 — Lean (demande du développeur)
+- [x] **Penchement gauche/droite maintenu** : actions `lean_left` / `lean_right` (touches physiques Q/E = « A »/« E » en AZERTY, + molette cliquée / bouton latéral 1 de la souris). `PlayerLean` (`game/player/player_lean.gd`) décale la tête latéralement (0.35 m), l'incline (12°) et incline le mesh du corps ; le peer propriétaire lit l'input, limite le décalage contre les murs (raycast couche 1, marge 0.25 m) et réplique la cible dans `net_lean` ; tous les peers lissent. Réglages dans `MovementConfig` (groupe Lean). La caméra tire depuis la tête penchée (le host valide toujours l'origine à ≤ 5 m).
+- [x] **Conflit de touche** : E servait à réanimer → l'action `interact` passe sur **F**.
+- [x] Vérifié : host (lean ±1 → tête ±0.35 m), client headless (`tests/net_probe_lean.gd`, le host voit `net_lean`, décalage et roulis du client, les deux sens), limite mur (rapport 0.57, tête à 0.25 m du mur), capture d'écran (vue inclinée), aucune erreur de log
+- [ ] **Feel à valider en jouant** (amplitude, vitesse, mapping souris). Limites : la capsule de collision et la cible des ennemis ne bougent pas (pas d'avantage de couverture) ; pas de lean bloqué en état dash/wall-run (le roulis s'ajoute)
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 
