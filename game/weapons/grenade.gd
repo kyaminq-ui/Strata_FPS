@@ -11,7 +11,7 @@ const ENEMY_MASK := 4
 const GRENADE_MASK := 8
 const TARGET_HEIGHT := 0.9
 const REMOTE_SMOOTHING := 25.0
-const BLINK_START := 0.8  # s avant l'explosion (host seulement)
+const BLINK_START := 0.8  # s avant l'explosion
 const BLINK_RATE := 12.0
 const SAFE_COLOR := Color(0.2, 0.9, 0.3)
 const ALERT_COLOR := Color(1.0, 0.2, 0.1)
@@ -21,6 +21,7 @@ const ALERT_COLOR := Color(1.0, 0.2, 0.1)
 var initial_velocity := Vector3.ZERO  # renseigné par GrenadeSpawner (tous les peers)
 var thrower_id := 0
 var net_position := Vector3.ZERO
+var net_fuse_left := 0.0  # répliqué : les clients en déduisent le clignotement
 
 var _fuse_left := 0.0
 var _exploded := false
@@ -51,15 +52,18 @@ func _physics_process(delta: float) -> void:
 		return
 	net_position = global_position
 	_fuse_left -= delta
+	net_fuse_left = _fuse_left
 	if _fuse_left <= 0.0:
 		_explode()
 
 
 func _process(delta: float) -> void:
+	var fuse_left := _fuse_left
 	if not multiplayer.is_server():
 		global_position = global_position.lerp(net_position, 1.0 - exp(-REMOTE_SMOOTHING * delta))
-	elif _fuse_left < BLINK_START:
-		var on := int(_fuse_left * BLINK_RATE) % 2 == 0
+		fuse_left = net_fuse_left
+	if fuse_left > 0.0 and fuse_left < BLINK_START:
+		var on := int(fuse_left * BLINK_RATE) % 2 == 0
 		_material.albedo_color = ALERT_COLOR if on else SAFE_COLOR
 
 

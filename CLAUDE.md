@@ -3,6 +3,9 @@
 FPS cyberpunk low-poly, solo ou coop online 2 joueurs (host/client, listen server). Développeur solo, production assistée par IA.
 **Objectif : terminer un jeu, pas construire un moteur.** Simplicité > robustesse > extensibilité hypothétique.
 
+## Reprendre une session à froid
+Lire d'abord `docs/NEXTSTEPS.md` (état, recettes de test, pièges, plan de la prochaine phase) puis `docs/ROADMAP.md`.
+
 ## Source de vérité
 - GDD : `docs/GDD_Strata_FPS.pdf` (ne pas modifier sans demande explicite).
 - Lecture texte : `pdftotext -layout docs/GDD_Strata_FPS.pdf <fichier_temp>.txt` (sortie en Latin-1/mal encodée, mais lisible).
@@ -20,7 +23,7 @@ Coupes en premier : armes, missions, ennemis — jamais mouvement ni coop.
 PvP, split-screen, matchmaking public, cross-play, >2 joueurs, drop-in en mission, intégration Steam, boss, arbre de compétences, sauvegarde complète, menus définitifs, graphismes/shaders définitifs, IA complexe, génération Meshy massive, audio dynamique final.
 
 ## Ordre de travail
-Milestone 0 Foundation ✔ → Milestone 1 Movement + Two Players ✔ (marche, saut, dash, slide, wall-run) → **Milestone 2 Combat** (tir en cours) → IA/infiltration → contenu. Statut détaillé : `docs/TASKS.md`.
+Milestone 0 Foundation ✔ → Milestone 1 Movement + Two Players ✔ (marche, saut, dash, slide, wall-run) ✔ → Milestone 2 Combat ✔ (tir, 2 armes, mêlée, grenade, vie/down/revive) → **Milestone 3 IA/infiltration** (prochain) → secteur, missions, boss → assets/audio → Steam. Statut détaillé : `docs/TASKS.md`.
 
 ## Stack
 Godot 4.7 (Forward+, Jolt) · GDScript · MCP `godot-ai` (dlight) pour inspecter/lancer/lire les logs · Blender MCP · Git.

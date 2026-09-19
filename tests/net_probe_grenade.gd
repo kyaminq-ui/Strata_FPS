@@ -21,6 +21,8 @@ var _hits := 0
 var _shot := false
 var _bound := false
 var _count_after_throw := -1
+var _color_changes := 0
+var _last_color := Color.BLACK
 var _main: Node
 
 
@@ -60,6 +62,10 @@ func _process(delta: float) -> bool:
 			_first_seen = _elapsed
 			_first_position = grenade.global_position
 		_last_position = grenade.global_position
+		var material := grenade.get_node("Mesh").material_override as StandardMaterial3D
+		if material != null and material.albedo_color != _last_color:
+			_color_changes += 1
+			_last_color = material.albedo_color
 		if _mode == "shoot" and not _shot and _elapsed >= _first_seen + SHOOT_DELAY:
 			_aim_and_fire(me, grenade)
 	elif _first_seen >= 0.0 and _gone_at < 0.0:
@@ -68,7 +74,7 @@ func _process(delta: float) -> bool:
 	if _elapsed > LIFETIME:
 		print("[grenade probe] mode=", _mode, " vue=", _first_seen >= 0.0, " deplacement=", snappedf(_first_position.distance_to(_last_position), 0.1),
 			" duree_de_vie=", snappedf(_gone_at - _first_seen, 0.01) if _gone_at >= 0.0 else -1.0,
-			" hits_confirmes=", _hits, " stock_apres_lancer=", _count_after_throw)
+			" changements_de_couleur_vus=", _color_changes, " hits_confirmes=", _hits, " stock_apres_lancer=", _count_after_throw)
 		quit()
 	return false
 

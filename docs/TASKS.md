@@ -89,7 +89,8 @@
 - [x] **Réplication** : simulation 100 % host (RigidBody), `MultiplayerSpawner` (`GrenadeSpawner`, groupe `grenade_spawner`) + `net_position` interpolé chez les clients ; lancer = demande au host (validé : tireur, cadence, origine)
 - [x] Vérifié : solo (lancer/mèche, dégâts 52 à ≈ 2.1 m, tir qui la fait exploser avec 1.4 s de mèche restante + hitmarker, chaîne, dégâts sur soi 30) ; host+client : **client lance / host tire dessus** (détruite après 1.25 s, mèche 1.3 s restante, hitmarker host), **host lance / client tire dessus** (hit confirmé au client), grenade visible et en mouvement chez le client, explosion blesse le client (100 → 70, vu des deux côtés) ; aucune erreur script
 - [ ] **Feel à valider en jouant** (trajectoire, mèche, rayon, tir en l'air, dégâts sur les joueurs)
-- Limites : stock géré côté propriétaire, pas d'inertie du joueur transmise à la grenade, pas de trajectoire prévisionnelle/son/VFX final, clignotement visible seulement chez le host (les clients n'ont pas le timer).
+- Correctif (retour du développeur) : le clignotement rouge/vert de fin de mèche n'était visible que chez le host → la mèche restante est répliquée (`net_fuse_left`), le client calcule le clignotement (vérifié : 10 changements de couleur vus par le client, comme chez le host).
+- Limites : stock géré côté propriétaire, pas d'inertie du joueur transmise à la grenade, pas de trajectoire prévisionnelle/son/VFX final.
 - Prochaine étape : Milestone 3 — **IA** (patrouille → suspicion → alerte → combat), host-autoritaire.
 
 ## Ensuite (une couche à la fois, jouable et vérifiée)
