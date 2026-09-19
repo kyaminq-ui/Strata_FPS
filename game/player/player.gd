@@ -51,6 +51,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	add_to_group("players")
 	var material := StandardMaterial3D.new()
 	material.albedo_color = HOST_COLOR if name.to_int() == 1 else GUEST_COLOR
 	_body_mesh.material_override = material

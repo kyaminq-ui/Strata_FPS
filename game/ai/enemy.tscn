@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://game/ai/enemy.gd" id="1"]
 [ext_resource type="Script" path="res://game/components/health_component.gd" id="2"]
 [ext_resource type="Resource" path="res://game/ai/default_enemy.tres" id="3"]
+[ext_resource type="Script" path="res://game/ai/perception.gd" id="4"]
 
 [sub_resource type="CapsuleShape3D" id="shape"]
 radius = 0.45
@@ -55,6 +56,9 @@ font_size = 64
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("2")
+
+[node name="Perception" type="Node" parent="."]
+script = ExtResource("4")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 path_desired_distance = 0.5

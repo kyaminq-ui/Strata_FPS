@@ -10,6 +10,7 @@ extends Resource
 @export var max_range: float = 100.0
 @export var magazine_size: int = 12
 @export var reload_time: float = 1.2
+@export var noise_radius: float = 25.0  # les ennemis à cette distance entendent le tir
 @export var equip_time: float = 0.3
 @export_group("Dispersion")
 @export var pellets: int = 1

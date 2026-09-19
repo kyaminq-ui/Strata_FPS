@@ -186,6 +186,7 @@ func _server_fire(shooter_id: int, weapon_index: int, origin: Vector3, direction
 	if origin.distance_to(_player.net_position + Vector3.UP * HEAD_HEIGHT) > SERVER_ORIGIN_TOLERANCE:
 		return
 	_server_last_shot_msec = now
+	NoiseBus.emit_at(get_tree(), origin, weapon.noise_radius, NoiseBus.GUNSHOT)
 
 	direction = direction.normalized()
 	var ends := PackedVector3Array()

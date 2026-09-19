@@ -16,3 +16,4 @@ extends Resource
 @export var blast_radius: float = 5.0
 @export var damage: float = 90.0  # au centre, décroît linéairement jusqu'au bord
 @export_range(0.0, 1.0) var player_damage_multiplier: float = 0.5  # tir ami / dégâts sur soi
+@export var noise_radius: float = 35.0  # bruit de l'explosion (ennemis)

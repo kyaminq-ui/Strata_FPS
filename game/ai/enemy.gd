@@ -23,6 +23,7 @@ var _last_health := -1.0
 var _material := StandardMaterial3D.new()
 
 @onready var _health: HealthComponent = $Health
+@onready var _perception: Perception = $Perception
 @onready var _agent: NavigationAgent3D = $NavigationAgent3D
 @onready var _mesh: MeshInstance3D = $Mesh
 @onready var _label: Label3D = $Label
@@ -53,6 +54,7 @@ func _physics_process(delta: float) -> void:
 		return
 	velocity.y = velocity.y - config.gravity * delta if not is_on_floor() else 0.0
 	var wish := _patrol_direction(delta)
+	_show_perception()
 	velocity.x = wish.x * config.walk_speed
 	velocity.z = wish.z * config.walk_speed
 	if wish != Vector3.ZERO:
@@ -79,6 +81,18 @@ func _process(delta: float) -> void:
 	var t := 1.0 - exp(-config.net_smoothing * delta)
 	global_position = global_position.lerp(net_position, t)
 	rotation.y = lerp_angle(rotation.y, net_yaw, t)
+
+
+func is_dead() -> bool:
+	return _health.is_dead()
+
+
+## Debug 3.2 : l'état affiché reflète ce que l'ennemi perçoit (les vrais états arrivent en 3.3).
+func _show_perception() -> void:
+	if _perception.seen_player:
+		net_state = "SEES"
+	elif _perception.heard_time_left > 0.0:
+		net_state = "HEARD"
 
 
 ## Direction horizontale voulue (zéro = à l'arrêt/en attente).

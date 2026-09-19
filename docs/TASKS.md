@@ -103,6 +103,15 @@
 - Bugs trouvés/corrigés : navmesh à y=0.5 (premier point du chemin jamais « atteint ») → `path_height_offset` ; waypoint collé à la poutre basse hors navmesh → avance aussi sur `is_navigation_finished()`.
 - Limites : **1 tir client sur 3 raté** sur cible mobile (positions du host ≠ ce que voit le client) → lag compensation/tolérance à traiter avant 3.4 ; pas de test avec latence artificielle ; ennemis toujours aveugles/inoffensifs (3.2+).
 
+## Milestone 3 (tranche 3.2) — Perception
+- [x] `NoiseBus` (nœud `NoiseBus` de l'arène, groupe `noise_bus`, `NoiseBus.emit_at(...)`) : bruits émis par le host à la résolution des tirs (`WeaponData.noise_radius` : 25 m pistolet, 40 m fusil) et des explosions (`GrenadeConfig.noise_radius` : 35 m)
+- [x] `Perception` (enfant de `Enemy`, host seul) : vision = distance ≤ 20 m, cône 110°, ligne de vue (raycast monde) vers le joueur vivant le plus proche ; ouïe = abonnement au `NoiseBus` (distance ≤ rayon du bruit, sans atténuation par les murs) ; expose `seen_player`, `last_seen_position`, `last_heard_position`, signaux `player_spotted` / `noise_heard`. Joueurs dans le groupe `players`.
+- [x] Debug : le label de l'ennemi affiche `SEES` / `HEARD` (`net_state` répliqué) ; aucun comportement encore (3.3)
+- [x] Vérifié solo : vu à 10 m de face ; non vu derrière, à 90° de côté, à 25 m, derrière un mur ; vu sans mur ; tir pistolet entendu à 20 m, pas à 35 m ; explosion entendue à 30 m ; aucune erreur
+- [x] Vérifié host+client (`net_probe_enemy.gd`) : les tirs du client sont entendus par les 2 ennemis, le client voit `HEARD`/`SEES` répliqués ; aucune erreur
+- [ ] **À valider en jouant** (portée de vue 20 m, cône 110°, rayons de bruit)
+- Limites : vision indépendante de la posture/vitesse/obscurité ; bruit non atténué par les murs ; pas encore de bruits de dash/slide ni de corps (3.5) ; un seul point de visée sur le joueur (poitrine).
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

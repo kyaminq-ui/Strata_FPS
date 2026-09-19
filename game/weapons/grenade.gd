@@ -94,6 +94,7 @@ func _explode() -> void:
 			damage *= config.player_damage_multiplier
 		if damage > 0.0:
 			health.take_damage(damage, thrower_id)
+	NoiseBus.emit_at(get_tree(), center, config.noise_radius, NoiseBus.EXPLOSION)
 	var spawner := get_tree().get_first_node_in_group("grenade_spawner") as GrenadeSpawner
 	if spawner:
 		spawner.explosion_fx(center, config.blast_radius)

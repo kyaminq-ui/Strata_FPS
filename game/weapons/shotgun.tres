@@ -14,3 +14,4 @@ pellets = 8
 spread_degrees = 4.0
 view_size = Vector3(0.1, 0.12, 0.7)
 view_color = Color(0.85, 0.45, 0.15, 1)
+noise_radius = 40.0

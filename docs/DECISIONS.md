@@ -3,6 +3,9 @@
 Format : date · décision · raison. Ajouter en haut.
 
 ## 2026-09-19 — Milestone 3 (IA)
+26. **Rayons de bruit dans les données d'arme/grenade** (`noise_radius`), émis par le host à la résolution ; ouïe = simple distance (pas de murs), suffisant pour le MVP.
+25. **Vision = cône + distance + 1 raycast monde vers la poitrine du joueur, toutes les 0.1 s** ; `Perception` n'expose que l'état perçu, les décisions sont dans les états (3.3).
+24. **`NoiseBus` = nœud de l'arène trouvé par groupe** (pas d'autoload), comme `grenade_spawner`.
 23. **Navmesh baké au chargement par le host** (`nav_baker.gd` : parse des colliders statiques de l'arène, pas de fichier `.res` à maintenir). Le client ne bake rien : l'IA ne tourne que chez le host. `NavigationAgent3D.path_height_offset = 0.5` (= rayon de l'agent) car le navmesh baké est surélevé de l'agent_radius.
 22. **Ennemis placés dans la scène** (comme les mannequins), pas de spawner tant qu'aucune mission n'en crée dynamiquement ; route = nœud `Marker3D` enfants (`@export var route`).
 21. **Ennemi = `CharacterBody3D` simulé par le host seul**, autorité 1 par défaut ; les clients interpolent `net_position/net_yaw` (10 Hz, non fiable) et reçoivent `net_state` (fiable, à chaque changement) + `Health:health`. Waypoint atteint = distance plate ≤ tolérance **ou** navigation terminée (waypoint hors navmesh).
