@@ -11,7 +11,9 @@ Source unique : `game/player/default_movement.tres` (type `MovementConfig`). Ne 
 | Gravité | `gravity` | A | 24 | à tuner |
 | Sensibilité souris | `mouse_sensitivity` | A | 0.0022 | réglage joueur |
 | Limite de pitch | `max_pitch_degrees` | A | 89 | fixe |
-| Hauteur / vélocité de saut, coyote, buffer | — | B | — | non implémenté |
+| Hauteur de saut (vélocité = √(2·g·h)) | `jump_height` | B | 1.6 m | à tuner |
+| Coyote time | `coyote_time` | B | 0.12 s | à tuner |
+| Jump buffer | `jump_buffer_time` | B | 0.12 s | à tuner |
 | Dash (vitesse, distance, cooldown) | — | D | — | non implémenté |
 | Slide (vitesse, durée, friction) | — | E | — | non implémenté |
 | Wall-run | — | F | — | non implémenté |

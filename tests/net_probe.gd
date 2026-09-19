@@ -26,6 +26,10 @@ func _process(delta: float) -> bool:
 		Input.action_release("move_forward")
 		_report("apres")
 		quit()
+	if _walking and fmod(_elapsed, 1.0) < delta:
+		Input.action_press("jump")
+	elif _walking:
+		Input.action_release("jump")
 	return false
 
 

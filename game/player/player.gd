@@ -16,6 +16,9 @@ var net_position: Vector3
 var net_yaw: float
 var net_pitch: float
 
+var _coyote_left := 0.0
+var _jump_buffer_left := 0.0
+
 @onready var _head: Node3D = $Head
 @onready var _camera: Camera3D = $Head/Camera3D
 @onready var _body_mesh: MeshInstance3D = $BodyMesh
@@ -70,6 +73,7 @@ func _physics_process(delta: float) -> void:
 
 	if not is_on_floor():
 		velocity.y -= config.gravity * delta
+	_update_jump(delta)
 
 	var horizontal := Vector2(velocity.x, velocity.z)
 	if wish_dir != Vector3.ZERO:
@@ -85,6 +89,18 @@ func _physics_process(delta: float) -> void:
 	net_position = global_position
 	net_yaw = rotation.y
 	net_pitch = _head.rotation.x
+
+
+func _update_jump(delta: float) -> void:
+	_coyote_left = config.coyote_time if is_on_floor() else maxf(_coyote_left - delta, 0.0)
+	if Input.is_action_just_pressed("jump"):
+		_jump_buffer_left = config.jump_buffer_time
+	else:
+		_jump_buffer_left = maxf(_jump_buffer_left - delta, 0.0)
+	if _jump_buffer_left > 0.0 and _coyote_left > 0.0:
+		velocity.y = sqrt(2.0 * config.gravity * config.jump_height)
+		_jump_buffer_left = 0.0
+		_coyote_left = 0.0
 
 
 func _process(delta: float) -> void:

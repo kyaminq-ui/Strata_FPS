@@ -12,8 +12,13 @@
 - [x] Host/client : 2 joueurs qui apparaissent, se déplacent, visibles des deux côtés — vérifié avec host (éditeur) + client headless (`tests/net_probe.gd`)
 - [ ] Test 2 instances **fenêtrées** validé par le développeur (regard, visuel du joueur distant, orientation)
 
+## Couche B — Saut
+- [x] Saut + coyote time + jump buffer (touche Espace physique), paramètres dans `MovementConfig`
+- [x] Vérifié techniquement : apex 1.67 m, vol 0.73 s, buffer (rebond à l'atterrissage), coyote (saut 0.07 s après le bord), réplication host↔client (y max vu par le host : 1.64 m)
+- [ ] **Feel à valider en jouant** (hauteur, gravité, tolérances) avant la couche D
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
-B saut (coyote, buffer) → C réplication vérifiée → D dash → E slide → F wall-run → combat → IA/infiltration → contenu.
+C réplication (validée avec B) → D dash → E slide → F wall-run → combat → IA/infiltration → contenu.
 
 ## Actions pour le développeur
 - `git init` (pas de dépôt actuellement) puis premier commit.

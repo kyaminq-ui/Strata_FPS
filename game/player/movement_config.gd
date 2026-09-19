@@ -10,6 +10,11 @@ extends Resource
 @export var air_acceleration: float = 20.0
 @export var gravity: float = 24.0
 
+@export_group("Couche B - Saut")
+@export var jump_height: float = 1.6
+@export var coyote_time: float = 0.12
+@export var jump_buffer_time: float = 0.12
+
 @export_group("Regard")
 @export var mouse_sensitivity: float = 0.0022
 @export var max_pitch_degrees: float = 89.0
