@@ -23,7 +23,7 @@ Coupes en premier : armes, missions, ennemis — jamais mouvement ni coop.
 PvP, split-screen, matchmaking public, cross-play, >2 joueurs, drop-in en mission, intégration Steam, boss, arbre de compétences, sauvegarde complète, menus définitifs, graphismes/shaders définitifs, IA complexe, génération Meshy massive, audio dynamique final.
 
 ## Ordre de travail
-Milestone 0 Foundation ✔ → Milestone 1 Movement + Two Players ✔ (marche, saut, dash, slide, wall-run) ✔ → Milestone 2 Combat ✔ (tir, 2 armes, mêlée, grenade, vie/down/revive) → **Milestone 3 IA/infiltration** (prochain) → secteur, missions, boss → assets/audio → Steam. Statut détaillé : `docs/TASKS.md`.
+Milestone 0 Foundation ✔ → Milestone 1 Movement + Two Players ✔ (marche, saut, dash, slide, wall-run) ✔ → Milestone 2 Combat ✔ (tir, 2 armes, mêlée, grenade, vie/down/revive) → Milestone 3 IA/infiltration ✔ (patrouille, perception, états, combat, infiltration, 3 archétypes) → **Phase 4 vertical slice** (prochain : passe de feel/latence, `GameSession`/checkpoints, métriques, secteur, missions, boss) → assets/audio → Steam. Statut détaillé : `docs/TASKS.md`.
 
 ## Stack
 Godot 4.7 (Forward+, Jolt) · GDScript · MCP `godot-ai` (dlight) pour inspecter/lancer/lire les logs · Blender MCP · Git.

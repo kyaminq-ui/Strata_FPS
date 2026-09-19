@@ -1,82 +1,78 @@
 # NEXTSTEPS — reprendre à froid
 
-Document destiné à une **nouvelle conversation sans contexte**. Mise à jour : 2026-09-19 (dernier commit avant ce document : `b3c2732` + correctif du clignotement de la grenade).
-Ordre de lecture recommandé : `CLAUDE.md` → ce fichier → `ROADMAP.md` → `ARCHITECTURE.md` → `NETWORK.md` → `TASKS.md`. Le GDD (`GDD_Strata_FPS.pdf`) est la source de vérité.
+Document destiné à une **nouvelle conversation sans contexte**. Mise à jour : 2026-09-20, **fin du Milestone 3** (dernier commit de code : tranche 3.6 ; `git log --oneline | head` pour l'état exact).
+Ordre de lecture recommandé : `CLAUDE.md` → ce fichier → `ROADMAP.md` → `ARCHITECTURE.md` → `NETWORK.md` → `TASKS.md` → `DECISIONS.md`. Le GDD (`GDD_Strata_FPS.pdf`) est la source de vérité.
 
 ## 1. Le projet en 10 lignes
 STRATA : FPS cyberpunk low-poly solo ou coop online 2 joueurs (host/client, listen server ENet). Godot 4.7.2, GDScript, Jolt. Développeur solo, Claude Code = agent principal, MCP `godot-ai`. Graybox uniquement (PrimitiveMesh), aucun asset final.
-Fait et validé par le développeur : mouvement complet (marche, saut + coyote/buffer, dash, slide, wall-run + saut de mur), 2 joueurs en réseau, tir hitscan (pistolet, fusil à pompe multi-plombs), changement d'arme répliqué, mêlée (dash → mêlée, finisseur), santé + état « down » + réanimation + respawn, grenade explosive répliquée destructible par tir, HUD minimal, arène de test (mannequins, poutre basse, mur, plateforme, zone de dégâts).
-**Non fait** : toute l'IA, les missions, le secteur, le boss, la progression, l'audio, les assets finaux, les menus, la sauvegarde, Steam.
+**Fait (Milestones 0 à 3), tout testé techniquement solo + host/client :**
+- Mouvement complet : marche, saut (+ coyote/buffer), dash, **saut pendant/juste après un dash**, slide, **accroupi (C/Ctrl) au sol et en l'air** (atterrissage rapide = slide), wall-run + saut de mur.
+- Coop 2 joueurs, tir hitscan (pistolet, fusil à pompe), changement d'arme, mêlée (dash → mêlée, finisseur), grenade explosive destructible par tir, santé / down / réanimation (**tous down = respawn de tous après 3 s ; solo = respawn immédiat**).
+- **IA (host-autoritaire)** : ennemis à navmesh, patrouille, perception (vue en cône + ligne de vue, ouïe via bruits de tirs/explosions), états calme → suspicion → alerte → combat, détection progressive, alerte globale partagée, tir hitscan (temps de réaction, dispersion, plombs), strafing, **lag compensation** des tirs de clients, **élimination silencieuse** dans le dos (calme/suspicion), **cadavres** qui déclenchent la suspicion, **renforts** sur alerte frontale, 3 archétypes (GARDE, AGENT, ÉLITE), 2 arènes (test de combat, infiltration).
+**Non fait** : missions/objectifs, `GameSession`/checkpoints, secteur, boss, progression, audio, assets finaux, menus, sauvegarde, Steam.
+**Le feel de tout le Milestone 3 (et du dash-jump / accroupi aérien) reste à valider en jouant par le développeur** — il a dit « tout est bon » mais aucune valeur n'est verrouillée.
 
 ## 2. Environnement (cette machine)
 - OS Windows 11. Dépôt : `C:\Users\Admin\Documents\strata-fps`, remote `https://github.com/kyaminq-ui/Strata_FPS.git`, branche `main`.
 - Godot : `C:\Users\Admin\Desktop\Godot_v4.7.2-stable_win64.exe`. L'éditeur est normalement déjà ouvert sur le projet ; MCP `godot-ai` connecté (vérifier avec `session_manage(op="list")`).
-- Git : le développeur a autorisé commits **et push** au fil de la session précédente à chaque étape (« tu peux push et commit »). `CLAUDE.md` dit « pas de commit automatique sans autorisation » : **redemander une autorisation au début de la nouvelle session**, puis proposer un message de commit à la fin de chaque tranche. Trailer de commit : `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>` (ou celui indiqué par l'environnement).
+- Git : le développeur a autorisé commits **et push** à chaque tranche pendant la session précédente. **Redemander l'autorisation au début de la nouvelle session** (elle ne se transmet pas), puis proposer/faire un commit par étape. Trailer : `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>` (ou celui indiqué par l'environnement).
 - GDD en PDF : `pdftotext -layout docs/GDD_Strata_FPS.pdf <fichier_temp>.txt` puis lire (accents mal encodés mais lisibles).
 
 ## 3. Comment travailler / tester (recettes qui ont marché)
 Cycle par tranche : lire docs → implémenter le plus petit changement → `filesystem_manage(op="scan")` (enregistre les `class_name`) → `project_run` → tester → lire les logs → corriger → mettre à jour docs → commit.
 
-- **Lancer** : `project_run(mode="main")`. Menu de debug (Solo / Host / Join). Piloter sans clic via `editor_manage(op="game_eval", params={"code": ...})` : `get_tree().current_scene._start_solo()` / `_start_host()` / `_start_join(addr)`.
-- **Contraintes de `game_eval`** : 8 s maximum par appel (sinon `EVAL_HUNG` et le jeu peut rester en « break » : faire `project_manage(op="stop")` puis relancer) ; les lambdas capturent les variables **par valeur** (compter avec un `Array`/`Dictionary`) ; ne pas garder de timers/lambdas liés à l'objet d'éval (libéré après l'appel) ; lire l'état juste après un `await physics_frame` peut être trop tôt (attendre 2 frames).
-- **Entrées simulées** : `Input.action_press("fire")` … `action_release` (attendre 2 `physics_frame` entre les deux). Pour viser : `player.rotation.y = atan2(-dx, -dz)` et `player.get_node("Head").rotation.x = atan2(dy, distance_horizontale)` (caméra à y ≈ 1.6/1.7).
+- **Lancer** : `project_run(mode="main")`. Menu de debug (Solo / Host / Join + **sélecteur d'arène**). Piloter sans clic via `editor_manage(op="game_eval", params={"code": ...})` : `var m = get_tree().current_scene; m.get_node('%ArenaPicker').select(1)` (0 = arène de test, 1 = infiltration), `m._start_solo()` / `m._start_host()` / `m._start_join(addr)`, l'arène instanciée est `m._arena`. Le joueur solo/host = `m._arena.get_node('Players/1')`.
+- **Contraintes de `game_eval`** : 8 s maximum par appel (sinon `EVAL_HUNG`) ; **une erreur d'exécution dans l'éval met le jeu en pause** (`EVAL_GAME_NOT_READY` ensuite) → `project_manage(op="stop")` puis relancer ; découper les scénarios en plusieurs appels ; les lambdas capturent par valeur ; garder les évals sans erreur (tester `null` avant d'accéder, ex. le client headless a pu se déconnecter).
+- **Entrées simulées** : `Input.mouse_mode = Input.MOUSE_MODE_CAPTURED` d'abord, puis `Input.action_press("fire"/"melee"/"slide"/"jump"/"dash"/"move_left"…)` … `action_release` (2 `physics_frame` entre les deux). Pour viser : `player.rotation.y = atan2(-dx, -dz)` et `player.get_node("Head").rotation.x = atan2(dy, dist_horizontale)`. Face à -z : `rotation.y = 0` ; face à +x : `-PI/2`.
+- **Tester l'IA** : téléporter (`enemy.global_position = …`), figer un ennemi avec `enemy._states.Calm._wait_left = 9999.0`, tuer les autres (`take_damage(999, 1)`) pour isoler un cas. Attention : un ennemi mort reste **30 s** (cadavre) avant de respawn ; un état/perception vieux d'une frame peut fausser le 1er échantillon après une téléportation ; les ennemis tirent sur le joueur immobile (`pl.health.health = 100` pour le remettre).
 - **Test réseau (2 instances)** : host = le jeu lancé par `project_run` (+ `_start_host()`), client = processus headless lancé depuis l'éval :
-  `OS.create_process('C:/Users/Admin/Desktop/Godot_v4.7.2-stable_win64.exe', ['--headless','--path', ProjectSettings.globalize_path('res://'), '--log-file', '<chemin>.log', '-s', 'tests/net_probe_xxx.gd', '--', '--join=127.0.0.1'])`, puis lire le journal (`grep "probe"`). Sondes existantes : `tests/net_probe.gd` (mouvement), `net_probe_fire.gd` (tir, `--weapon=N`), `net_probe_life.gd` (journal santé/down), `net_probe_melee.gd`, `net_probe_grenade.gd` (`--mode=throw|shoot`). Le host observe le client depuis la même éval (`get_node('ArenaGraybox/Players')`).
+  `OS.create_process('C:/Users/Admin/Desktop/Godot_v4.7.2-stable_win64.exe', ['--headless','--path', ProjectSettings.globalize_path('res://'), '--log-file', '<chemin>.log', '-s', 'tests/net_probe_xxx.gd', '--', '--join=127.0.0.1'])`, puis lire le journal (`grep "probe"`). **`--arena=infiltration` doit précéder `--join`** ; host et client doivent choisir la même arène. Attendre la fin d'une sonde avec `until grep -q … ; do sleep 2; done` (les `sleep` longs sont refusés).
+- **Sondes** (`tests/`) : `net_probe.gd` (mouvement), `net_probe_fire.gd` (tir, `--weapon=N`), `net_probe_life.gd` (journal santé/down, 30 s), `net_probe_melee.gd`, `net_probe_grenade.gd` (`--mode=throw|shoot`), `net_probe_crouch.gd` (accroupi répliqué), `net_probe_enemy.gd` (arène de test : positions/états/santé des ennemis, le client tire 5 fois sur Enemy1, 22 s, voit les renforts), `net_probe_types.gd` (arène d'infiltration : archétypes/états). Un client headless vit ~10-30 s : relancer la sonde pour re-tester.
 - **Solo toujours revalidé** après un changement réseau. Un test host+client est obligatoire pour toute feature multijoueur (DoD dans `CLAUDE.md`).
-- **Erreurs éditeur « obsolètes »** : après un `scan`, `logs_read(source="editor")` peut montrer d'anciennes erreurs de parsing (`state_dash.gd`, `state_slide.gd`, `MultiplayerManager not declared`) datant d'avant l'enregistrement des classes. Si le jeu tourne sans erreur (`project_run` → `recent_errors` vide), les ignorer.
-- **Écrire des fichiers** : l'outil `Write` est le plus fiable. Les gros blocs `cat <<'EOF'` avec plusieurs heredocs ont plusieurs fois fait échouer le parsing du shell ; les modifications par script se font bien avec `python - <<'PYEOF' … PYEOF` (lire/remplacer/écrire, `newline="\n"`). Après modification d'un `.tscn` à la main, vérifier l'ordre des `sub_resource` (avant les `node`) et les `load_steps` (non bloquant).
-- **Entrées clavier** : les actions sont écrites **à la main dans `project.godot`** en touches **physiques** (l'outil MCP `input_map_manage` ne sait pas faire de `physical_keycode`). Ne pas les recréer via MCP. Touches : ZQSD/WASD, Espace saut, Shift dash, Ctrl ou C slide, clic gauche tir, R recharge, 1/2/molette armes, V mêlée, G grenade, E réanimer. Échap libère la souris.
+- **Erreurs éditeur « obsolètes »** : `logs_read(source="editor")` peut montrer d'anciennes erreurs (`state_dash.gd`/`state_slide.gd` types, `range` de `melee_config.gd`, ENet « Couldn't create an ENet host » quand un ancien jeu tenait le port 7777). Si le jeu tourne sans erreur (`project_run` → `recent_errors` vide, `logs_read(source="game")` propre), les ignorer.
+- **Écrire des fichiers** : `Write` (ou `python - <<'PYEOF'` avec remplacements `newline="\n"` ; toujours vérifier que le remplacement a eu lieu). Pour un `.tscn` écrit à la main : **un export de type nœud (`@export var x: Node3D`) exige `node_paths=PackedStringArray("x")` dans l'en-tête du nœud** (oubli déjà rencontré : la propriété restait nulle sans erreur), sous-ressources avant les nœuds, un parent avant ses enfants ; `load_steps` peu important.
+- **Entrées clavier** : les actions sont écrites **à la main dans `project.godot`** en touches **physiques** (le MCP ne sait pas faire de `physical_keycode`) ; ne pas les recréer via MCP. Touches : ZQSD/WASD, Espace saut, Shift dash, **Ctrl ou C = accroupi/slide** (action `slide`), clic gauche tir, R recharge, 1/2/molette armes, V mêlée, G grenade, E réanimer. Échap libère la souris.
 
-## 4. Architecture à connaître (voir `ARCHITECTURE.md` / `NETWORK.md` pour le détail)
-- `MultiplayerManager` (autoload) : seul endroit qui connaît ENet (`host()`, `join()`, `leave()`). Solo = aucun peer (offline) = même code que le host.
-- **Le réseau est créé avant l'arène** (`main.gd`) : sinon `is_server()` est vrai à tort chez le client.
-- `Player` (`game/player/`) : `CharacterBody3D` client-autoritaire pour son propre mouvement (autorité = peer id = nom du nœud), machine à états enfants de `States` (`Walk/Dash/Slide/WallRun`), métriques dans `MovementConfig` (`default_movement.tres`). Deux synchronizers : `Sync` (propriétaire : `net_position/yaw/pitch/sliding/weapon/dashing`) et `SyncServer` (autorité 1 : `Health:health`, `Life:downed/down_time_left/revive_progress`).
-- **Contrat « cible »** (important pour l'IA) : tout ce qui peut être touché par tirs, mêlée, grenades a un **enfant nommé `Health`** de type `HealthComponent` (serveur : `take_damage(amount, by_peer)` → signal `died`). Couches : 1 monde, 2 joueurs, 3 ennemis (valeur 4), 4 projectiles (valeur 8). Les armes tirent contre 1|4|8, la mêlée cherche le masque 4, les explosions 2|4|8.
-- Spawns : `MultiplayerSpawner` + `spawn_function` avec **données explicites** (les propriétés `spawn=true` ne sont pas envoyées quand l'autorité n'est pas le host) : `PlayerSpawner`, `GrenadeSpawner` (groupe `grenade_spawner`). Respawn joueur = marqueurs du groupe `spawn_points`.
-- Résolution des actions de combat **toujours par le host** (raycast/queries serveur, validation tireur/cadence/origine) ; le client garde chargeur/animations et visuels cosmétiques immédiats. RPC : `@rpc("any_peer", …)` + vérification de `get_remote_sender_id()`.
-- Config par `Resource` : `MovementConfig`, `LifeConfig`, `WeaponData` (`pistol.tres`, `shotgun.tres`), `MeleeConfig`, `GrenadeConfig`. Pas de nombres magiques de gameplay dans le code.
+## 4. Architecture à connaître (détail : `ARCHITECTURE.md` / `NETWORK.md`)
+- `MultiplayerManager` (autoload) : seul endroit qui connaît ENet. Solo = aucun peer (offline) = même code que le host. **Le réseau est créé avant l'arène** (`main.gd`).
+- `Player` : `CharacterBody3D` client-autoritaire pour son mouvement, états enfants de `States` (`Walk/Dash/Slide/Crouch/WallRun`), `MovementConfig`. Synchronizers : `Sync` (propriétaire : `net_position/yaw/pitch/crouched/weapon/dashing`) et `SyncServer` (autorité 1 : `Health:health`, `Life:*`). Vie : `PlayerLife` (down/respawn/réanimation, `LifeConfig`).
+- **Contrat « cible »** : tout ce qui peut être touché a un enfant `Health` (`HealthComponent`, `take_damage` host seul). Couches : 1 monde, 2 joueurs, 3 ennemis (valeur 4), 4 projectiles (valeur 8). **Contrat « silençable »** : la mêlée appelle `can_be_silenced(from)` si la cible l'a.
+- Résolution des actions de combat **toujours par le host**. Les tirs de clients rembobinent le groupe `lag_comp` de 0.15 s (`LagCompensator`).
+- **IA (`game/ai/`)** : `Enemy` (`enemy.tscn`) = `CharacterBody3D` simulé par le host seul, enfants : `States` (`Calm/Suspicious/Alert/Combat`, base `EnemyState`), `Perception` (vue + ouïe + cadavres), `Awareness` (`EnemyAwareness` : jauge de détection, alerte partagée via groupe `enemy_awareness`, dégâts → alerte, cadavre → suspicion), `Weapon` (`EnemyWeapon`), `LagComp`, `NavigationAgent3D`. Config : `EnemyConfig` (`default_enemy.tres` = GARDE, `security_agent.tres`, `elite.tres`), `ReinforcementConfig`. `NoiseBus` (nœud de l'arène, groupe `noise_bus`) reçoit les bruits émis par la résolution host des tirs/explosions. `EnemySpawner` (MultiplayerSpawner, groupe `reinforcements`) fait arriver les renforts. Navmesh baké au chargement par `nav_baker.gd` (`NavRegion`) ; `path_height_offset = 0.5` sur l'agent. Groupes utiles : `enemies`, `enemy_bodies`, `players`, `lag_comp`, `perception`, `reinforcement_units`, `spawn_points`, `grenade_spawner`.
+- Arènes : `game/world/arena_graybox.tscn` (test de combat + couloir gardé) et `arena_infiltration.tscn` (enceinte, 3 routes : porte frontale, porte latérale, passage bas à l'ouest en accroupi/slide). Chaque arène doit contenir `Players`, `PlayerSpawner`, `SpawnPoints`, `Grenades`, `GrenadeSpawner`, `NavRegion`, `NoiseBus`, `Enemies`, `Reinforcements`.
+- Spawns dynamiques : `MultiplayerSpawner` + `spawn_function` avec **données explicites** (`PlayerSpawner`, `GrenadeSpawner`, `EnemySpawner`).
 
 ## 5. Dette technique et limites connues
-- Mouvement non validé par le host (client-autoritaire) ; pas de latence artificielle testée ; pas de lag compensation (inutile tant que les cibles sont statiques, **à traiter avec l'IA mobile** : les tirs du client sont résolus sur les positions du host).
-- Munitions/stock de grenades gérés côté propriétaire ; cadence serveur partagée entre armes.
-- Respawn sur marqueurs, pas de vrais checkpoints ni `GameSession` ; pas de lobby (IP directe).
-- Pas de son, VFX finaux, animations d'armes ; viewmodel/gun = boîtes.
-- Le wall-run n'est pas répliqué comme état (seule la position). Accroche seulement en longeant un mur.
-- Les respawns de joueurs et le rayon de blast utilisent des valeurs à ajuster au feel (`default_life.tres`, `default_grenade.tres`).
-- Tests = sondes headless + éval MCP ; il n'y a pas de suite de tests automatisée (`tests/` contient les sondes).
-- À revalider à la main par le développeur : clignotement de la grenade chez le client (corrigé et vérifié par sonde : 10 changements de couleur vus chez le client comme chez le host).
+- **Aucun test avec latence artificielle** (tout en 127.0.0.1) : la lag compensation (0.15 s fixe) et l'interpolation des ennemis sont à valider avec une vraie latence (outil externe type clumsy, ou un délai simulé côté `MultiplayerManager`).
+- Mouvement client-autoritaire (non validé par le host) ; wall-run non répliqué comme état.
+- IA : bruit non atténué par les murs ; vision indépendante de la posture/vitesse/éclairage ; strafing sans garde-fou de bord ; pas de couverture ; archétypes différenciés seulement par leurs valeurs (+ règle `silent_takedown`) ; renforts toujours aux mêmes points ; pas de retour au poste après alerte ; traits de tir ennemis enfants du nœud `Enemies`.
+- Le terminal de l'arène d'infiltration n'est qu'un repère (pas d'objectif) ; pas de route par le toit ; les 2 arènes sont jetables.
+- Respawn sur marqueurs `spawn_points`, pas de vrais checkpoints ni `GameSession` ; pas de lobby (IP directe) ; le choix d'arène n'est pas synchronisé entre host et client (debug).
+- Pas de son, VFX finaux, animations d'armes ; viewmodel/armes = boîtes.
+- Tests = sondes headless + éval MCP ; pas de suite automatisée.
+- Un retour du développeur « le host respawn direct » n'a **pas été reproduit** avec un client vivant ; la cause probable (dernier debout) a été corrigée (décision 36). S'il le revoit, lui demander la situation exacte.
 
 ## 6. Décisions à prendre / à redemander
-- Dernier joueur debout qui tombe : respawn immédiat (partenaire down réanimable) **ou** reset de rencontre des deux ? (défaut actuel : respawn immédiat).
-- Dégâts des explosions sur les joueurs : ×0.5 actuellement (tir ami/auto-dégâts).
-- Mêlée discrète (élimination silencieuse) : à définir avec l'IA (dos de l'ennemi, état non alerté).
-- Ramassage / échange d'armes, stock de munitions partagé ou non.
+- Valider le **feel** du Milestone 3 : temps de détection (1 s), cônes (110°/20 m), rayons de bruit, létalité (garde 8, agent 6×4, élite 10 par 0.6 s), délai/nombre de renforts (8 s, 2), 30 s de cadavre, 3 s de respawn collectif.
+- Dégâts des explosions sur les joueurs ×0.5 ; mêlée discrète (angle du dos −0.2) ; ramassage/échange d'armes ; stock de munitions partagé ou non.
 - Pas de PvP, pas de split-screen, pas de matchmaking public (hors scope MVP).
 
-## 7. PROCHAINE ÉTAPE : Milestone 3 — IA & infiltration (host-autoritaire)
-Objectif : prouver « patrouille → suspicion → alerte → combat » en graybox, jouable seul et à deux, sans complexité inutile (GDD §4, §9 : perception = événements de bruit, vision, corps ; alerte globale partagée ; navigation 3D contrôlée ; éviter les ennemis extrêmement mobiles).
-Règles : simplicité > robustesse > extensibilité hypothétique ; une tranche à la fois, vérifiée solo + host/client avant la suivante ; ne pas commiter sans autorisation.
+## 7. PROCHAINE ÉTAPE : Phase 4 — vertical slice (voir `ROADMAP.md`)
+Ne pas produire de contenu à grande échelle avant : pipeline assets reproductible ⬜ et métriques de niveau verrouillées ⬜ (`MOVEMENT_METRICS.md` à figer avant le blockout). Ordre proposé (à valider avec le développeur, qui peut réordonner) :
+1. **4.0 Passe de feel + latence** : recueillir les retours de jeu sur le Milestone 3 et le mouvement, ajuster les `.tres`, faire le test de latence artificielle (lag compensation, interpolation, down/revive).
+2. **4.1 `GameSession` + checkpoints** (autoload mince) : état de mission, checkpoints réels, reset de rencontre (remplace les marqueurs de respawn), décision « tous down ».
+3. **4.2 Métriques de niveau verrouillées** (`docs/MOVEMENT_METRICS.md` : largeur de passages, hauteur de mur de wall-run, distances de saut/dash/slide, hauteur du passage bas 1.3 m).
+4. **4.3 Blockout du secteur vertical + hub** (modules sur grille commune, verticalité, routes frontale/discrète/verticale).
+5. **4.4 Missions** (objectifs host-autoritaires : terminal à pirater, cible à éliminer…, résolution frontale ou discrète), 2 missions.
+6. **4.5 Boss**, puis progression 6-10 upgrades, menu/sauvegarde minimaux.
+En parallèle, pipeline assets (3 assets tests ChatGPT → Meshy → Blender → GLB, 1 SFX Noiz, 1 boucle Suno) avant la phase 5.
+Règles : simplicité > robustesse > extensibilité ; une étape à la fois, vérifiée solo + host/client ; mettre à jour `TASKS.md`, `NETWORK.md`, `DECISIONS.md` (dernier numéro : 38) ; ne pas commiter sans autorisation.
 
-**Tranche 3.1 — Ennemi de base + patrouille** ✅ FAIT (voir TASKS.md ; prochaine : 3.2)
-- Scène `game/ai/enemy.tscn` : `CharacterBody3D` (couche 3 = valeur 4, mask 1), capsule graybox distincte (ex. rouge), enfant `Health` (`HealthComponent`, 60-100 PV), label debug d'état.
-- Navigation : `NavigationRegion3D` dans `arena_graybox.tscn` (mesh de navigation à baker depuis la géométrie de l'arène, ou `NavigationMesh` généré au chargement) + `NavigationAgent3D` sur l'ennemi. Points de patrouille : `Marker3D` groupés (`patrol_route_a`…) ou export `Array[NodePath]`.
-- **Simulation 100 % host** ; réplication : un `EnemySpawner` (MultiplayerSpawner + `spawn_function` comme `GrenadeSpawner`) ou ennemis statiques dans la scène avec synchronizer autorité 1 (`net_position`, `net_yaw`, `net_state`) interpolés chez les clients ; santé via le mécanisme existant (`Health:health` dans le synchronizer, comme `training_dummy.tscn`).
-- Config par `Resource` (`EnemyConfig` : vitesse de marche, PV, distance de vue, angle de vue, etc.).
-- Critère de fin : l'ennemi patrouille sans se bloquer, se déplace de façon identique côté host et client, les armes/mêlée/grenades le blessent et le tuent, respawn ou disparition propre.
-
-**Tranche 3.2 — Perception** ✅ FAIT (voir TASKS.md ; prochaine : 3.3) : vision (cône + rayon de ligne de vue vers chaque joueur vivant) ; ouïe via un bus d'événements de bruit côté host (`NoiseEvent` : position, rayon, type) émis par tirs, explosions, dash/slide éventuellement, corps découverts. Exposer un petit composant `Perception` par ennemi ; pas de singleton omnipotent (un nœud `NoiseBus` dans l'arène trouvé par groupe, comme `grenade_spawner`).
-**Tranche 3.3 — États** ✅ FAIT (voir TASKS.md ; prochaine : 3.4) : calme → suspicion (regarde/va vers la dernière position perçue) → alerte (poursuit, prévient les autres : alerte globale partagée) → combat ; retour au calme avec délais. Machine à états simple (même pattern que `PlayerState` : nœuds enfants). Pas de « échec si détecté ».
-**Tranche 3.4 — Combat ennemi** ✅ FAIT (voir TASKS.md ; prochaine : 3.5) : tir hitscan avec cadence/dispersion via une Resource, dégâts sur `Player.health` (host), le joueur down/respawn existant s'applique ; mouvement simple (rapprochement, strafing léger) ; ne pas exiger de couverture au début.
-**Tranche 3.5 — Infiltration** ✅ FAIT (voir TASKS.md ; prochaine : 3.6) : élimination silencieuse (mêlée depuis le dos/sur ennemi non alerté), corps qui déclenchent la suspicion, renforts en frontal, routes alternatives dans l'arène de test.
-**Tranche 3.6 — Contenu** ✅ FAIT (voir TASKS.md) — **Milestone 3 terminé, feel à valider ; prochaine phase = Phase 4 (voir ROADMAP.md)** : 2 archétypes (ex. garde standard, agent de sécurité avec comportement/arme différents) + 1 variante élite ; petite arène d'infiltration de test.
-
-À chaque tranche : mettre à jour `TASKS.md` (section Milestone 3), `NETWORK.md` (autorité IA), `DECISIONS.md`, et ajouter une sonde `tests/net_probe_*.gd` si un comportement réseau est nouveau. Prévoir un test avec **latence artificielle** dès que des ennemis mobiles sont touchés par des tirs client.
-
-## 8. Après le Milestone 3 (voir `ROADMAP.md`)
-`GameSession` + checkpoints réels → métriques de niveau verrouillées → blockout du secteur → missions/objectifs host → boss → progression 6-10 upgrades → menu/sauvegarde minimaux → pipeline assets (3 assets tests, SFX, boucle musicale) → art/audio → Steam.
+## 8. Après la Phase 4 (voir `ROADMAP.md`)
+Pipeline assets → art/audio (audio adaptatif 3 états) → perf → Steam (derrière `MultiplayerManager`) → QA réseau → Early Access.
 
 ## 9. Check de démarrage d'une nouvelle session (5 minutes)
-1. `git status` / `git log --oneline | head` (état propre attendu, dernier commit = tranche grenade ou correctif clignotement).
+1. `git status` / `git log --oneline | head` (état propre attendu).
 2. Ouvrir/vérifier l'éditeur Godot + MCP (`session_manage`), `project_run(mode="main")`, `logs_read(source="game")` : aucune erreur.
-3. Test rapide solo (`_start_solo()`), puis host+client avec `tests/net_probe.gd` pour confirmer que la base marche encore.
-4. Demander au développeur : autorisation de commit/push, et valider l'ordre des tranches 3.1 → 3.6.
+3. Test rapide solo (`_start_solo()`), puis host+client avec `tests/net_probe.gd` (et `net_probe_types.gd --arena=infiltration`) pour confirmer que la base marche encore.
+4. Demander au développeur : autorisation de commit/push, ses retours de feel du Milestone 3, et la priorité de la phase 4.
