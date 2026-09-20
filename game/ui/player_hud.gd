@@ -34,6 +34,7 @@ func bind(player: Player) -> void:
 	_on_ammo_changed(weapon.ammo, weapon.data.magazine_size)
 	GameSession.objectives_changed.connect(_refresh_objective)
 	GameSession.objective_completed.connect(func(text: String) -> void: _show_banner("OBJECTIF ATTEINT : " + text))
+	GameSession.announcement.connect(_show_banner)
 	GameSession.mission_completed.connect(_on_mission_completed)
 	GameSession.return_announced.connect(func(seconds: float) -> void: _return_left = seconds)
 	_refresh_objective()

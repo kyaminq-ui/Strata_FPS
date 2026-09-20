@@ -14,7 +14,7 @@ func _ready() -> void:
 		return
 	GameSession.set_objectives([
 		{"id": "hack", "text": "MISSION 1 - Accès : pirater le terminal de sécurité", "done": false},
-		{"id": "kill", "text": "MISSION 2 - La cible : éliminer la cible au sommet", "done": false},
+		{"id": "kill", "text": "MISSION 2 - La cible : éliminer le Fixeur au sommet", "done": false},
 	])
 	terminal.hacked.connect(_on_hacked)
 	target.get_node("Health").died.connect(_on_target_died)

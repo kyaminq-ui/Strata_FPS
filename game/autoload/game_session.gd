@@ -11,6 +11,7 @@ signal objective_completed(text: String)
 signal mission_completed
 signal arena_requested(index: int)  # le host demande à tous de changer d'arène (main.gd écoute)
 signal return_announced(seconds: float)  # écran de fin : retour au hub dans N secondes
+signal announcement(text: String)  # message court à l'écran (phase du boss...)
 
 var mission_started_msec := 0
 var checkpoint
@@ -45,6 +46,17 @@ func load_arena(index: int) -> void:
 func announce_return(seconds: float) -> void:
 	if multiplayer.is_server():
 		_announce_return.rpc(seconds)
+
+
+## Host : message court affiché chez tous.
+func announce(text: String) -> void:
+	if multiplayer.is_server():
+		_announce.rpc(text)
+
+
+@rpc("authority", "call_local", "reliable")
+func _announce(text: String) -> void:
+	announcement.emit(text)
 
 
 @rpc("authority", "call_local", "reliable")

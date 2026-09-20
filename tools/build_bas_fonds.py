@@ -155,6 +155,10 @@ HEADER_RESOURCES = """[ext_resource type="PackedScene" path="res://game/world/ch
 [ext_resource type="PackedScene" path="res://game/missions/mission_door.tscn" id="door"]
 [ext_resource type="Script" path="res://game/missions/sector_mission.gd" id="mission"]
 [ext_resource type="Script" path="res://game/missions/arena_exit.gd" id="exit"]
+[ext_resource type="Resource" path="res://game/ai/boss_phase1.tres" id="cfg_boss"]
+[ext_resource type="Resource" path="res://game/ai/default_boss.tres" id="boss_cfg"]
+[ext_resource type="Script" path="res://game/ai/boss_phases.gd" id="boss_phases"]
+[ext_resource type="Resource" path="res://game/ai/boss_adds.tres" id="boss_adds_cfg"]
 [ext_resource type="Resource" path="res://game/missions/default_elevator.tres" id="cfg_elevator"]
 """
 
@@ -199,7 +203,8 @@ def routes_and_enemies(routes, enemies):
 	out.append('[node name="Enemies" type="Node3D" parent="."]\n')
 	for name, kind, route in enemies:
 		x, y, z = routes[route][0]
-		cfg = {"guard": "", "agent": 'config = ExtResource("cfg_agent")\n', "elite": 'config = ExtResource("cfg_elite")\n'}[kind]
+		cfg = {"guard": "", "agent": 'config = ExtResource("cfg_agent")\n', "elite": 'config = ExtResource("cfg_elite")\n',
+			"boss": 'config = ExtResource("cfg_boss")\n'}[kind]
 		out.append('[node name="%s" parent="Enemies" node_paths=PackedStringArray("route") instance=ExtResource("enemy")]\n'
 			'transform = %s\n%sroute = NodePath("../../PatrolRoutes/%s")\n' % (name, xf(x, y, z), cfg, route))
 	return "\n".join(out)
@@ -334,9 +339,17 @@ def build_sector():
 		("GuardWarehouseW", "guard", "RouteWarehouseW"), ("AgentWorkshopE", "agent", "RouteWorkshopE"),
 		("GuardEngineW", "guard", "RouteEngineW"), ("GuardEngineE", "guard", "RouteEngineE"),
 		("GuardRavineC", "guard", "RouteRavineC"), ("AgentRoofWC", "agent", "RouteRoofWC"), ("GuardRoofEC", "guard", "RouteRoofEC"),
-		("EliteTerraceD", "elite", "RouteTerraceD"),
+		("BossFixeur", "boss", "RouteTerraceD"),
 	]
 	body = routes_and_enemies(routes, enemies)
+	# Le boss : 2 phases (BossPhases), renforts de phase 2 par un spawner déclenché à la main dans sa salle
+	body += '\n[node name="Phases" type="Node" parent="Enemies/BossFixeur" node_paths=PackedStringArray("adds")]\n' \
+		'script = ExtResource("boss_phases")\nconfig = ExtResource("boss_cfg")\nadds = NodePath("../../../BossAdds")\n\n'
+	body += '[node name="BossAddPoints" type="Node3D" parent="."]\n\n' + marker("BossAddPoints", "A1", -12, L3, -40) + "\n" \
+		+ marker("BossAddPoints", "A2", 12, L3, -40) + "\n"
+	body += '[node name="BossAdds" type="MultiplayerSpawner" parent="." node_paths=PackedStringArray("points")]\n' \
+		'spawn_path = NodePath("../Enemies")\nscript = ExtResource("spawner")\nconfig = ExtResource("boss_adds_cfg")\n' \
+		'points = NodePath("../BossAddPoints")\nresponds_to_alerts = false\nunit_prefix = "BossAdd"\nunit_group = &"boss_add_units"\n\n'
 	body += "\n" + '[node name="ReinforcementPoints" type="Node3D" parent="."]\n\n' \
 		+ marker("ReinforcementPoints", "R1", -3, 0, -8) + "\n" + marker("ReinforcementPoints", "R2", 3, 0, -8) + "\n"
 	body += '[node name="Reinforcements" type="MultiplayerSpawner" parent="." node_paths=PackedStringArray("points")]\n' \
@@ -351,7 +364,7 @@ def build_sector():
 	body += '[node name="BossDoorW" parent="." instance=ExtResource("door")]\ntransform = %s\n\n' % xf(-12.5, L3, -30.5)
 	body += '[node name="BossDoorE" parent="." instance=ExtResource("door")]\ntransform = %s\n\n' % xf(12.5, L3, -30.5)
 	body += '[node name="Mission" type="Node" parent="." node_paths=PackedStringArray("terminal", "target")]\n' \
-		'script = ExtResource("mission")\nterminal = NodePath("../HackTerminal")\ntarget = NodePath("../Enemies/EliteTerraceD")\n\n'
+		'script = ExtResource("mission")\nterminal = NodePath("../HackTerminal")\ntarget = NodePath("../Enemies/BossFixeur")\n\n'
 	return s.render(body, COMMON_TAIL)
 
 

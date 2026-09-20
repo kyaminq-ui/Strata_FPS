@@ -215,6 +215,12 @@
 - [x] Vérifié solo (hub → secteur par l'ascenseur) et host+client (`tests/net_probe_loop.gd`) : le client suit hub → secteur (2 joueurs, objectifs reçus), le host pirate puis tue la cible, le client voit `done=true`, les deux reviennent au hub (2 joueurs) ; **erreurs bénignes** : quelques `ERR_UNAUTHORIZED` / « Node not found » au changement d'arène (paquets de réplication en vol vers des nœuds déjà libérés)
 - [ ] Non vérifié visuellement : l'écran de fin (panneau + texte) en jeu ; non fait : les joueurs repartent avec PV/armes/munitions neufs (pas de progression conservée)
 
+## Phase 4.5b — Boss « Fixeur » à 2 phases
+- [x] Le boss est un `Enemy` (contrat cible, lag comp, IA existante) avec un composant `BossPhases` (`BossConfig` + `default_boss.tres`) : **phase 1** (`boss_phase1.tres` : 500 PV, tir 12 par 0.55 s, précis) ; **phase 2** sous 50 % des PV (`boss_phase2.tres` : plus rapide, tir à 3 plombs dispersés), **2 agents de renfort** dans sa salle (`BossAdds`, spawner déclenché à la main, sans réagir aux alertes), **onde de choc** toutes les 7 s de combat (disque rouge télégraphié 1.5 s, rayon 6 m, 25 dégâts, esquivable en s'éloignant ou en sautant), annonce « LE FIXEUR EST EN FURIE » (`GameSession.announce`)
+- [x] Reset de rencontre : le boss repasse en phase 1 avec ses PV, ses renforts disparaissent ; la mission 2 devient « éliminer le Fixeur » (l'élite est remplacé)
+- [x] Vérifié solo (scripté) : phase 1 en combat, phase 2 à 240 PV (config, 2 renforts, bandeau), disque de télégraphie vu, mort du joueur → boss en phase 1, 500 PV, 0 renfort ; host+client (`tests/net_probe_boss.gd`) : le client voit le nom de phase, les PV, l'état, les 2 renforts, l'annonce et la mort du boss, 0 erreur
+- [ ] **À jouer** : difficulté (PV 500, dégâts, fréquence de l'onde), lisibilité de la télégraphie, longueur du combat ; l'esquive par saut n'est pas testée en jeu ; le boss peut quitter sa salle (poursuite par les rampes) ; visuel = capsule colorée + étiquette, aucune animation ni son ; le boss n'a pas de barre de vie dédiée
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

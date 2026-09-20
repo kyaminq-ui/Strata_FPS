@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="BossConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://game/ai/boss_config.gd" id="1"]
+[ext_resource type="Resource" path="res://game/ai/boss_phase2.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+phase_two = ExtResource("2")

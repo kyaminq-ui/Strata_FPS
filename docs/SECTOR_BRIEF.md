@@ -45,6 +45,9 @@ Les blocs pleins deviennent des bâtiments creux et le ravin un tunnel :
 ## Révision 2 — missions (4.4)
 Terminal de sécurité au fond de l'entrepôt ouest (accessible par le conduit discret ou les portes de la place) ; deux portes rouges ferment la salle du boss jusqu'au piratage (4 s, maintenir F). Objectifs : 1. pirater, 2. éliminer la cible (l'élite de la terrasse, avant le boss).
 
+## Révision 3 — boucle et boss (4.5)
+Ascenseur du hub → secteur ; mission accomplie → écran de fin (12 s) → retour au hub. La cible de la mission 2 est le **Fixeur** (boss à 2 phases, salle fermée de la terrasse) au lieu de l'élite ; deux renforts arrivent en phase 2.
+
 ## Hypothèses à valider en jouant
 1. La place B est-elle trop ouverte pour l'infiltration (couverture suffisante) ?
 2. Le wall-run est de la cour est est-il découvrable et faisable sans être frustrant ?

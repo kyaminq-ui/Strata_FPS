@@ -60,7 +60,7 @@ Cycle par tranche : lire docs → implémenter le plus petit changement → `fil
 - Dégâts des explosions sur les joueurs ×0.5 ; mêlée discrète (angle du dos −0.2) ; ramassage/échange d'armes ; stock de munitions partagé ou non.
 - Pas de PvP, pas de split-screen, pas de matchmaking public (hors scope MVP).
 
-## 7. (Phase 4 — 4.0 lean/latence ✅, 4.1 GameSession/checkpoints ✅ ; 4.2 métriques de niveau ✅, 4.3 blockout du secteur ✅ (à jouer), 4.4 missions ✅, 4.5a boucle hub ↔ secteur ✅ ; prochaine : 4.5b boss à 2 phases) PROCHAINE ÉTAPE : Phase 4 — vertical slice (voir `ROADMAP.md`)
+## 7. (Phase 4 — 4.0 lean/latence ✅, 4.1 GameSession/checkpoints ✅ ; 4.2 métriques de niveau ✅, 4.3 blockout du secteur ✅ (à jouer), 4.4 missions ✅, 4.5a boucle hub ↔ secteur ✅ ; 4.5b boss à 2 phases ✅ (à jouer) ; prochaine : progression 6-10 upgrades, menu/sauvegarde minimaux, pipeline assets) PROCHAINE ÉTAPE : Phase 4 — vertical slice (voir `ROADMAP.md`)
 Ne pas produire de contenu à grande échelle avant : pipeline assets reproductible ⬜ et métriques de niveau verrouillées ⬜ (`MOVEMENT_METRICS.md` à figer avant le blockout). Ordre proposé (à valider avec le développeur, qui peut réordonner) :
 1. **4.0 Passe de feel + latence** : recueillir les retours de jeu sur le Milestone 3 et le mouvement, ajuster les `.tres`, faire le test de latence artificielle (lag compensation, interpolation, down/revive).
 2. **4.1 `GameSession` + checkpoints** (autoload mince) : état de mission, checkpoints réels, reset de rencontre (remplace les marqueurs de respawn), décision « tous down ».

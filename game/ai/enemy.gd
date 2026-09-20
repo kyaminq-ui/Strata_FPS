@@ -17,6 +17,8 @@ const STATE_COLORS := {
 	"DEAD": Color(0.4, 0.4, 0.4),
 }
 
+signal was_reset  # remis à son poste (reset de rencontre / respawn) : le boss repasse en phase 1
+
 @export var config: EnemyConfig
 ## Nœud dont les enfants Marker3D forment la route de patrouille (boucle).
 @export var route: Node3D
@@ -189,3 +191,10 @@ func _reset() -> void:
 	awareness.reset()
 	change_state(&"Calm")
 	collision_layer = _layer
+	was_reset.emit()
+
+
+## Change de config en cours de partie (phases du boss) : valeurs de combat et couleur. Appelé chez tous les pairs.
+func apply_config(new_config: EnemyConfig) -> void:
+	config = new_config
+	_material.albedo_color = config.body_color

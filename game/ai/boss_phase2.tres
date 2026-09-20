@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://game/ai/enemy_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "FIXEUR - FUREUR"
+body_color = Color(1, 0.1, 0.1, 1)
+max_health = 500.0
+walk_speed = 3.5
+investigate_speed = 4.5
+chase_speed = 7.5
+combat_speed = 5.5
+strafe_speed = 4.5
+preferred_distance = 8.0
+combat_distance = 30.0
+detect_time = 0.2
+view_distance = 45.0
+view_fov_degrees = 140.0
+search_time = 6.0
+alert_lose_time = 12.0
+silent_takedown = false
+damage = 7.0
+pellets = 3
+spread_degrees = 5.0
+fire_interval = 0.8
+reaction_time = 0.2
+attack_range = 40.0

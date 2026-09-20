@@ -33,7 +33,7 @@ Principe : on ne passe à la phase suivante que si le livrable est testé en sit
 | IA patrouille / suspicion / alerte / combat | ✅ (vue, ouïe, cadavres, alerte partagée, renforts, lag compensation) |
 | 1 secteur vertical dense + hub | ⬜ (blockout à faire) |
 | 2 missions principales | 🟡 (2 objectifs : pirater le terminal, éliminer la cible ; à jouer ; pas de retour au hub) |
-| 1 boss / cible majeure | ⬜ |
+| 1 boss / cible majeure | 🟡 Fixeur à 2 phases (blockout, à jouer) |
 | Progression 6-10 upgrades | ⬜ |
 | Audio : 1 identité musicale adaptative + SFX essentiels | ⬜ |
 | Art : kit modulaire + assets validés | ⬜ (graybox uniquement) |

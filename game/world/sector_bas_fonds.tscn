@@ -14,6 +14,10 @@
 [ext_resource type="PackedScene" path="res://game/missions/mission_door.tscn" id="door"]
 [ext_resource type="Script" path="res://game/missions/sector_mission.gd" id="mission"]
 [ext_resource type="Script" path="res://game/missions/arena_exit.gd" id="exit"]
+[ext_resource type="Resource" path="res://game/ai/boss_phase1.tres" id="cfg_boss"]
+[ext_resource type="Resource" path="res://game/ai/default_boss.tres" id="boss_cfg"]
+[ext_resource type="Script" path="res://game/ai/boss_phases.gd" id="boss_phases"]
+[ext_resource type="Resource" path="res://game/ai/boss_adds.tres" id="boss_adds_cfg"]
 [ext_resource type="Resource" path="res://game/missions/default_elevator.tres" id="cfg_elevator"]
 
 [sub_resource type="BoxMesh" id="m0"]
@@ -1551,10 +1555,33 @@ route = NodePath("../../PatrolRoutes/RouteRoofWC")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 7.0, -14)
 route = NodePath("../../PatrolRoutes/RouteRoofEC")
 
-[node name="EliteTerraceD" parent="Enemies" node_paths=PackedStringArray("route") instance=ExtResource("enemy")]
+[node name="BossFixeur" parent="Enemies" node_paths=PackedStringArray("route") instance=ExtResource("enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 10.5, -38)
-config = ExtResource("cfg_elite")
+config = ExtResource("cfg_boss")
 route = NodePath("../../PatrolRoutes/RouteTerraceD")
+
+[node name="Phases" type="Node" parent="Enemies/BossFixeur" node_paths=PackedStringArray("adds")]
+script = ExtResource("boss_phases")
+config = ExtResource("boss_cfg")
+adds = NodePath("../../../BossAdds")
+
+[node name="BossAddPoints" type="Node3D" parent="."]
+
+[node name="A1" type="Marker3D" parent="BossAddPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 10.5, -40)
+
+[node name="A2" type="Marker3D" parent="BossAddPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 10.5, -40)
+
+[node name="BossAdds" type="MultiplayerSpawner" parent="." node_paths=PackedStringArray("points")]
+spawn_path = NodePath("../Enemies")
+script = ExtResource("spawner")
+config = ExtResource("boss_adds_cfg")
+points = NodePath("../BossAddPoints")
+responds_to_alerts = false
+unit_prefix = "BossAdd"
+unit_group = &"boss_add_units"
+
 
 [node name="ReinforcementPoints" type="Node3D" parent="."]
 
@@ -1599,7 +1626,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 10.5, -30.5)
 [node name="Mission" type="Node" parent="." node_paths=PackedStringArray("terminal", "target")]
 script = ExtResource("mission")
 terminal = NodePath("../HackTerminal")
-target = NodePath("../Enemies/EliteTerraceD")
+target = NodePath("../Enemies/BossFixeur")
 
 
 [node name="NavRegion" type="NavigationRegion3D" parent="."]
