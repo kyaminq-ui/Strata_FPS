@@ -186,6 +186,11 @@
 - [ ] Non vérifié : suppression des renforts au reset (code `queue_free`, pas déclenché en test) ; `Enemy` `_on_died` encore en attente pendant un reset : le nouveau garde `is_dead()` évite le double reset mais un ennemi qui meurt à nouveau avant la fin du vieux timer pourrait ressusciter un peu tôt (cas rare)
 - [ ] À voir en jouant : un seul checkpoint dans le prototype, placé arbitrairement (les vrais viendront avec le secteur 4.3)
 
+## Phase 4.2 — Métriques de niveau
+- [x] Valeurs de mouvement verrouillées (feel validé par le développeur) ; capacités **mesurées dans le jeu** (saut 6.0 m, hauteur 1.75 m max, pas de marche, pente 44° max, dash 5.7 m, dash-saut 7.3 m, saut+dash 12 m, slide 7.9 m, wall-run 1.5 s / 15 m / +2.2 m, saut de mur +1.7 m et ~1 m latéral, wall-run + saut de mur 4.06 m) ; règles de blockout dans `MOVEMENT_METRICS.md`
+- [x] Constats utiles : aucune marche franchie (même 0.2 m) → pas d'escaliers ; le saut de mur ne sert pas au wall-to-wall
+- [ ] Non mesuré : slide/dash en pente, wall-run sur mur courbe ou incliné, distances à deux joueurs
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

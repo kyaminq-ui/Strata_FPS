@@ -47,11 +47,11 @@ Ennemi à navmesh et patrouille · perception (vue en cône + ligne de vue, ouï
 ### Phase 4 — Vertical slice (prochaine, détail dans `NEXTSTEPS.md` §7)
 1. **4.0 Passe de feel + latence** : retours de jeu sur le Milestone 3 et le mouvement, ajustement des `.tres`, **premier test avec latence artificielle** (lag compensation, interpolation des ennemis, down/revive).
 2. **4.1 `GameSession` + checkpoints** : état de mission, checkpoints réels, reset de rencontre (remplace les marqueurs de respawn).
-3. **4.2 Métriques de niveau verrouillées** (`MOVEMENT_METRICS.md`).
+3. **4.2 Métriques de niveau verrouillées** ✅ (`MOVEMENT_METRICS.md`, mesurées dans le jeu). *(4.0 latence + lean ✅, 4.1 GameSession/checkpoints ✅)*
 4. **4.3 Blockout du secteur vertical + hub** (modules sur grille commune, routes frontale / discrète / verticale).
 5. **4.4 Missions** : 2 missions aux objectifs host-autoritaires, résolution frontale ou discrète (le terminal de l'arène d'infiltration en est le prototype).
 6. **4.5 Boss**, progression réduite (6-10 upgrades), menu/sauvegarde minimaux.
-Décision de lancement du GDD : ne pas produire de contenu à grande échelle avant : feel mouvement ✅, 2 joueurs stables ✅, **pipeline assets reproductible ⬜**, **métriques de niveau verrouillées ⬜**.
+Décision de lancement du GDD : ne pas produire de contenu à grande échelle avant : feel mouvement ✅, 2 joueurs stables ✅, **pipeline assets reproductible ⬜**, **métriques de niveau verrouillées ✅**.
 
 ### Pipeline assets (en parallèle, à démarrer avant la phase 5)
 Prévu dans `ASSET_PIPELINE.md` / `AUDIO_PIPELINE.md`, **rien n'est testé** :
