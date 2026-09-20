@@ -10,6 +10,7 @@ const SHOTS := 5
 const SHOT_INTERVAL := 0.8
 const SHOOT_DISTANCE := 6.0
 const AIM_HEIGHT := 1.0
+const TELEPORT_LEAD := 0.4
 const END_SECONDS := 22.0  # laisse le temps aux renforts d'arriver (delay 8 s après l'alerte)
 
 var _elapsed := 0.0
@@ -17,6 +18,7 @@ var _next_log := 0.0
 var _shots := 0
 var _hits := 0
 var _bound := false
+var _placed := false
 var _main: Node
 
 
@@ -37,26 +39,33 @@ func _process(delta: float) -> bool:
 		_next_log += LOG_INTERVAL
 		print("[enemy probe] t=%.1f %s | %s | myhp=%d | enemies=%s" % [_elapsed, _describe("Enemy1"), _describe("Enemy2"), player.health.health, _enemy_names()])
 	Input.action_release("fire")
-	if _elapsed >= SHOOT_START:
+	if _elapsed >= SHOOT_START - TELEPORT_LEAD:
 		_shoot_phase(player)
 	return false
 
 
 func _shoot_phase(player: Player) -> void:
 	var due := SHOOT_START + _shots * SHOT_INTERVAL
-	if _shots < SHOTS and _elapsed >= due:
+	if _shots < SHOTS and _elapsed >= due - TELEPORT_LEAD:
 		var enemy := _enemy("Enemy1")
-		var target := enemy.global_position + Vector3.UP * AIM_HEIGHT
-		player.global_position = enemy.global_position + Vector3(SHOOT_DISTANCE, 0.0, 0.0)
-		var eye := player.global_position + Vector3.UP * WeaponController.HEAD_HEIGHT
-		var to_target := target - eye
-		player.rotation.y = atan2(-to_target.x, -to_target.z)
-		player.get_node("Head").rotation.x = atan2(to_target.y, Vector2(to_target.x, to_target.z).length())
-		Input.action_press("fire")
-		_shots += 1
+		if not _placed:  # on se place d'abord : le host doit voir la nouvelle position avant le tir (validation d'origine)
+			player.global_position = enemy.global_position + Vector3(SHOOT_DISTANCE, 0.0, 0.0)
+			_placed = true
+		if _elapsed >= due:
+			_aim(player, enemy.global_position + Vector3.UP * AIM_HEIGHT)
+			Input.action_press("fire")
+			_shots += 1
+			_placed = false
 	elif _shots >= SHOTS and _elapsed >= END_SECONDS:
 		print("[enemy probe] tirs=%d hits_confirmes=%d sante_vue_enemy1=%s" % [_shots, _hits, _enemy("Enemy1").get_node("Health").health])
 		quit()
+
+
+func _aim(player: Player, target: Vector3) -> void:
+	var eye := player.global_position + Vector3.UP * WeaponController.HEAD_HEIGHT
+	var to_target := target - eye
+	player.rotation.y = atan2(-to_target.x, -to_target.z)
+	player.get_node("Head").rotation.x = atan2(to_target.y, Vector2(to_target.x, to_target.z).length())
 
 
 func _enemy_names() -> String:

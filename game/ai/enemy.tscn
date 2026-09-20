@@ -110,7 +110,6 @@ script = ExtResource("10")
 
 [node name="LagComp" type="Node" parent="."]
 script = ExtResource("11")
-window = 0.15
 
 [node name="Weapon" type="Node" parent="."]
 script = ExtResource("9")

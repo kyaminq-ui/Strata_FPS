@@ -167,10 +167,17 @@
 - [x] **Down du dernier joueur debout** : avant, un joueur qui tombait sans partenaire *vivant* respawnait immédiatement (cas typique : le client est déjà down → le host « ne pouvait pas » tomber). Maintenant il tombe aussi en down ; **si tous sont down, respawn de tous après `all_down_respawn_delay` (3 s)** ; solo / partenaire parti = respawn immédiat. Vérifié host+client (client down puis host down : les deux down, respawn ensemble à ~3 s, PV 100) et solo. Non reproduit : « host qui respawn alors que le client est vivant » (il tombe bien en down dans mes tests)
 
 ## Phase 4.0 — Lean (demande du développeur)
-- [x] **Penchement gauche/droite maintenu** : actions `lean_left` / `lean_right` (touches physiques Q/E = « A »/« E » en AZERTY, + molette cliquée / bouton latéral 1 de la souris). `PlayerLean` (`game/player/player_lean.gd`) décale la tête latéralement (0.35 m), l'incline (12°) et incline le mesh du corps ; le peer propriétaire lit l'input, limite le décalage contre les murs (raycast couche 1, marge 0.25 m) et réplique la cible dans `net_lean` ; tous les peers lissent. Réglages dans `MovementConfig` (groupe Lean). La caméra tire depuis la tête penchée (le host valide toujours l'origine à ≤ 5 m).
+- [x] **Penchement gauche/droite maintenu** : actions `lean_left` / `lean_right` (touches physiques Q/E = « A »/« E » en AZERTY, + Mouse5 (gauche) / Mouse4 (droite)). `PlayerLean` (`game/player/player_lean.gd`) décale la tête latéralement (0.35 m), l'incline (12°) et incline le mesh du corps ; le peer propriétaire lit l'input, limite le décalage contre les murs (raycast couche 1, marge 0.25 m) et réplique la cible dans `net_lean` ; tous les peers lissent. Réglages dans `MovementConfig` (groupe Lean). La caméra tire depuis la tête penchée (le host valide toujours l'origine à ≤ 5 m).
 - [x] **Conflit de touche** : E servait à réanimer → l'action `interact` passe sur **F**.
 - [x] Vérifié : host (lean ±1 → tête ±0.35 m), client headless (`tests/net_probe_lean.gd`, le host voit `net_lean`, décalage et roulis du client, les deux sens), limite mur (rapport 0.57, tête à 0.25 m du mur), capture d'écran (vue inclinée), aucune erreur de log
 - [ ] **Feel à valider en jouant** (amplitude, vitesse, mapping souris). Limites : la capsule de collision et la cible des ennemis ne bougent pas (pas d'avantage de couverture) ; pas de lean bloqué en état dash/wall-run (le roulis s'ajoute)
+
+## Phase 4.0 — Latence artificielle
+- [x] `DelayedPeer` + options `--lag` / `--jitter` (voir NETWORK.md § Latence simulée). Bug trouvé et corrigé pendant le test : paquets en attente vers un pair déconnecté (purgés à la déconnexion)
+- [x] **Bug réel trouvé : la lag compensation n'avait aucun effet** (raycast après `global_position` ne voit pas le déplacement avant le pas de physique suivant, prouvé par éval). Remplacée par un test analytique rayon-capsule à la position passée ; fenêtre 0.3 s
+- [x] Vérifié host+client (`net_probe_enemy.gd`, 5 tirs) : 0 ms 4/5, RTT 100 ms 4/5 (1/5 avant le correctif), RTT 200 ms 4/5 (2/5 avec 0.15) ; down/réanimation sous RTT 260 ms OK ; solo (tir sur ennemi) OK, aucune erreur de log. La sonde d'ennemi a été corrigée (le joueur est placé 0.4 s avant le tir, sinon la validation d'origine rejette)
+- [ ] Reste 4.0 : passe de feel sur le Milestone 3 avec le développeur (valeurs `.tres`) ; interpolation des ennemis non mesurée finement (seulement via les tirs)
+- [x] Lean : mapping corrigé sur demande (Mouse5 = gauche, Mouse4 = droite ; Q/E inchangés)
 
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.

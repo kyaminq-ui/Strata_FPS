@@ -12,6 +12,7 @@ signal reload_started
 signal hit_confirmed(killed: bool)
 
 const HIT_MASK := 1 | 4 | 8  # monde (couche 1) + ennemis (couche 3) + projectiles (couche 4)
+const ENEMY_LAYER := 4
 const HEAD_HEIGHT := 1.6
 const SERVER_ORIGIN_TOLERANCE := 5.0  # m : couvre latence + dash
 const SERVER_RATE_TOLERANCE := 0.8  # tolère un peu de gigue sur la cadence
@@ -163,8 +164,26 @@ static func pellet_directions(direction: Vector3, weapon: WeaponData, seed_value
 	return result
 
 
-func _cast(origin: Vector3, direction: Vector3, max_range: float) -> Dictionary:
-	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * max_range, HIT_MASK)
+## Résolution host d'un plomb : {end, health}. Pour un tireur distant, les ennemis sont testés à leur
+## position passée (LagCompensator) et non par physique ; le monde et les projectiles restent physiques.
+func _resolve_pellet(origin: Vector3, direction: Vector3, max_range: float, remote_shooter: bool) -> Dictionary:
+	var mask := HIT_MASK & ~ENEMY_LAYER if remote_shooter else HIT_MASK
+	var hit := _cast(origin, direction, max_range, mask)
+	var distance := origin.distance_to(hit.position) if not hit.is_empty() else max_range
+	var health: Node = null
+	if not hit.is_empty():
+		health = (hit.collider as Node).get_node_or_null("Health")
+	if remote_shooter:
+		for comp: LagCompensator in get_tree().get_nodes_in_group("lag_comp"):
+			var enemy_distance := comp.ray_hit_distance(origin, direction, distance)
+			if enemy_distance >= 0.0 and enemy_distance < distance:
+				distance = enemy_distance
+				health = comp.get_parent().get_node("Health")
+	return {"end": origin + direction * distance, "health": health}
+
+
+func _cast(origin: Vector3, direction: Vector3, max_range: float, mask: int = HIT_MASK) -> Dictionary:
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * max_range, mask)
 	return _player.get_world_3d().direct_space_state.intersect_ray(query)
 
 
@@ -193,19 +212,13 @@ func _server_fire(shooter_id: int, weapon_index: int, origin: Vector3, direction
 	var any_hit := false
 	var killed := false
 	var remote_shooter := shooter_id != multiplayer.get_unique_id()
-	if remote_shooter:
-		get_tree().call_group("lag_comp", "rewind")  # lag compensation : le client a visé ce qu'il voyait
 	for pellet_direction in pellet_directions(direction, weapon, seed_value):
-		var hit := _cast(origin, pellet_direction, weapon.max_range)
-		ends.append(hit.position if not hit.is_empty() else origin + pellet_direction * weapon.max_range)
-		if hit.is_empty():
-			continue
-		var health := (hit.collider as Node).get_node_or_null("Health") as HealthComponent
+		var shot := _resolve_pellet(origin, pellet_direction, weapon.max_range, remote_shooter)
+		ends.append(shot.end)
+		var health := shot.health as HealthComponent
 		if health:
 			any_hit = true
 			killed = health.take_damage(weapon.damage, shooter_id) or killed
-	if remote_shooter:
-		get_tree().call_group("lag_comp", "unrewind")
 	if any_hit:
 		if shooter_id == multiplayer.get_unique_id():
 			hit_confirmed.emit(killed)
