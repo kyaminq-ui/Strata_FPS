@@ -19,6 +19,8 @@ func _ready() -> void:
 	multiplayer.peer_connected.connect(_spawn_player)
 	multiplayer.peer_disconnected.connect(_despawn_player)
 	_spawn_player(multiplayer.get_unique_id())
+	for peer_id in multiplayer.get_peers():  # changement d'arène : les clients déjà connectés reviennent aussi
+		_spawn_player(peer_id)
 
 
 func _spawn_player(peer_id: int) -> void:

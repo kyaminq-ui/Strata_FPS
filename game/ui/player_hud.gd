@@ -9,11 +9,15 @@ extends CanvasLayer
 @onready var _grenades: Label = %Grenades
 @onready var _objective: Label = %Objective
 @onready var _banner: Label = %Banner
+@onready var _end_panel: ColorRect = %EndPanel
+@onready var _end_text: Label = %EndText
 
 var _player: Player
 var _weapon_name := ""
 var _tween: Tween
 var _banner_tween: Tween
+var _return_left := -1.0  # écran de fin : secondes avant le retour au hub (< 0 : pas annoncé)
+var _mission_time := ""
 
 
 func bind(player: Player) -> void:
@@ -30,13 +34,24 @@ func bind(player: Player) -> void:
 	_on_ammo_changed(weapon.ammo, weapon.data.magazine_size)
 	GameSession.objectives_changed.connect(_refresh_objective)
 	GameSession.objective_completed.connect(func(text: String) -> void: _show_banner("OBJECTIF ATTEINT : " + text))
-	GameSession.mission_completed.connect(func() -> void: _show_banner("MISSION ACCOMPLIE"))
+	GameSession.mission_completed.connect(_on_mission_completed)
+	GameSession.return_announced.connect(func(seconds: float) -> void: _return_left = seconds)
 	_refresh_objective()
 
 
-func _process(_delta: float) -> void:
+func _on_mission_completed() -> void:
+	var seconds := int(GameSession.mission_seconds())
+	_mission_time = "%d:%02d" % [seconds / 60, seconds % 60]
+	_end_panel.show()
+
+
+func _process(delta: float) -> void:
 	if _player == null:
 		return
+	if _end_panel.visible:
+		_return_left = maxf(_return_left - delta, 0.0) if _return_left >= 0.0 else _return_left
+		var back := "" if _return_left < 0.0 else "Retour au hub dans %d s" % ceili(_return_left)
+		_end_text.text = "MISSION ACCOMPLIE\n\nTemps : %s\n\n%s" % [_mission_time, back]
 	_health.text = "HP %d" % ceili(_player.health.health)
 	var life := _player.life
 	if life.downed:

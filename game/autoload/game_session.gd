@@ -9,7 +9,10 @@ signal checkpoint_changed(checkpoint)
 signal objectives_changed
 signal objective_completed(text: String)
 signal mission_completed
+signal arena_requested(index: int)  # le host demande à tous de changer d'arène (main.gd écoute)
+signal return_announced(seconds: float)  # écran de fin : retour au hub dans N secondes
 
+var mission_started_msec := 0
 var checkpoint
 var objectives: Array[Dictionary] = []  # {id, text, done} : décidé par le host puis diffusé
 var mission_done := false
@@ -24,7 +27,34 @@ func reset() -> void:
 	checkpoint = null
 	objectives.clear()
 	mission_done = false
+	mission_started_msec = Time.get_ticks_msec()
 	objectives_changed.emit()
+
+
+func mission_seconds() -> float:
+	return (Time.get_ticks_msec() - mission_started_msec) / 1000.0
+
+
+## Host : tous les joueurs (lui compris) passent à l'arène `index` de main.gd.
+func load_arena(index: int) -> void:
+	if multiplayer.is_server():
+		_load_arena.rpc(index)
+
+
+## Host : affiche « retour au hub dans N s » chez tous.
+func announce_return(seconds: float) -> void:
+	if multiplayer.is_server():
+		_announce_return.rpc(seconds)
+
+
+@rpc("authority", "call_local", "reliable")
+func _load_arena(index: int) -> void:
+	arena_requested.emit(index)
+
+
+@rpc("authority", "call_local", "reliable")
+func _announce_return(seconds: float) -> void:
+	return_announced.emit(seconds)
 
 
 ## Host : définit les objectifs de la mission (à l'entrée de l'arène).

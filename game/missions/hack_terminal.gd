@@ -7,6 +7,9 @@ extends StaticBody3D
 signal hacked
 
 @export var config: HackConfig
+@export var prompt_text := "[F] Pirater"
+@export var progress_text := "PIRATAGE"
+@export var done_text := "TERMINAL PIRATÉ"
 
 var progress := 0.0  # 0..1
 var done := false
@@ -26,11 +29,11 @@ func _physics_process(delta: float) -> void:
 
 func _process(_delta: float) -> void:
 	if done:
-		_label.text = "TERMINAL PIRATÉ"
+		_label.text = done_text
 	elif progress > 0.0:
-		_label.text = "PIRATAGE %d%%" % roundi(progress * 100.0)
+		_label.text = "%s %d%%" % [progress_text, roundi(progress * 100.0)]
 	else:
-		_label.text = "[F] Pirater"
+		_label.text = prompt_text
 
 
 @rpc("any_peer", "call_remote", "reliable")

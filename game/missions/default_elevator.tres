@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="HackConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://game/missions/hack_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+hack_time = 1.5
+decay_time = 1.0
+range = 3.0

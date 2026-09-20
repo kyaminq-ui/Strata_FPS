@@ -5,6 +5,8 @@ extends Node
 
 @export var terminal: HackTerminal
 @export var target: Enemy  # la cible majeure (le boss remplacera cet élite en 4.5)
+@export var end_screen_seconds := 12.0  # écran de fin avant le retour au hub
+@export var return_arena := 2  # liste de main.gd : 2 = hub
 
 
 func _ready() -> void:
@@ -16,6 +18,7 @@ func _ready() -> void:
 	])
 	terminal.hacked.connect(_on_hacked)
 	target.get_node("Health").died.connect(_on_target_died)
+	GameSession.mission_completed.connect(_on_mission_completed)
 
 
 func _on_hacked() -> void:
@@ -24,4 +27,11 @@ func _on_hacked() -> void:
 
 
 func _on_target_died(_by_peer: int) -> void:
-	GameSession.complete_objective("kill")
+	GameSession.complete_objective("kill")  # sans effet si la cible ressuscite (reset) puis meurt encore
+
+
+## Tous les objectifs sont faits : écran de fin chez tous, puis retour au hub.
+func _on_mission_completed() -> void:
+	GameSession.announce_return(end_screen_seconds)
+	await get_tree().create_timer(end_screen_seconds).timeout
+	GameSession.load_arena(return_arena)

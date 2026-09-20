@@ -208,6 +208,13 @@
 - [x] Vérifié solo : 2 objectifs, porte fermée, piratage 2 s = 50 %, fin à 4 s, objectif suivant, portes ouvertes, cible tuée = mission accomplie, bandeau à l'écran ; host+client (`tests/net_probe_hack.gd`) : le client, connecté après la création des objectifs, les reçoit ; il pirate, le host valide, la jauge arrive chez lui, l'objectif avance et la porte s'ouvre chez lui ; aucune erreur
 - [ ] À jouer : durée du piratage, emplacement du terminal, lisibilité de l'objectif ; non fait : pas de retour au hub / écran de fin, pas d'ascenseur, pas de récompenses, une seule cible (élite) ; les portes ouvertes ne mettent pas le navmesh à jour (les renforts ne les franchissent pas)
 
+## Phase 4.5a — Boucle complète : hub → secteur → écran de fin → hub
+- [x] **Changement d'arène ordonné par le host** : `GameSession.load_arena(index)` (RPC fiable) → signal `arena_requested` → `main.gd` (`_load_arena`) libère l'ancienne arène et instancie la nouvelle chez tous ; le host charge en différé (il envoie l'ordre avant ses spawns), un client charge tout de suite (l'arène doit exister avant les spawns) ; `PlayerSpawner` fait aussi apparaître les clients déjà connectés
+- [x] Ascenseur du hub : `HackTerminal` réutilisé (textes en exports, `default_elevator.tres` : maintenir F 1.5 s) + `ArenaExit` ; libellé du contrat dans le hub
+- [x] Fin de mission : quand tous les objectifs sont faits (`mission_completed`), écran de fin (temps de mission, « retour au hub dans N s » diffusé par `announce_return`), puis retour au hub après `end_screen_seconds` (12 s)
+- [x] Vérifié solo (hub → secteur par l'ascenseur) et host+client (`tests/net_probe_loop.gd`) : le client suit hub → secteur (2 joueurs, objectifs reçus), le host pirate puis tue la cible, le client voit `done=true`, les deux reviennent au hub (2 joueurs) ; **erreurs bénignes** : quelques `ERR_UNAUTHORIZED` / « Node not found » au changement d'arène (paquets de réplication en vol vers des nœuds déjà libérés)
+- [ ] Non vérifié visuellement : l'écran de fin (panneau + texte) en jeu ; non fait : les joueurs repartent avec PV/armes/munitions neufs (pas de progression conservée)
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

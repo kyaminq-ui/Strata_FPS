@@ -26,6 +26,7 @@ func _ready() -> void:
 	%JoinButton.pressed.connect(func() -> void: _start_join(_address.text.strip_edges()))
 	MultiplayerManager.connection_failed.connect(_return_to_menu.bind("Connexion échouée"))
 	MultiplayerManager.server_disconnected.connect(_return_to_menu.bind("Host déconnecté"))
+	GameSession.arena_requested.connect(_on_arena_requested)
 	_apply_command_line()
 
 
@@ -62,8 +63,24 @@ func _start_join(address: String) -> void:
 
 func _enter_arena() -> void:
 	_menu.hide()
+	_load_arena(_arena_picker.selected)
+
+
+## Changement d'arène ordonné par le host (hub <-> secteur). Le host attend la fin de la frame (il envoie
+## d'abord l'ordre, puis ses spawns) ; un client charge tout de suite pour que l'arène existe avant les spawns.
+func _on_arena_requested(index: int) -> void:
+	if multiplayer.is_server():
+		_load_arena.call_deferred(index)
+	else:
+		_load_arena(index)
+
+
+func _load_arena(index: int) -> void:
 	GameSession.reset()
-	_arena = ARENAS[_arena_picker.selected].instantiate()
+	if _arena:
+		remove_child(_arena)  # tout de suite : le nom du nœud doit être libre pour la nouvelle arène
+		_arena.queue_free()
+	_arena = ARENAS[index].instantiate()
 	add_child(_arena)
 
 

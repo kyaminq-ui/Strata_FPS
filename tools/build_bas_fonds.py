@@ -154,6 +154,8 @@ HEADER_RESOURCES = """[ext_resource type="PackedScene" path="res://game/world/ch
 [ext_resource type="PackedScene" path="res://game/missions/hack_terminal.tscn" id="terminal"]
 [ext_resource type="PackedScene" path="res://game/missions/mission_door.tscn" id="door"]
 [ext_resource type="Script" path="res://game/missions/sector_mission.gd" id="mission"]
+[ext_resource type="Script" path="res://game/missions/arena_exit.gd" id="exit"]
+[ext_resource type="Resource" path="res://game/missions/default_elevator.tres" id="cfg_elevator"]
 """
 
 ENV_AND_NAV = """[sub_resource type="Environment" id="env"]
@@ -363,6 +365,13 @@ def build_hub():
 	s.box("cover", "Bench", 5, 9, -2, -1, 0, 0.6)
 	body = '[node name="Enemies" type="Node3D" parent="."]\n\n[node name="SpawnPoints" type="Node3D" parent="."]\n\n' \
 		+ marker("SpawnPoints", "Spawn1", -2, 0.1, 5, "spawn_points") + "\n" + marker("SpawnPoints", "Spawn2", 2, 0.1, 5, "spawn_points") + "\n"
+	body += '[node name="ContractLabel" type="Label3D" parent="."]\ntransform = %s\nbillboard = 1\npixel_size = 0.005\n' \
+		'text = "CONTRAT : BAS-FONDS\\nPirater le terminal, éliminer la cible"\nfont_size = 32\noutline_size = 8\n\n' % xf(-7, 2.3, -7)
+	# ascenseur : bouton (maintenir F 1.5 s) -> tous les joueurs partent vers le secteur
+	body += ('[node name="ElevatorButton" parent="." instance=ExtResource("terminal")]\ntransform = %s\nconfig = ExtResource("cfg_elevator")\n'
+		'prompt_text = "[F] Ascenseur : secteur Bas-fonds"\nprogress_text = "DÉPART"\ndone_text = "EN ROUTE"\n\n') % xf(0, 0, -4.5)
+	body += '[node name="ElevatorExit" type="Node" parent="." node_paths=PackedStringArray("terminal")]\nscript = ExtResource("exit")\n' \
+		'terminal = NodePath("../ElevatorButton")\narena_index = 3\n\n'
 	return s.render(body, COMMON_TAIL)
 
 
