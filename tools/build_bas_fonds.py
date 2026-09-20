@@ -151,6 +151,9 @@ HEADER_RESOURCES = """[ext_resource type="PackedScene" path="res://game/world/ch
 [ext_resource type="Resource" path="res://game/ai/infiltration_reinforcement.tres" id="rcfg"]
 [ext_resource type="Resource" path="res://game/ai/security_agent.tres" id="cfg_agent"]
 [ext_resource type="Resource" path="res://game/ai/elite.tres" id="cfg_elite"]
+[ext_resource type="PackedScene" path="res://game/missions/hack_terminal.tscn" id="terminal"]
+[ext_resource type="PackedScene" path="res://game/missions/mission_door.tscn" id="door"]
+[ext_resource type="Script" path="res://game/missions/sector_mission.gd" id="mission"]
 """
 
 ENV_AND_NAV = """[sub_resource type="Environment" id="env"]
@@ -276,7 +279,6 @@ def build_sector():
 	for i, (x0, x1, z0, z1) in enumerate([(-4, -2, 14, 16), (2, 4, 8, 10), (-3, -1, 2, 4), (1, 3, -1, 1),
 			(-5.5, -4, 7, 9), (-5.5, -4, 16, 18)], 1):
 		s.box("cover", "B_Cover%d" % i, x0, x1, z0, z1, 0, 1.1)
-	s.box("b", "Terminal", -0.6, 0.6, -3.6, -2.4, 0, 1.5, glow="terminal")
 	s.light("B_NeonC", 0, 5, 8, (0.2, 0.9, 1.0), 1.6, 16)
 	s.light("B_NeonM", 0, 5, -2, (1.0, 0.3, 0.8), 1.4, 14)
 
@@ -341,6 +343,13 @@ def build_sector():
 		+ marker("SpawnPoints", "Spawn1", -2, 0.1, 42, "spawn_points") + "\n" + marker("SpawnPoints", "Spawn2", 2, 0.1, 42, "spawn_points") + "\n"
 	for i, (x, y, z) in enumerate([(-15.5, 0, 15.5), (-14, L1, 6), (-9, L2, -13)], 1):
 		body += '[node name="Checkpoint%d" parent="." instance=ExtResource("checkpoint")]\ntransform = %s\n\n' % (i, xf(x, y, z))
+	# Objectifs : terminal à pirater au fond de l'entrepôt ouest (voie discrète : conduit -> entrepôt) ;
+	# les deux portes de la salle du boss restent fermées tant qu'il n'est pas piraté.
+	body += '[node name="HackTerminal" parent="." instance=ExtResource("terminal")]\ntransform = %s\n\n' % xf(-16.5, 0, -7.8)
+	body += '[node name="BossDoorW" parent="." instance=ExtResource("door")]\ntransform = %s\n\n' % xf(-12.5, L3, -30.5)
+	body += '[node name="BossDoorE" parent="." instance=ExtResource("door")]\ntransform = %s\n\n' % xf(12.5, L3, -30.5)
+	body += '[node name="Mission" type="Node" parent="." node_paths=PackedStringArray("terminal", "target")]\n' \
+		'script = ExtResource("mission")\nterminal = NodePath("../HackTerminal")\ntarget = NodePath("../Enemies/EliteTerraceD")\n\n'
 	return s.render(body, COMMON_TAIL)
 
 

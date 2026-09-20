@@ -7,10 +7,13 @@ extends CanvasLayer
 @onready var _health: Label = %Health
 @onready var _status: Label = %Status
 @onready var _grenades: Label = %Grenades
+@onready var _objective: Label = %Objective
+@onready var _banner: Label = %Banner
 
 var _player: Player
 var _weapon_name := ""
 var _tween: Tween
+var _banner_tween: Tween
 
 
 func bind(player: Player) -> void:
@@ -25,6 +28,10 @@ func bind(player: Player) -> void:
 	player.grenades.count_changed.connect(_on_grenades_changed)
 	_on_grenades_changed(player.grenades.count)
 	_on_ammo_changed(weapon.ammo, weapon.data.magazine_size)
+	GameSession.objectives_changed.connect(_refresh_objective)
+	GameSession.objective_completed.connect(func(text: String) -> void: _show_banner("OBJECTIF ATTEINT : " + text))
+	GameSession.mission_completed.connect(func() -> void: _show_banner("MISSION ACCOMPLIE"))
+	_refresh_objective()
 
 
 func _process(_delta: float) -> void:
@@ -37,9 +44,24 @@ func _process(_delta: float) -> void:
 		if life.revive_progress > 0.0:
 			_status.text += "  (being revived %d%%)" % roundi(life.revive_progress * 100.0)
 	elif _player.reviver.target != null:
-		_status.text = "Hold E to revive  %d%%" % roundi(_player.reviver.target.revive_progress * 100.0)
+		_status.text = "Hold F to revive  %d%%" % roundi(_player.reviver.target.revive_progress * 100.0)
 	else:
 		_status.text = ""
+
+
+func _refresh_objective() -> void:
+	var text := GameSession.current_objective_text()
+	_objective.text = ("Objectif : " + text) if text != "" else ("Mission terminée" if GameSession.mission_done else "")
+
+
+func _show_banner(text: String) -> void:
+	_banner.text = text
+	if _banner_tween:
+		_banner_tween.kill()
+	_banner.modulate.a = 1.0
+	_banner_tween = create_tween()
+	_banner_tween.tween_interval(3.0)
+	_banner_tween.tween_property(_banner, "modulate:a", 0.0, 1.0)
 
 
 func _on_grenades_changed(count: int) -> void:

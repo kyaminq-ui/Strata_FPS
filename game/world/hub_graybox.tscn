@@ -10,6 +10,9 @@
 [ext_resource type="Resource" path="res://game/ai/infiltration_reinforcement.tres" id="rcfg"]
 [ext_resource type="Resource" path="res://game/ai/security_agent.tres" id="cfg_agent"]
 [ext_resource type="Resource" path="res://game/ai/elite.tres" id="cfg_elite"]
+[ext_resource type="PackedScene" path="res://game/missions/hack_terminal.tscn" id="terminal"]
+[ext_resource type="PackedScene" path="res://game/missions/mission_door.tscn" id="door"]
+[ext_resource type="Script" path="res://game/missions/sector_mission.gd" id="mission"]
 
 [sub_resource type="BoxMesh" id="m0"]
 size = Vector3(26, 1, 18)

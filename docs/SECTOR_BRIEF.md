@@ -42,6 +42,9 @@ Les blocs pleins deviennent des bâtiments creux et le ravin un tunnel :
 - Plafond des intérieurs 3.0 m libre, portes 2.4 m, néons colorés par zone (repères). 13 ennemis. Checkpoint 1 déplacé à la sortie du conduit (moins exposé).
 - Reste à ciel ouvert : la cour d'entrée, la place, les toits (choix : rythme ouvert ↔ fermé).
 
+## Révision 2 — missions (4.4)
+Terminal de sécurité au fond de l'entrepôt ouest (accessible par le conduit discret ou les portes de la place) ; deux portes rouges ferment la salle du boss jusqu'au piratage (4 s, maintenir F). Objectifs : 1. pirater, 2. éliminer la cible (l'élite de la terrasse, avant le boss).
+
 ## Hypothèses à valider en jouant
 1. La place B est-elle trop ouverte pour l'infiltration (couverture suffisante) ?
 2. Le wall-run est de la cour est est-il découvrable et faisable sans être frustrant ?

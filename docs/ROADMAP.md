@@ -32,7 +32,7 @@ Principe : on ne passe à la phase suivante que si le livrable est testé en sit
 | 2 archétypes d'ennemis + 1 élite | ✅ garde, agent, élite (graybox) |
 | IA patrouille / suspicion / alerte / combat | ✅ (vue, ouïe, cadavres, alerte partagée, renforts, lag compensation) |
 | 1 secteur vertical dense + hub | ⬜ (blockout à faire) |
-| 2 missions principales | ⬜ (objectifs host-autoritaires, `GameSession` à créer) |
+| 2 missions principales | 🟡 (2 objectifs : pirater le terminal, éliminer la cible ; à jouer ; pas de retour au hub) |
 | 1 boss / cible majeure | ⬜ |
 | Progression 6-10 upgrades | ⬜ |
 | Audio : 1 identité musicale adaptative + SFX essentiels | ⬜ |
@@ -49,7 +49,7 @@ Ennemi à navmesh et patrouille · perception (vue en cône + ligne de vue, ouï
 2. **4.1 `GameSession` + checkpoints** : état de mission, checkpoints réels, reset de rencontre (remplace les marqueurs de respawn).
 3. **4.2 Métriques de niveau verrouillées** ✅ (`MOVEMENT_METRICS.md`, mesurées dans le jeu). *(4.0 latence + lean ✅, 4.1 GameSession/checkpoints ✅)*
 4. **4.3 Blockout du secteur vertical + hub** ✅ première passe générée et vérifiée en simulation (`SECTOR_BRIEF.md`) ; à jouer et corriger par le développeur.
-5. **4.4 Missions** : 2 missions aux objectifs host-autoritaires, résolution frontale ou discrète (le terminal de l'arène d'infiltration en est le prototype).
+5. **4.4 Missions** ✅ première tranche (terminal à pirater, portes de mission, deux objectifs, HUD ; reste : retour hub / écran de fin) — : 2 missions aux objectifs host-autoritaires, résolution frontale ou discrète (le terminal de l'arène d'infiltration en est le prototype).
 6. **4.5 Boss**, progression réduite (6-10 upgrades), menu/sauvegarde minimaux.
 Décision de lancement du GDD : ne pas produire de contenu à grande échelle avant : feel mouvement ✅, 2 joueurs stables ✅, **pipeline assets reproductible ⬜**, **métriques de niveau verrouillées ✅**.
 

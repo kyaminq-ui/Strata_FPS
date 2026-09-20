@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://game/missions/hack_terminal.gd" id="1"]
+[ext_resource type="Resource" path="res://game/missions/default_hack.tres" id="2"]
+
+[sub_resource type="BoxShape3D" id="shape"]
+size = Vector3(1.2, 1.5, 1.2)
+
+[sub_resource type="BoxMesh" id="mesh"]
+size = Vector3(1.2, 1.5, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="material"]
+shading_mode = 0
+albedo_color = Color(0.2, 0.9, 1, 1)
+
+[node name="HackTerminal" type="StaticBody3D"]
+script = ExtResource("1")
+config = ExtResource("2")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+mesh = SubResource("mesh")
+surface_material_override/0 = SubResource("material")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+shape = SubResource("shape")
+
+[node name="Label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0, 0)
+billboard = 1
+pixel_size = 0.005
+text = "[F] Pirater"
+font_size = 32
+outline_size = 8

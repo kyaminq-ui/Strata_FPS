@@ -200,6 +200,14 @@
 - Note : l'alerte partagée a un rayon de 60 m (`alert_share_radius`) et ignore les murs : dans un secteur de 88 m, une alerte à la cour réveille presque tout ; à régler en jouant (par exemple 30 m)
 - [ ] Non fait : ascenseur/changement de scène hub → secteur, boss, objectifs, décor ; pas de parapets sur les toits ; ennemis de toit/terrasse jamais testés en combat ; wall-run est vérifié une fois (timing d'un joueur réel à valider)
 
+## Phase 4.4 — Missions (première tranche)
+- [x] `GameSession` : objectifs `{id, text, done}` décidés par le host et diffusés (RPC fiable `_sync_objectives`, renvoyés à un pair qui se connecte), signaux `objectives_changed` / `objective_completed` / `mission_completed`
+- [x] `HackTerminal` (`game/missions/`, `HackConfig` + `default_hack.tres` : 4 s, portée 2.5 m) : maintenir F ; le joueur local prévient le host (`request_hack`), le host valide portée/vie et fait progresser la jauge, diffusée en 10 Hz ; silencieux, un seul joueur suffit
+- [x] `MissionDoor` : les deux entrées de la salle du boss, fermées jusqu'au piratage (`open()` du host, RPC `set_open`)
+- [x] `SectorMission` : **Mission 1 « Accès »** (pirater le terminal, placé au fond de l'entrepôt ouest : voie discrète par le conduit, ou frontale par les portes de la place) puis **Mission 2 « La cible »** (éliminer l'élite de la terrasse, remplacée par le boss en 4.5) ; HUD : objectif courant, bandeau « OBJECTIF ATTEINT » / « MISSION ACCOMPLIE » (le texte « Hold E » est corrigé en F)
+- [x] Vérifié solo : 2 objectifs, porte fermée, piratage 2 s = 50 %, fin à 4 s, objectif suivant, portes ouvertes, cible tuée = mission accomplie, bandeau à l'écran ; host+client (`tests/net_probe_hack.gd`) : le client, connecté après la création des objectifs, les reçoit ; il pirate, le host valide, la jauge arrive chez lui, l'objectif avance et la porte s'ouvre chez lui ; aucune erreur
+- [ ] À jouer : durée du piratage, emplacement du terminal, lisibilité de l'objectif ; non fait : pas de retour au hub / écran de fin, pas d'ascenseur, pas de récompenses, une seule cible (élite) ; les portes ouvertes ne mettent pas le navmesh à jour (les renforts ne les franchissent pas)
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 
