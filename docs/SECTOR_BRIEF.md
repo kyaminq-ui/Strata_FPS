@@ -33,6 +33,15 @@ Passages ≥ 2.5 m, portail 3 m, conduit 1.3 m, étage 3.5 m, mur de wall-run �
 - Corrections faites en route : les rampes butaient sur une arête de 3.5 cm (normale 45.6° = mur pour Godot) → dépassement de 0.1 m au sommet ; une caisse bloquait les marches ; les gardes voyaient le point d'apparition (15 m) → barricade de 2.4 m dans la cour.
 - Le point de reprise de la place (CP1) est visible de la place entière : à revoir en jouant.
 
+## Révision 1 — intérieurs fermés (retour du développeur : « trop ouvert »)
+Les blocs pleins deviennent des bâtiments creux et le ravin un tunnel :
+- **Entrepôt ouest** (z -9..13) : 2 portes sur la place, porte du conduit discret, cloison intérieure, 1 garde. **Ateliers est** : 2 portes sur la place, porte depuis le couloir de wall-run, cloison, 1 agent. Leurs dalles de toit restent les mezzanines (y 3.5) : rampes, marches et wall-run inchangés.
+- **Salles des machines** au pied des deux tours (accès par l'entrepôt/les ateliers et 2 portes sur le ravin), 1 garde chacune.
+- **Tunnel** : le ravin est couvert (toit à 7 m) ; les deux toits sont désormais reliés sur toute la largeur.
+- **Salle du boss fermée** : murs jusqu'à 18 m, plafond, deux entrées de 3 m au sommet des rampes.
+- Plafond des intérieurs 3.0 m libre, portes 2.4 m, néons colorés par zone (repères). 13 ennemis. Checkpoint 1 déplacé à la sortie du conduit (moins exposé).
+- Reste à ciel ouvert : la cour d'entrée, la place, les toits (choix : rythme ouvert ↔ fermé).
+
 ## Hypothèses à valider en jouant
 1. La place B est-elle trop ouverte pour l'infiltration (couverture suffisante) ?
 2. Le wall-run est de la cour est est-il découvrable et faisable sans être frustrant ?

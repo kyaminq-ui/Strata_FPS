@@ -195,7 +195,9 @@
 - [x] Brief (`SECTOR_BRIEF.md`), générateur `tools/build_bas_fonds.py` (positions dans le script) → `game/world/sector_bas_fonds.tscn` (36 × 88 m, 4 niveaux) et `hub_graybox.tscn` ; sélectionnables dans le menu de debug (`--arena=hub` / `--arena=sector`)
 - [x] Vérifié solo (simulation d'entrées) : rampes jusqu'à la terrasse (ouest et est), wall-run est → mezzanine est, marches à sauter, conduit bas, passerelle ; navmesh baké (284 sommets), 10 ennemis patrouillent sur les 4 niveaux ; hub chargé (capture)
 - [x] Vérifié host+client : le client rejoint (`--arena=sector`), voit 10 ennemis et 3 checkpoints, checkpoint actif chez lui, tous down → respawn ensemble sur le checkpoint ; aucun spawn sous le feu (barricade)
+- [x] **Révision 1 (retour : trop ouvert)** : entrepôt, ateliers, salles des machines, ravin en tunnel, salle du boss fermée, néons (`SECTOR_BRIEF.md`) ; 13 ennemis. Vérifié : conduit → entrepôt, entrepôt → tour (2 portes), place → ateliers, tunnel, toit → salle du boss, tour → ravin, wall-run est encore valide ; les ennemis rejoignent la cour depuis la terrasse (navmesh relie les 4 niveaux) ; host+client (13 ennemis, checkpoint, respawn)
 - [ ] **À jouer par le développeur** : tout le level design (lisibilité, longueur, difficulté, routes discrète/verticale, exposition de CP1, ravin, toits)
+- Note : l'alerte partagée a un rayon de 60 m (`alert_share_radius`) et ignore les murs : dans un secteur de 88 m, une alerte à la cour réveille presque tout ; à régler en jouant (par exemple 30 m)
 - [ ] Non fait : ascenseur/changement de scène hub → secteur, boss, objectifs, décor ; pas de parapets sur les toits ; ennemis de toit/terrasse jamais testés en combat ; wall-run est vérifié une fois (timing d'un joueur réel à valider)
 
 ## Ensuite (une couche à la fois, jouable et vérifiée)

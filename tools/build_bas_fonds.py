@@ -11,6 +11,9 @@ import os
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "game", "world")
 L1, L2, L3 = 3.5, 7.0, 10.5
+DOOR_H = 2.4  # hauteur de porte (métriques : 2.4 m)
+ROOM_H = 3.0  # hauteur libre des intérieurs (dalle de plafond au-dessus, jusqu'à L1)
+WALL_H = 18.0  # enceinte (enferme aussi la salle du boss)
 RAMP_ANGLE = math.radians(30.0)
 
 COLORS = {
@@ -34,6 +37,36 @@ class Scene:
 		self.materials = {}
 		self.nodes = []  # blocs de texte de nœuds
 		self.counter = 0
+		self.lights = []
+
+	def light(self, name, x, y, z, color, energy=1.2, rng=10.0):
+		"""Néon d'ambiance (repère de zone), sans ombre."""
+		self.lights.append('[node name="%s" type="OmniLight3D" parent="."]\ntransform = %s\nlight_color = Color(%s, %s, %s, 1)\n'
+			'light_energy = %s\nomni_range = %s\n' % (name, xf(x, y, z), color[0], color[1], color[2], energy, rng))
+
+	def wall_along_x(self, zone, name, z0, z1, x0, x1, y0, y1, gaps=()):
+		"""Mur le long de x (épaisseur z0..z1) avec des portes : gaps = [(a, b)] en x, linteau au-dessus de DOOR_H."""
+		cur = x0
+		for i, (a, b) in enumerate(sorted(gaps)):
+			if a > cur:
+				self.box(zone, "%s_s%d" % (name, i), cur, a, z0, z1, y0, y1)
+			if y0 + DOOR_H < y1:
+				self.box(zone, "%s_l%d" % (name, i), a, b, z0, z1, y0 + DOOR_H, y1)
+			cur = b
+		if cur < x1:
+			self.box(zone, "%s_e" % name, cur, x1, z0, z1, y0, y1)
+
+	def wall_along_z(self, zone, name, x0, x1, z0, z1, y0, y1, gaps=()):
+		"""Mur le long de z (épaisseur x0..x1) avec des portes : gaps = [(a, b)] en z."""
+		cur = z0
+		for i, (a, b) in enumerate(sorted(gaps)):
+			if a > cur:
+				self.box(zone, "%s_s%d" % (name, i), x0, x1, cur, a, y0, y1)
+			if y0 + DOOR_H < y1:
+				self.box(zone, "%s_l%d" % (name, i), x0, x1, a, b, y0 + DOOR_H, y1)
+			cur = b
+		if cur < z1:
+			self.box(zone, "%s_e" % name, x0, x1, cur, z1, y0, y1)
 
 	def _mesh_id(self, size):
 		key = tuple(round(v, 3) for v in size)
@@ -100,6 +133,7 @@ class Scene:
 		out.append(ENV_AND_NAV)
 		out.append('[node name="%s" type="Node3D"]\n' % self.root)
 		out.append(SKY_NODES)
+		out.extend(self.lights)
 		out.append('[node name="World" type="Node3D" parent="."]\n')
 		out.extend(n for n in self.nodes)
 		out.append(header_nodes)
@@ -192,12 +226,12 @@ def build_sector():
 	s = Scene("SectorBasFonds")
 	# --- sol et enceinte (x -18..18, z -44..44) ---
 	s.box("ground", "Floor", -19, 19, -45, 45, -1, 0)
-	s.box("edge", "WallSouth", -19, 19, 44, 45, 0, 14)
-	s.box("edge", "WallNorth", -19, 19, -45, -44, 0, 14)
-	s.box("edge", "WallWest", -19, -18, -45, 45, 0, 14)
-	s.box("edge", "WallEast", 18, 19, -45, 45, 0, 14)  # mur de wall-run de la cour (x=18)
+	s.box("edge", "WallSouth", -19, 19, 44, 45, 0, WALL_H)
+	s.box("edge", "WallNorth", -19, 19, -45, -44, 0, WALL_H)
+	s.box("edge", "WallWest", -19, -18, -45, 45, 0, WALL_H)
+	s.box("edge", "WallEast", 18, 19, -45, 45, 0, WALL_H)  # mur de wall-run de la cour (x=18)
 
-	# --- Zone A : cour d'entrée, mur nord z 23..24 avec portail, conduit bas et couloir de wall-run ---
+	# --- Zone A : cour d'entrée (extérieur), mur nord z 23..24 avec portail, conduit bas et couloir de wall-run ---
 	s.box("a", "A_N1", -18, -17, 23, 24, 0, 6)
 	s.box("a", "A_N2_Lintel", -17, -15, 23, 24, 1.3, 6)  # ouverture basse du conduit
 	s.box("a", "A_N3", -15, -1.5, 23, 24, 0, 6)  # portail frontal : x -1.5..1.5
@@ -205,35 +239,75 @@ def build_sector():
 	s.box("a", "Duct_L", -17.5, -17, 17, 23, 0, 1.8)
 	s.box("a", "Duct_R", -15, -14.5, 17, 23, 0, 1.8)
 	s.box("a", "Duct_Roof", -17.5, -14.5, 17, 23, 1.3, 1.8)
-	s.box("cover", "A_Barrier", -9, 9, 36, 37, 0, 2.4)  # coupe la vue des gardes vers le point d'apparition (z 42)
+	s.box("a", "A_Barrier", -9, 9, 36, 37, 0, 2.4)  # coupe la vue des gardes vers le point d'apparition (z 42)
 	s.box("cover", "A_CrateW", -12, -10, 34, 36, 0, 1.2)
 	s.box("cover", "A_CrateE", 10, 12, 36, 38, 0, 1.2)
+	s.light("A_Neon", 0, 5, 30, (0.5, 0.6, 1.0), 1.5, 22)
 
-	# --- Zone B : marché ; blocs de mezzanine ouest/est, marches à sauter, couverture ---
-	s.box("b", "B_BlockW", -18, -6, -10, 14, 0, L1)
-	s.box("b", "B_BlockE", 6, 18, -10, 21, 0, L1)
-	s.ramp_north("RampW1", -11.5, 3, 14, L1, L1)  # rampe : rejoint la mezzanine ouest à z 14 (départ z ~20.2)
-	s.box("cover", "StepE1", 4, 6, 13, 15, 0, 1.2)  # deux marches à sauter (1.2 puis 2.4) vers la mezzanine est
+	# --- Zone B : place (extérieur) entre deux bâtiments creux ---
+	# Entrepôt ouest (x -18..-7, z -9..13) : portes sur la place et depuis le conduit ; dalle de toit = mezzanine ouest
+	s.wall_along_z("b", "WhE", -7, -6, -10, 14, 0, ROOM_H, gaps=[(9, 11.5), (-3, -0.5)])
+	s.wall_along_x("b", "WhS", 13, 14, -18, -6, 0, ROOM_H, gaps=[(-17, -15)])  # porte du conduit
+	s.wall_along_x("b", "WhN", -10, -9, -18, -6, 0, ROOM_H, gaps=[(-13, -10.5)])  # porte vers la tour ouest
+	s.wall_along_x("b", "WhMid", 2.7, 3.3, -18, -7, 0, ROOM_H, gaps=[(-13, -10.5)])
+	s.box("b", "WhRoof", -18, -6, -10, 14, ROOM_H, L1)
+	s.box("cover", "WhCrate1", -17, -15, 8, 10, 0, 1.2)
+	s.box("cover", "WhCrate2", -10, -8, 6, 8, 0, 1.2)
+	s.box("cover", "WhCrate3", -16, -14, -6, -4, 0, 1.2)
+	s.box("cover", "WhCrate4", -9.5, -7.5, -6, -4, 0, 1.2)
+	s.light("Wh_L1", -12, 2.6, 8, (1.0, 0.75, 0.4), 1.5, 9)
+	s.light("Wh_L2", -12, 2.6, -4, (1.0, 0.75, 0.4), 1.5, 9)
+	# Ateliers est (x 7..18, z -9..20) : portes sur la place et depuis le couloir de wall-run ; dalle = mezzanine est
+	s.wall_along_z("b", "WsW", 6, 7, -10, 21, 0, ROOM_H, gaps=[(1, 3.5), (-6.5, -4)])
+	s.wall_along_x("b", "WsS", 20, 21, 7, 18, 0, ROOM_H, gaps=[(14.5, 17.5)])
+	s.wall_along_x("b", "WsN", -10, -9, 7, 18, 0, ROOM_H, gaps=[(10.5, 13)])  # porte vers la tour est
+	s.wall_along_x("b", "WsMid", 4.7, 5.3, 7, 18, 0, ROOM_H, gaps=[(11, 13.5)])
+	s.box("b", "WsRoof", 6, 18, -10, 21, ROOM_H, L1)
+	s.box("cover", "WsCrate1", 8, 10, 14, 16, 0, 1.2)
+	s.box("cover", "WsCrate2", 15, 17, 8, 10, 0, 1.2)
+	s.box("cover", "WsCrate3", 8, 10, -6, -4, 0, 1.2)
+	s.box("cover", "WsCrate4", 14.5, 16.5, -6, -4, 0, 1.2)
+	s.light("Ws_L1", 12, 2.6, 12, (0.4, 0.9, 1.0), 1.5, 9)
+	s.light("Ws_L2", 12, 2.6, -4, (0.4, 0.9, 1.0), 1.5, 9)
+	# rampe ouest, marches à sauter vers la mezzanine est, couverture de la place
+	s.ramp_north("RampW1", -11.5, 3, 14, L1, L1)
+	s.box("cover", "StepE1", 4, 6, 13, 15, 0, 1.2)
 	s.box("cover", "StepE2", 4, 6, 10.5, 13, 0, 2.4)
 	for i, (x0, x1, z0, z1) in enumerate([(-4, -2, 14, 16), (2, 4, 8, 10), (-3, -1, 2, 4), (1, 3, -1, 1),
 			(-5.5, -4, 7, 9), (-5.5, -4, 16, 18)], 1):
 		s.box("cover", "B_Cover%d" % i, x0, x1, z0, z1, 0, 1.1)
 	s.box("b", "Terminal", -0.6, 0.6, -3.6, -2.4, 0, 1.5, glow="terminal")
+	s.light("B_NeonC", 0, 5, 8, (0.2, 0.9, 1.0), 1.6, 16)
+	s.light("B_NeonM", 0, 5, -2, (1.0, 0.3, 0.8), 1.4, 14)
 
-	# --- Zone C : tours (toits à 7 m), rampes de mezzanine, passerelle, ravin x -6..6 ---
-	s.box("c", "C_TowerW", -18, -6, -30, -10, 0, L2)
-	s.box("c", "C_TowerE", 6, 18, -30, -10, 0, L2)
+	# --- Zone C : tunnel du ravin (toit à 7 m) et salles des machines au pied des tours ---
+	s.box("c", "C_TowerW", -18, -6, -30, -10, ROOM_H, L2)  # masse pleine au-dessus de la salle des machines
+	s.box("c", "C_TowerE", 6, 18, -30, -10, ROOM_H, L2)
+	s.wall_along_z("c", "TwW", -7, -6, -30, -10, 0, ROOM_H, gaps=[(-16, -13.5), (-26, -23.5)])
+	s.wall_along_z("c", "TwE", 6, 7, -30, -10, 0, ROOM_H, gaps=[(-16, -13.5), (-26, -23.5)])
+	s.box("c", "C_RavineRoof", -6, 6, -30, -10, 6.6, L2)  # le ravin devient un tunnel de 12 x 7 m
+	s.box("cover", "C_Cover1", -18, -16, -22, -20, 0, 1.2)
+	s.box("cover", "C_Cover2", 16, 18, -20, -18, 0, 1.2)
+	s.box("cover", "C_Cover3", -3, -1, -20, -18, 0, 1.1)
+	s.box("cover", "C_Cover4", 1, 3, -26, -24, 0, 1.1)
+	s.light("C_TunnelA", 0, 5.5, -14, (1.0, 0.5, 0.2), 1.5, 14)
+	s.light("C_TunnelB", 0, 5.5, -26, (1.0, 0.5, 0.2), 1.5, 14)
+	s.light("C_EngW", -12, 2.6, -20, (0.5, 1.0, 0.6), 1.5, 10)
+	s.light("C_EngE", 12, 2.6, -20, (0.5, 1.0, 0.6), 1.5, 10)
 	s.ramp_north("RampW2", -12.5, 3, -10, L2, L2 - L1)
 	s.ramp_north("RampE2", 12.5, 3, -10, L2, L2 - L1)
-	s.box("c", "C_Bridge", -6, 6, -21.5, -18.5, 6.6, L2)
 
-	# --- Zone D : terrasse du boss (y 10.5), rampes depuis chaque toit ---
+	# --- Zone D : salle du boss fermée (terrasse y 10.5, murs et plafond), entrées par les rampes des toits ---
 	s.box("d", "D_Terrace", -18, 18, -44, -30, 0, L3)
 	s.ramp_north("RampW3", -12.5, 3, -30, L3, L3 - L2)
 	s.ramp_north("RampE3", 12.5, 3, -30, L3, L3 - L2)
+	s.wall_along_x("d", "D_SouthWall", -31, -30, -18, 18, L3, L3 + 6, gaps=[(-14, -11), (11, 14)])
+	s.box("d", "D_Ceiling", -18, 18, -44, -30, L3 + 6, L3 + 7)
 	for i, (x0, x1, z0, z1, h) in enumerate([(-9, -7, -35, -33, 1.2), (7, 9, -37, -35, 1.2), (-2, 2, -41, -39, 1.2)], 1):
 		s.box("cover", "D_Cover%d" % i, x0, x1, z0, z1, L3, L3 + h)
 	s.box("d", "BossMark", -1, 1, -43.5, -42.5, L3, L3 + 0.2, glow="boss")
+	s.light("D_NeonL", -10, L3 + 5, -38, (1.0, 0.2, 0.6), 1.8, 14)
+	s.light("D_NeonR", 10, L3 + 5, -38, (1.0, 0.2, 0.6), 1.8, 14)
 
 	routes = {
 		"RouteGateA": [(-4, 0, 27), (4, 0, 27)],
@@ -241,7 +315,10 @@ def build_sector():
 		"RouteLaneA": [(12, 0, 26), (16, 0, 26)],
 		"RoutePlazaB": [(-4, 0, 15), (4, 0, 15), (4, 0, 3), (-4, 0, 3)],
 		"RouteTerminalB": [(-4, 0, -5), (4, 0, -5)],
-		"RouteMezzB": [(-14, L1, 10), (-14, L1, -2)],
+		"RouteWarehouseW": [(-12, 0, 9), (-12, 0, -6)],
+		"RouteWorkshopE": [(12, 0, 17), (12, 0, -6)],
+		"RouteEngineW": [(-12, 0, -14), (-12, 0, -26)],
+		"RouteEngineE": [(12, 0, -14), (12, 0, -26)],
 		"RouteRavineC": [(0, 0, -12), (0, 0, -27)],
 		"RouteRoofWC": [(-9, L2, -14), (-9, L2, -22)],
 		"RouteRoofEC": [(9, L2, -14), (9, L2, -24)],
@@ -249,7 +326,9 @@ def build_sector():
 	}
 	enemies = [
 		("GuardGateA", "guard", "RouteGateA"), ("GuardCourtA", "guard", "RouteCourtA"), ("GuardLaneA", "guard", "RouteLaneA"),
-		("GuardPlazaB", "guard", "RoutePlazaB"), ("AgentTerminalB", "agent", "RouteTerminalB"), ("GuardMezzB", "guard", "RouteMezzB"),
+		("GuardPlazaB", "guard", "RoutePlazaB"), ("AgentTerminalB", "agent", "RouteTerminalB"),
+		("GuardWarehouseW", "guard", "RouteWarehouseW"), ("AgentWorkshopE", "agent", "RouteWorkshopE"),
+		("GuardEngineW", "guard", "RouteEngineW"), ("GuardEngineE", "guard", "RouteEngineE"),
 		("GuardRavineC", "guard", "RouteRavineC"), ("AgentRoofWC", "agent", "RouteRoofWC"), ("GuardRoofEC", "guard", "RouteRoofEC"),
 		("EliteTerraceD", "elite", "RouteTerraceD"),
 	]
@@ -260,7 +339,7 @@ def build_sector():
 		'spawn_path = NodePath("../Enemies")\nscript = ExtResource("spawner")\nconfig = ExtResource("rcfg")\npoints = NodePath("../ReinforcementPoints")\n\n'
 	body += '[node name="SpawnPoints" type="Node3D" parent="."]\n\n' \
 		+ marker("SpawnPoints", "Spawn1", -2, 0.1, 42, "spawn_points") + "\n" + marker("SpawnPoints", "Spawn2", 2, 0.1, 42, "spawn_points") + "\n"
-	for i, (x, y, z) in enumerate([(0, 0, 20), (-14, L1, 6), (-9, L2, -13)], 1):
+	for i, (x, y, z) in enumerate([(-15.5, 0, 15.5), (-14, L1, 6), (-9, L2, -13)], 1):
 		body += '[node name="Checkpoint%d" parent="." instance=ExtResource("checkpoint")]\ntransform = %s\n\n' % (i, xf(x, y, z))
 	return s.render(body, COMMON_TAIL)
 
