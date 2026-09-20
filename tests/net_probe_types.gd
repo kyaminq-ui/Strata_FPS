@@ -25,7 +25,7 @@ func _process(delta: float) -> bool:
 		var enemies := _main.get_node_or_null("ArenaInfiltration/Enemies")
 		if enemies:
 			for enemy in enemies.get_children():
-				if enemy is Enemy:
+				if "net_state" in enemy:
 					var p: Vector3 = enemy.global_position
 					parts.append("%s[%s %s hp=%d (%.0f,%.0f)]" % [enemy.name, enemy.config.display_name, enemy.net_state, enemy.get_node("Health").health, p.x, p.z])
 		print("[types probe] t=%.0f %s" % [_elapsed, " ".join(parts)])

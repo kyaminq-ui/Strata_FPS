@@ -1,5 +1,6 @@
 [gd_scene load_steps=40 format=3]
 
+[ext_resource type="PackedScene" path="res://game/world/checkpoint.tscn" id="checkpoint"]
 [ext_resource type="Script" path="res://game/multiplayer/player_spawner.gd" id="ps"]
 [ext_resource type="Script" path="res://game/multiplayer/grenade_spawner.gd" id="gs"]
 [ext_resource type="PackedScene" path="res://game/ai/enemy.tscn" id="enemy"]
@@ -346,6 +347,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, 20)
 
 [node name="Spawn2" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, 20)
+
+[node name="Checkpoint1" parent="." instance=ExtResource("checkpoint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, -2)
 
 [node name="Players" type="Node3D" parent="."]
 [node name="Grenades" type="Node3D" parent="."]

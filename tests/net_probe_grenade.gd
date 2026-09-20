@@ -40,7 +40,7 @@ func _process(delta: float) -> bool:
 	var container := _main.get_node_or_null("ArenaGraybox/Grenades")
 	if players == null or container == null or _elapsed < SETTLE_SECONDS:
 		return false
-	var me := players.get_node_or_null(str(root.multiplayer.get_unique_id())) as Player
+	var me = players.get_node_or_null(str(root.multiplayer.get_unique_id()))
 	if me == null:
 		return false
 	if not _bound:
@@ -79,8 +79,8 @@ func _process(delta: float) -> bool:
 	return false
 
 
-func _aim_and_fire(me: Player, grenade: Node3D) -> void:
-	var to_grenade := grenade.global_position - me.camera.global_position
+func _aim_and_fire(me, grenade: Node3D) -> void:
+	var to_grenade = grenade.global_position - me.camera.global_position
 	me.rotation.y = atan2(-to_grenade.x, -to_grenade.z)
 	me.get_node("Head").rotation.x = atan2(to_grenade.y, Vector2(to_grenade.x, to_grenade.z).length())
 	Input.action_press("fire")

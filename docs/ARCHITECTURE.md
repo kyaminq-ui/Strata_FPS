@@ -34,14 +34,14 @@ Le mouvement lit **uniquement** `MovementConfig` (Resource). Il est réparti en 
 `WeaponData` (Resource, données seules) → `WeaponController` (enfant `Weapon` de `Player`, logique de tir + RPC) → `HealthComponent` (composant réutilisable, joueur/ennemis/cibles). `MeleeController` (+ `MeleeConfig`) : mêlée, même schéma réseau. `GrenadeThrower` + `Grenade` + `GrenadeSpawner` (multiplayer/) : gadget explosif (config `GrenadeConfig`). `Tracer` = trait cosmétique. HUD local (`game/ui/player_hud`) créé par `Player` pour l'autorité uniquement. Détails réseau : NETWORK.md.
 
 ## Vie du joueur
-`Player` compose : `Health` (`HealthComponent`), `Life` (`PlayerLife` : down/respawn/réanimation, config `LifeConfig`), `Reviver` (`PlayerReviver` : demande de réanimation côté client). `Player.can_act()` (souris capturée et pas down) conditionne tir et réanimation ; `Player.respawn_at()` replace le joueur. Les marqueurs d'apparition sont dans le groupe `spawn_points` (pas de checkpoints réels pour l'instant).
+`Player` compose : `Health` (`HealthComponent`), `Life` (`PlayerLife` : down/respawn/réanimation, config `LifeConfig`), `Reviver` (`PlayerReviver` : demande de réanimation côté client). `Player.can_act()` (souris capturée et pas down) conditionne tir et réanimation ; `Player.respawn_at()` replace le joueur. Les marqueurs d'apparition sont dans le groupe `spawn_points` ; `Checkpoint` (`game/world/checkpoint.tscn`, Area3D) les remplace dès qu'un joueur en active un.
 
 ## Collision layers
 1 = monde · 2 = joueurs · 3 = ennemis · 4 = projectiles/hitboxes.
 
 ## Autoloads
 - `MultiplayerManager` : cycle de vie de la connexion ENet, signaux `player_connected/disconnected`, `connection_failed`, `server_disconnected`. Aucun gameplay.
-- `GameSession` (GDD) : **reporté** tant qu'il n'y a ni checkpoints ni état de mission.
+- `GameSession` : autoload mince, décidé par le host. Dernier checkpoint actif (`set_checkpoint`), `respawn_position(slot)` (checkpoint sinon marqueurs `spawn_points`), `reset_encounter()` (appelle `reset_encounter` de tous les ennemis). Reset appelé par `main.gd` en entrant/quittant une arène. Le checkpoint y est non typé exprès (dépendance circulaire avec `Checkpoint`). L'état de mission viendra ici (4.4).
 - `_mcp_game_helper` : addon godot-ai (ne pas toucher).
 
 ## Dette / hypothèses

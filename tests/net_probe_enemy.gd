@@ -13,6 +13,9 @@ const AIM_HEIGHT := 1.0
 const TELEPORT_LEAD := 0.4
 const END_SECONDS := 22.0  # laisse le temps aux renforts d'arriver (delay 8 s après l'alerte)
 
+## = WeaponController.HEAD_HEIGHT (pas de référence de classe du jeu : la sonde est compilée avant les autoloads)
+const HEAD_HEIGHT := 1.6
+
 var _elapsed := 0.0
 var _next_log := 0.0
 var _shots := 0
@@ -29,7 +32,7 @@ func _initialize() -> void:
 
 func _process(delta: float) -> bool:
 	_elapsed += delta
-	var player := _find_local_player()
+	var player = _find_local_player()
 	if player == null or _elapsed < SETTLE_SECONDS:
 		return false
 	if not _bound:
@@ -44,7 +47,7 @@ func _process(delta: float) -> bool:
 	return false
 
 
-func _shoot_phase(player: Player) -> void:
+func _shoot_phase(player) -> void:
 	var due := SHOOT_START + _shots * SHOT_INTERVAL
 	if _shots < SHOTS and _elapsed >= due - TELEPORT_LEAD:
 		var enemy := _enemy("Enemy1")
@@ -61,9 +64,9 @@ func _shoot_phase(player: Player) -> void:
 		quit()
 
 
-func _aim(player: Player, target: Vector3) -> void:
-	var eye := player.global_position + Vector3.UP * WeaponController.HEAD_HEIGHT
-	var to_target := target - eye
+func _aim(player, target: Vector3) -> void:
+	var eye = player.global_position + Vector3.UP * HEAD_HEIGHT
+	var to_target = target - eye
 	player.rotation.y = atan2(-to_target.x, -to_target.z)
 	player.get_node("Head").rotation.x = atan2(to_target.y, Vector2(to_target.x, to_target.z).length())
 
@@ -71,7 +74,7 @@ func _aim(player: Player, target: Vector3) -> void:
 func _enemy_names() -> String:
 	var names: PackedStringArray = []
 	for enemy in _main.get_node("ArenaGraybox/Enemies").get_children():
-		if enemy is Enemy:  # les traits cosmétiques sont aussi enfants de ce nœud
+		if "net_state" in enemy:  # les traits cosmétiques sont aussi enfants de ce nœud
 			names.append("%s:%s" % [enemy.name, enemy.net_state])
 	return ",".join(names)
 
@@ -86,8 +89,8 @@ func _describe(enemy_name: String) -> String:
 	return "%s (%.1f, %.1f) %s hp=%d" % [enemy_name, p.x, p.z, enemy.net_state, enemy.get_node("Health").health]
 
 
-func _find_local_player() -> Player:
+func _find_local_player():
 	var players := _main.get_node_or_null("ArenaGraybox/Players")
 	if players == null:
 		return null
-	return players.get_node_or_null(str(root.multiplayer.get_unique_id())) as Player
+	return players.get_node_or_null(str(root.multiplayer.get_unique_id()))

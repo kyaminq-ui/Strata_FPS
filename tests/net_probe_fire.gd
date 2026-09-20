@@ -9,6 +9,9 @@ const SHOTS := 3
 const SHOT_INTERVAL := 1.0
 const TARGET := Vector3(3.0, 1.0, -6.0)  # poitrine de Dummy1
 
+## = WeaponController.HEAD_HEIGHT (pas de référence de classe du jeu : la sonde est compilée avant les autoloads)
+const HEAD_HEIGHT := 1.6
+
 var _elapsed := 0.0
 var _shots_fired := 0
 var _hits := 0
@@ -32,7 +35,7 @@ func _initialize() -> void:
 
 func _process(delta: float) -> bool:
 	_elapsed += delta
-	var player := _find_local_player()
+	var player = _find_local_player()
 	if player == null or _elapsed < SETTLE_SECONDS:
 		return false
 	_watch_host_weapon()
@@ -69,15 +72,15 @@ func _watch_host_weapon() -> void:
 	_host_flash_was_visible = flash.visible
 
 
-func _find_local_player() -> Player:
+func _find_local_player():
 	var players := _main.get_node_or_null("ArenaGraybox/Players")
 	if players == null:
 		return null
-	return players.get_node_or_null(str(root.multiplayer.get_unique_id())) as Player
+	return players.get_node_or_null(str(root.multiplayer.get_unique_id()))
 
 
-func _aim_at_target(player: Player) -> void:
-	var eye := player.global_position + Vector3.UP * WeaponController.HEAD_HEIGHT
-	var to_target := TARGET - eye
+func _aim_at_target(player) -> void:
+	var eye = player.global_position + Vector3.UP * HEAD_HEIGHT
+	var to_target = TARGET - eye
 	player.rotation.y = atan2(-to_target.x, -to_target.z)
 	player.get_node("Head").rotation.x = atan2(to_target.y, Vector2(to_target.x, to_target.z).length())

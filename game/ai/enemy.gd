@@ -162,9 +162,23 @@ func _on_died(_by_peer: int) -> void:
 	net_state = "DEAD"
 	add_to_group("enemy_bodies")
 	await get_tree().create_timer(config.respawn_delay).timeout
+	if not _health.is_dead():
+		return  # déjà remis à zéro par reset_encounter()
 	if not respawns:
 		queue_free()
 		return
+	_reset()
+
+
+## Host : la rencontre repart de zéro (renforts supprimés, ennemis remis à leur poste, vivants ou morts).
+func reset_encounter() -> void:
+	if not respawns:
+		queue_free()
+	else:
+		_reset()
+
+
+func _reset() -> void:
 	remove_from_group("enemy_bodies")
 	get_tree().call_group("perception", "forget_body", self)
 	_health.reset()

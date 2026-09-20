@@ -50,5 +50,5 @@ func _report(label: String) -> void:
 		print("[probe ", label, "] pas d'arène")
 		return
 	print("[probe ", label, "] my_id=", root.multiplayer.get_unique_id(), " players=", players.get_child_count())
-	for p: Player in players.get_children():
+	for p in players.get_children():
 		print("  joueur ", p.name, " authority=", p.is_multiplayer_authority(), " pos=", p.global_position, " yaw=", p.rotation.y)

@@ -26,8 +26,8 @@ func _process(delta: float) -> bool:
 	var players := _main.get_node_or_null("ArenaGraybox/Players")
 	if players == null or _elapsed < SETTLE_SECONDS:
 		return false
-	var me := players.get_node_or_null(str(root.multiplayer.get_unique_id())) as Player
-	var host_player := players.get_node_or_null("1") as Player
+	var me = players.get_node_or_null(str(root.multiplayer.get_unique_id()))
+	var host_player = players.get_node_or_null("1")
 	if me == null or host_player == null:
 		return false
 	if not _bound:

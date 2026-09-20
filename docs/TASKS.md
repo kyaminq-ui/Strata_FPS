@@ -179,6 +179,13 @@
 - [ ] Reste 4.0 : passe de feel sur le Milestone 3 avec le développeur (valeurs `.tres`) ; interpolation des ennemis non mesurée finement (seulement via les tirs)
 - [x] Lean : mapping corrigé sur demande (Mouse5 = gauche, Mouse4 = droite ; Q/E inchangés)
 
+## Phase 4.1 — GameSession + checkpoints
+- [x] `GameSession` (autoload), `Checkpoint` (scène + script), un checkpoint dans l'arène d'infiltration (7, 0, -2) ; `PlayerLife` respawn via `GameSession.respawn_position` ; `Enemy.reset_encounter()` (+ garde contre le timer de respawn périmé) ; `main.gd` reset la session à l'entrée/sortie d'arène
+- [x] Vérifié solo : départ sur le marqueur (z=20), passage sur le checkpoint → actif, mort → réapparition au checkpoint (6.25, -2) et ennemi mort remis à son poste. Vérifié host+client : le client voit le checkpoint actif (`cp=true`), tous down → respawn ensemble sur le checkpoint (slots 6.25 / 7.75), ennemi ressuscité, 0 erreur ; le client retombe ensuite et respawn à nouveau sur le checkpoint
+- [x] Sondes de test : plus de références aux classes du jeu (compilation headless avant les autoloads), toutes compilent (`--check-only`), sonde de tir/ennemis revalidée (4/5)
+- [ ] Non vérifié : suppression des renforts au reset (code `queue_free`, pas déclenché en test) ; `Enemy` `_on_died` encore en attente pendant un reset : le nouveau garde `is_dead()` évite le double reset mais un ennemi qui meurt à nouveau avant la fin du vieux timer pourrait ressusciter un peu tôt (cas rare)
+- [ ] À voir en jouant : un seul checkpoint dans le prototype, placé arbitrairement (les vrais viendront avec le secteur 4.3)
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 

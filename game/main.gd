@@ -60,12 +60,14 @@ func _start_join(address: String) -> void:
 
 func _enter_arena() -> void:
 	_menu.hide()
+	GameSession.reset()
 	_arena = ARENAS[_arena_picker.selected].instantiate()
 	add_child(_arena)
 
 
 func _return_to_menu(message: String) -> void:
 	MultiplayerManager.leave()
+	GameSession.reset()
 	if _arena:
 		_arena.queue_free()
 		_arena = null

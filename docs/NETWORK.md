@@ -56,6 +56,9 @@ Sonde de tir : `godot --headless --path . -s tests/net_probe_fire.gd -- --join=1
 Sonde de mouvement (client headless, avance 6 s puis affiche ce qu'il voit) : `godot --headless --path . -s tests/net_probe.gd -- --join=127.0.0.1` pendant qu'un host tourne.
 Vérifier : 2 joueurs visibles des deux côtés, positions/orientations cohérentes, déconnexion propre (le client retourne au menu si le host part), solo intact.
 
+## Checkpoints et reset de rencontre
+`Checkpoint` (Area3D statique dans l'arène, mêmes chemins chez tous) : seul le host détecte le passage d'un joueur debout et appelle `GameSession.set_checkpoint`, qui envoie le RPC `set_active` (autorité host, `call_local`, fiable) au nouveau et à l'ancien checkpoint (affichage seulement). Le respawn reste ordonné par le host (`Player.respawn_at(GameSession.respawn_position(slot))`, slot = index du joueur sous `Players`, 2 emplacements écartés de `slot_spacing`). Quand le dernier joueur debout tombe (solo, ou tous down), `PlayerLife._respawn` appelle `GameSession.reset_encounter()` : ennemis remis à leur poste (vivants ou morts), renforts supprimés (le `EnemySpawner` les despawn chez le client). Un joueur qui respawn seul (partenaire debout) ne reset rien.
+
 ## Latence simulée (test)
 `DelayedPeer` (`game/autoload/delayed_peer.gd`, enveloppe du peer ENet créée par `MultiplayerManager`) retarde les paquets SORTANTS de l'instance : `-- --lag=<ms> [--jitter=<ms>]` (ou `MultiplayerManager.lag_ms`/`jitter_ms` avant `_start_host()`). RTT ≈ lag du host + lag du client. Le peer ne réordonne jamais. Mesures (`net_probe_enemy.gd`, 5 tirs sur un ennemi mobile) : sans latence 4/5 ; RTT 100 ms (50+50, gigue 10) 4/5 ; RTT 200 ms (100+100, gigue 30) 4/5 avec `window` 0.3 (2/5 avec 0.15). Vie/down/réanimation sous RTT 260 ms : OK (client voit down puis réanimé à 50 PV).
 

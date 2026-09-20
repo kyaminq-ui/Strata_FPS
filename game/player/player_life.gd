@@ -85,15 +85,13 @@ func _revive() -> void:
 
 
 func _respawn() -> void:
+	if _other_alive_players().is_empty():
+		GameSession.reset_encounter()  # dernier debout tombé (solo ou tous down) : la rencontre repart de zéro
 	downed = false
 	revive_progress = 0.0
 	_reviver_id = 0
 	_health.reset()
-	var markers := get_tree().get_nodes_in_group("spawn_points")
-	var position := Vector3.ZERO
-	if not markers.is_empty():
-		position = (markers[_player.name.to_int() % markers.size()] as Node3D).global_position
-	_player.respawn_at(position)
+	_player.respawn_at(GameSession.respawn_position(_player.get_index()))
 
 
 func _valid_reviver() -> Player:
