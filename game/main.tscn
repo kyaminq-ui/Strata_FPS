@@ -56,11 +56,15 @@ text = "Join"
 unique_name_in_owner = true
 layout_mode = 2
 selected = 0
-item_count = 2
+item_count = 4
 popup/item_0/text = "Arène de test (combat)"
 popup/item_0/id = 0
 popup/item_1/text = "Arène d'infiltration"
 popup/item_1/id = 1
+popup/item_2/text = "Hub (graybox)"
+popup/item_2/id = 2
+popup/item_3/text = "Secteur Bas-fonds (graybox)"
+popup/item_3/id = 3
 
 [node name="Status" type="Label" parent="Menu/Center/VBox" unique_id=2108424720]
 unique_name_in_owner = true

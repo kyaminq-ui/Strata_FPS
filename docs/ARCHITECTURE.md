@@ -36,6 +36,9 @@ Le mouvement lit **uniquement** `MovementConfig` (Resource). Il est réparti en 
 ## Vie du joueur
 `Player` compose : `Health` (`HealthComponent`), `Life` (`PlayerLife` : down/respawn/réanimation, config `LifeConfig`), `Reviver` (`PlayerReviver` : demande de réanimation côté client). `Player.can_act()` (souris capturée et pas down) conditionne tir et réanimation ; `Player.respawn_at()` replace le joueur. Les marqueurs d'apparition sont dans le groupe `spawn_points` ; `Checkpoint` (`game/world/checkpoint.tscn`, Area3D) les remplace dès qu'un joueur en active un.
 
+## Monde (`game/world/`)
+`arena_graybox.tscn` et `arena_infiltration.tscn` (arènes de test), `hub_graybox.tscn` et `sector_bas_fonds.tscn` (blockout de la vertical slice, **générés** par `tools/build_bas_fonds.py`), `checkpoint.tscn`, `damage_zone`, `training_dummy`. Brief du secteur : `SECTOR_BRIEF.md`.
+
 ## Collision layers
 1 = monde · 2 = joueurs · 3 = ennemis · 4 = projectiles/hitboxes.
 

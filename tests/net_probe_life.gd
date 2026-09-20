@@ -21,7 +21,7 @@ func _process(delta: float) -> bool:
 	var me = players.get_node_or_null(str(root.multiplayer.get_unique_id())) if players else null
 	if me != null:
 		var cp := _checkpoints_active()
-		var line := "downed=%s hp=%d pos=(%.1f,%.1f) t_down=%.0f cp=%s" % [me.life.downed, roundi(me.health.health), me.global_position.x, me.global_position.z, me.life.down_time_left, cp]
+		var line := "downed=%s hp=%d pos=(%.1f,%.1f) t_down=%.0f cp=%s enemies=%d" % [me.life.downed, roundi(me.health.health), me.global_position.x, me.global_position.z, me.life.down_time_left, cp, get_nodes_in_group("enemies").size()]
 		var key := "downed=%s hp=%d pos=(%.1f,%.1f) cp=%s" % [me.life.downed, roundi(me.health.health), me.global_position.x, me.global_position.z, cp]
 		if key != _last:
 			print("[life probe %5.1fs] %s" % [_elapsed, line])

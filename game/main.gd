@@ -7,8 +7,10 @@ extends Node
 const ARENAS: Array[PackedScene] = [
 	preload("res://game/world/arena_graybox.tscn"),
 	preload("res://game/world/arena_infiltration.tscn"),
+	preload("res://game/world/hub_graybox.tscn"),
+	preload("res://game/world/sector_bas_fonds.tscn"),
 ]
-const ARENA_ARGS := {"graybox": 0, "infiltration": 1}
+const ARENA_ARGS := {"graybox": 0, "infiltration": 1, "hub": 2, "sector": 3}
 
 var _arena: Node
 

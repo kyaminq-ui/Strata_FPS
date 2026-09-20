@@ -191,6 +191,13 @@
 - [x] Constats utiles : aucune marche franchie (même 0.2 m) → pas d'escaliers ; le saut de mur ne sert pas au wall-to-wall
 - [ ] Non mesuré : slide/dash en pente, wall-run sur mur courbe ou incliné, distances à deux joueurs
 
+## Phase 4.3 — Blockout du secteur Bas-fonds + hub
+- [x] Brief (`SECTOR_BRIEF.md`), générateur `tools/build_bas_fonds.py` (positions dans le script) → `game/world/sector_bas_fonds.tscn` (36 × 88 m, 4 niveaux) et `hub_graybox.tscn` ; sélectionnables dans le menu de debug (`--arena=hub` / `--arena=sector`)
+- [x] Vérifié solo (simulation d'entrées) : rampes jusqu'à la terrasse (ouest et est), wall-run est → mezzanine est, marches à sauter, conduit bas, passerelle ; navmesh baké (284 sommets), 10 ennemis patrouillent sur les 4 niveaux ; hub chargé (capture)
+- [x] Vérifié host+client : le client rejoint (`--arena=sector`), voit 10 ennemis et 3 checkpoints, checkpoint actif chez lui, tous down → respawn ensemble sur le checkpoint ; aucun spawn sous le feu (barricade)
+- [ ] **À jouer par le développeur** : tout le level design (lisibilité, longueur, difficulté, routes discrète/verticale, exposition de CP1, ravin, toits)
+- [ ] Non fait : ascenseur/changement de scène hub → secteur, boss, objectifs, décor ; pas de parapets sur les toits ; ennemis de toit/terrasse jamais testés en combat ; wall-run est vérifié une fois (timing d'un joueur réel à valider)
+
 ## Ensuite (une couche à la fois, jouable et vérifiée)
 Milestone 1 à valider en entier (jeu à 2 en fenêtres) → combat → IA/infiltration → contenu.
 
